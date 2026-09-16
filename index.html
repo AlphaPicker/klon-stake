@@ -428,9 +428,9 @@
            </div>
 
            <select id="currency-select" onchange="changeCurrency(this.value)" style="width: auto; padding: 4px 8px; font-size: 0.82rem;">
-            <option value="€">EUR (€)</option>
-            <option value="$">USD ($)</option>
-            <option value="£">GBP (£)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="USD">USD ($)</option>
+            <option value="GBP">GBP (£)</option>
             <option value="CHF">CHF</option>
             <option value="CAD">CAD</option>
           </select>
@@ -477,7 +477,6 @@
           </div>
 
           <div id="fields-asset" style="display: flex; flex-direction: column; gap: 8px;">
-            <!-- ALIGNEMENT PARFAIT DES HAUTEURS DE LABELS VIA FLEX END ET HAUTEUR FIXE DE 20PX -->
             <div style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 8px;">
               <div>
                 <div style="height: 20px; display: flex; align-items: flex-end; margin-bottom: 2px;">
@@ -487,11 +486,13 @@
               </div>
               <div>
                 <div style="height: 20px; display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2px;">
-                  <label style="font-size: 0.72rem; font-weight: bold; display: block;" data-i18n="lbl_pru">Prix de revient (PRU)</label>
+                  <!-- PRU SUPPRIMÉ DES LIBELLÉS FR ET EN -->
+                  <label style="font-size: 0.72rem; font-weight: bold; display: block;" data-i18n="lbl_pru">Prix de revient</label>
                   <select id="in-asset-curr" style="width: auto; padding: 1px 4px; font-size: 0.7rem; color: var(--accent-orange); font-weight: bold;">
                     <option value="USD">USD ($)</option>
                     <option value="EUR">EUR (€)</option>
                     <option value="GBP">GBP (£)</option>
+                    <option value="CHF">CHF</option>
                   </select>
                 </div>
                 <input type="number" id="in-pru" placeholder="450.00" step="any">
@@ -503,7 +504,7 @@
                 <input type="number" id="in-cur-price" placeholder="Auto ou manuel" step="any">
               </div>
               <div>
-                <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_lombard">Dette Lombard Globale (€)</label>
+                <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_lombard">Dette Lombard Globale (<span class="curr-sym">€</span>)</label>
                 <input type="number" id="in-lombard-debt" placeholder="180000">
               </div>
             </div>
@@ -717,8 +718,8 @@
             <span>PRU : <strong id="m-stock-pru">0,00 $</strong></span>
           </div>
           <div style="display: flex; justify-content: space-between;">
-            <span><span data-i18n="modal_stock_val">Valeur Brute (en €) :</span> <strong id="m-stock-market-val" style="color: var(--accent-green-bright);">0 €</strong></span>
-            <span id="m-stock-plus-value">P/L : +0 $</span>
+            <span>Valeur Brute (<span class="curr-sym">€</span>) : <strong id="m-stock-market-val" style="color: var(--accent-green-bright);">0</strong></span>
+            <span id="m-stock-plus-value">P/L : +0</span>
           </div>
           <div id="m-stock-lombard-box" style="margin-top: 6px; font-size: 0.75rem; border-top: 1px dashed var(--border-color); padding-top: 6px; color: var(--accent-yellow);"></div>
         </div>
@@ -728,7 +729,6 @@
     </div>
   </div>
 
-  <!-- NOUVEAU MODAL DEDIE AUX BIENS (PROPERTIES) -->
   <div id="property-detail-modal" class="modal-overlay">
     <div class="modal-card" style="max-width: 400px; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -740,15 +740,15 @@
         <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
           <div style="color: var(--accent-blue); font-weight: bold; font-size: 0.72rem;">SOUVERAINETÉ SUR LE BIEN</div>
           <div id="m-prop-net-pct" style="font-size: 1.25rem; font-weight: 800; color: var(--text-bright); margin-top: 2px;">0 % de pleine propriété</div>
-          <div id="m-prop-net-val" style="font-size: 0.85rem; font-weight: bold; color: var(--accent-green-bright); margin-top: 4px;">Part nette : 0 €</div>
+          <div id="m-prop-net-val" style="font-size: 0.85rem; font-weight: bold; color: var(--accent-green-bright); margin-top: 4px;">Part nette : 0</div>
         </div>
 
         <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
           <div style="display: flex; justify-content: space-between;">
-            <span>Valeur vénale actuelle :</span> <strong id="m-prop-gross-val" style="color: var(--text-bright);">0 €</strong>
+            <span>Valeur vénale actuelle :</span> <strong id="m-prop-gross-val" style="color: var(--text-bright);">0</strong>
           </div>
           <div style="display: flex; justify-content: space-between;">
-            <span>Part de la Banque (Crédit) :</span> <strong id="m-prop-bank-debt" style="color: var(--accent-yellow);">0 €</strong>
+            <span>Part de la Banque (Crédit) :</span> <strong id="m-prop-bank-debt" style="color: var(--accent-yellow);">0</strong>
           </div>
         </div>
 
@@ -817,9 +817,9 @@
         lbl_ticker: "Ticker",
         lbl_name_general: "Nom du bien",
         lbl_qty: "Quantité",
-        lbl_pru: "Prix de revient (PRU)",
+        lbl_pru: "Prix de revient",
         lbl_cur_price: "Cours actuel",
-        lbl_lombard: "Dette Lombard Globale (€)",
+        lbl_lombard: "Dette Lombard Globale",
         lbl_shares_total: "Actions totales en circulation",
         lbl_val_actual: "Valeur vénale actuelle",
         lbl_debt_actual: "Crédit restant dû",
@@ -861,7 +861,7 @@
         footer_disclaimer: "⚠️ <strong>Avertissement :</strong> Cet outil sert de simulation personnelle et éducative. Il ne constitue en aucun cas un conseil en investissement ou une incitation financière.",
         modal_stock_share_lbl: "DÉTENTION ET FONDS PROPRES",
         modal_stock_live: "Cours :",
-        modal_stock_val: "Valeur Brute (en €) :",
+        modal_stock_val: "Valeur Brute :",
         modal_sov_title: "Souveraineté & Effet de Levier",
         modal_sov_text: "L'<strong>Indice de Souveraineté</strong> mesure la proportion exacte de ton patrimoine qui t'appartient en fonds propres nets :<br><br><code style=\"background: rgba(163, 113, 247, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-purple); font-weight: bold;\">(Patrimoine Net ÷ Actifs Bruts) × 100</code><br><br><strong>⚡ Bonne dette vs Mauvaise dette :</strong><br>• <strong>L'effet de levier productif (Bonne dette)</strong> : Crédit immobilier ou crédit Lombard. Emprunter pour capter le rendement d'actifs rentables accélère l'enrichissement.<br>• <strong>La dette destructrice (Mauvaise dette)</strong> : Crédits conso, passifs qui décotent sans produire de valeur.<br><br>Chaque remboursement et chaque acquisition augmente ta pleine souveraineté patrimoniale.",
         btn_close: "Fermer",
@@ -872,9 +872,9 @@
         debt_progress_msg: "Déjà remboursé : {repaid} ({pct}%)",
         debt_paid_msg: "🎉 Dette intégralement éradiquée !",
         modal_stock_shares_total: "du capital total",
-        modal_stock_lombard_title: "Dette Lombard globale (€) :",
+        modal_stock_lombard_title: "Dette Lombard globale :",
         modal_stock_lombard_share: "Part attribuée :",
-        modal_stock_lombard_net: "Valeur nette réelle (€) :",
+        modal_stock_lombard_net: "Valeur nette réelle :",
         modal_stock_equity_real: "{pct}% en fonds propres réels",
         badge_real_equity: "Fonds propres réels : <strong>{pct} %</strong> (Lombard déduit)",
         lbl_stock_singular: "action",
@@ -899,9 +899,9 @@
         lbl_ticker: "Ticker",
         lbl_name_general: "Property name",
         lbl_qty: "Quantity",
-        lbl_pru: "Cost Basis (PRU)",
+        lbl_pru: "Cost Basis",
         lbl_cur_price: "Current Price",
-        lbl_lombard: "Global Lombard Loan (€)",
+        lbl_lombard: "Global Lombard Loan",
         lbl_shares_total: "Total Shares Outstanding",
         lbl_val_actual: "Current Market Value",
         lbl_debt_actual: "Remaining Loan Balance",
@@ -943,7 +943,7 @@
         footer_disclaimer: "⚠️ <strong>Disclaimer:</strong> Educational and personal simulation only. Does not constitute financial advice.",
         modal_stock_share_lbl: "EQUITY OWNERSHIP",
         modal_stock_live: "Price:",
-        modal_stock_val: "Gross Value (in €):",
+        modal_stock_val: "Gross Value:",
         modal_sov_title: "Sovereignty & Leverage",
         modal_sov_text: "The <strong>Sovereignty Index</strong> measures the exact percentage of your gross wealth owned free and clear of all debts:<br><br><code style=\"background: rgba(163, 113, 247, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-purple); font-weight: bold;\">(Net Worth ÷ Gross Assets) × 100</code><br><br><strong>⚡ Good Debt vs Bad Debt:</strong><br>• <strong>Productive Leverage (Good debt)</strong> : Mortgage or Lombard loan. Borrowing to capture yields of productive assets accelerates compounding.<br>• <strong>Consumer Debt (Toxic debt)</strong> : Depreciating loans without underlying equity.<br><br>Every payoff and asset purchase expands your sovereignty.",
         btn_close: "Close",
@@ -954,9 +954,9 @@
         debt_progress_msg: "Paid off: {repaid} ({pct}%)",
         debt_paid_msg: "🎉 Debt completely eradicated!",
         modal_stock_shares_total: "of total equity",
-        modal_stock_lombard_title: "Global Lombard Loan (€):",
+        modal_stock_lombard_title: "Global Lombard Loan:",
         modal_stock_lombard_share: "Allocated share:",
-        modal_stock_lombard_net: "Real net value (€):",
+        modal_stock_lombard_net: "Real net value:",
         modal_stock_equity_real: "{pct}% real equity",
         badge_real_equity: "Real equity: <strong>{pct}%</strong> (Lombard deducted)",
         lbl_stock_singular: "share",
@@ -997,7 +997,7 @@
     if (!localData || !Array.isArray(localData.items)) {
       localData = {
         userName: '',
-        currency: '€',
+        currency: 'EUR',
         theme: 'dark',
         lang: 'fr',
         usdEurRate: 0.92,
@@ -1008,7 +1008,7 @@
       localStorage.setItem('klon_stake_db', JSON.stringify(localData));
     }
     let db = localData;
-    if (!db.currency) db.currency = '€';
+    if (!db.currency) db.currency = 'EUR';
     if (!db.theme) db.theme = 'dark';
     if (!db.lang) db.lang = 'fr';
     if (!db.usdEurRate) db.usdEurRate = 0.92;
@@ -1016,8 +1016,18 @@
     if (!Array.isArray(db.everUnlockedRewards)) db.everUnlockedRewards = [];
 
     function saveData() { localStorage.setItem('klon_stake_db', JSON.stringify(db)); }
+    
+    // GESTION DU SYMBOLE DE DEVISE GLOBALE
+    function getCurrencySymbol(c) {
+      const curr = c || db.currency || 'EUR';
+      if (curr === 'USD' || curr === '$') return '$';
+      if (curr === 'EUR' || curr === '€') return '€';
+      if (curr === 'GBP' || curr === '£') return '£';
+      return curr;
+    }
+
     function fmt(v, curr = db.currency) { 
-      const sym = curr === 'USD' ? '$' : (curr === 'EUR' ? '€' : curr);
+      const sym = getCurrencySymbol(curr);
       return new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR').format(Math.round(v || 0)) + ' ' + sym; 
     }
     function fmtCompact(v) { return new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR', { notation: 'compact' }).format(Math.round(v || 0)); }
@@ -1039,7 +1049,8 @@
     function changeCurrency(sym) {
       db.currency = sym;
       saveData();
-      document.querySelectorAll('.curr-sym').forEach(el => el.innerText = sym);
+      const symbolText = getCurrencySymbol(sym);
+      document.querySelectorAll('.curr-sym').forEach(el => el.innerText = symbolText);
       renderItemsList();
       renderTab2();
     }
@@ -1383,11 +1394,11 @@
                 mainValText = fmt(grossValOrig, itemCurr);
                 valColor = 'var(--accent-green-bright)';
             } else if (item.type === 'property') {
-                mainValText = `${fmt(item.valActual, 'EUR')}`;
+                mainValText = `${fmt(item.valActual, db.currency)}`;
                 valColor = 'var(--accent-blue)';
             } else {
                 const remaining = item.debtRemaining !== undefined ? item.debtRemaining : Math.max(0, (item.debtInitial || 0) - (item.debtRepaid || 0));
-                mainValText = `Reste : ${fmt(remaining, 'EUR')}`;
+                mainValText = `Reste : ${fmt(remaining, db.currency)}`;
                 valColor = 'var(--accent-red)';
             }
 
@@ -1462,7 +1473,7 @@
       saveData();
       renderTab2();
       renderItemsList();
-      showCustomDialog('🔄', 'Marché', `${updatedCount} cours et le taux de change USD/EUR mis à jour en direct !`);
+      showCustomDialog('🔄', 'Marché', `${updatedCount} cours et le taux de change mis à jour en direct !`);
     }
 
     const STOCK_TIERS = [
@@ -1514,9 +1525,12 @@
         };
     }
 
-    function toEur(amount, curr) {
-      if (!curr || curr === 'EUR' || curr === '€') return amount;
-      if (curr === 'USD' || curr === '$') return amount * (db.usdEurRate || 0.92);
+    // CONVERSION DYNAMIQUE DE TOUTE MONNAIE VERS LA MONNAIE GLOBALE DE L'APPLI
+    function toGlobalCurrency(amount, curr) {
+      if (!curr || curr === db.currency) return amount;
+      // Exemples de conversion basés sur USD/EUR rate si USD impliqué
+      if ((curr === 'USD' || curr === '$') && (db.currency === 'EUR' || db.currency === '€')) return amount * (db.usdEurRate || 0.92);
+      if ((curr === 'EUR' || curr === '€') && (db.currency === 'USD' || db.currency === '$')) return amount / (db.usdEurRate || 0.92);
       return amount;
     }
 
@@ -1541,10 +1555,10 @@
         if (item.type === 'asset') {
           const curP = item.curPrice || item.pru;
           const grossValOrig = item.qty * curP;
-          const grossValEur = toEur(grossValOrig, item.assetCurrency || 'USD');
+          const grossValGlobal = toGlobalCurrency(grossValOrig, item.assetCurrency || 'USD');
           
-          totalGrossAssets += grossValEur;
-          productiveAssets += grossValEur;
+          totalGrossAssets += grossValGlobal;
+          productiveAssets += grossValGlobal;
         } else if (item.type === 'property') {
           totalGrossAssets += item.valActual;
           totalDebts += item.debtActual;
@@ -1571,12 +1585,12 @@
           : t('hero_net_worth');
       }
 
-      document.getElementById('hero-net-worth').innerText = fmt(netWorth, 'EUR');
-      document.getElementById('hero-assets-sub').innerText = t('hero_assets_sub', { val: fmt(totalGrossAssets, 'EUR') });
+      document.getElementById('hero-net-worth').innerText = fmt(netWorth, db.currency);
+      document.getElementById('hero-assets-sub').innerText = t('hero_assets_sub', { val: fmt(totalGrossAssets, db.currency) });
       
       document.getElementById('hero-sovereignty-val').style.color = 'var(--accent-purple)';
       document.getElementById('hero-sovereignty-val').innerText = `${sovereigntyRate} %`;
-      document.getElementById('hero-sovereignty-sub').innerText = t('hero_debts_sub', { val: fmt(totalDebts, 'EUR') });
+      document.getElementById('hero-sovereignty-sub').innerText = t('hero_debts_sub', { val: fmt(totalDebts, db.currency) });
 
       document.getElementById('gauge-val-sov').style.color = 'var(--accent-purple)';
       document.getElementById('gauge-val-sov').innerText = `${sovereigntyRate}%`;
@@ -1591,7 +1605,7 @@
       document.getElementById('gauge-val-lev').innerText = `${ltvPct}%`;
       document.getElementById('gauge-bar-lev').style.width = `${Math.min(100, ltvPct)}%`;
 
-      document.getElementById('gauge-val-toxic').innerText = fmt(toxicDebts, 'EUR');
+      document.getElementById('gauge-val-toxic').innerText = fmt(toxicDebts, db.currency);
       const toxicPct = totalDebts > 0 ? Math.round((toxicDebts / totalDebts) * 100) : 0;
       document.getElementById('gauge-bar-toxic').style.width = `${toxicPct}%`;
 
@@ -1620,12 +1634,12 @@
       const curP = item.curPrice || item.pru;
       const itemCurr = item.assetCurrency || 'USD';
       const grossValOrig = item.qty * curP;
-      const grossValEur = toEur(grossValOrig, itemCurr);
+      const grossValGlobal = toGlobalCurrency(grossValOrig, itemCurr);
 
-      const totalAssetGrossEur = db.items.filter(i => i.type === 'asset').reduce((sum, i) => sum + toEur(i.qty * (i.curPrice || i.pru), i.assetCurrency || 'USD'), 0);
-      const globalLombardEur = item.lombardDebt || 0;
-      const itemLombardShareEur = totalAssetGrossEur > 0 ? (grossValEur / totalAssetGrossEur) * globalLombardEur : 0;
-      const netValEur = grossValEur - itemLombardShareEur;
+      const totalAssetGrossGlobal = db.items.filter(i => i.type === 'asset').reduce((sum, i) => sum + toGlobalCurrency(i.qty * (i.curPrice || i.pru), i.assetCurrency || 'USD'), 0);
+      const globalLombardGlobal = item.lombardDebt || 0;
+      const itemLombardShareGlobal = totalAssetGrossGlobal > 0 ? (grossValGlobal / totalAssetGrossGlobal) * globalLombardGlobal : 0;
+      const netValGlobal = grossValGlobal - itemLombardShareGlobal;
 
       let sharePct = 0;
       let rarityBadge = '';
@@ -1658,7 +1672,7 @@
                 </div>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 1rem; font-weight: 800; color: var(--accent-green-bright);">${fmt(netValEur, 'EUR')}</div>
+                <div style="font-size: 1rem; font-weight: 800; color: var(--accent-green-bright);">${fmt(netValGlobal, db.currency)}</div>
                 <div style="font-size: 0.72rem; color: ${tier.fillColor}; font-weight: bold;">${tier.currentTier.label}</div>
               </div>
             </div>
@@ -1692,10 +1706,9 @@
       let statusMsg = isFullOwned
         ? t('full_owned_msg')
         : (isNegativeEquity 
-            ? t('neg_equity_msg', { val: fmt(Math.abs(netPart), 'EUR') })
-            : (db.lang === 'en' ? `Equity: ${fmt(netPart, 'EUR')} (${ownershipPct}\%) • Bank: <span style="color:var(--accent-yellow);">${fmt(item.debtActual, 'EUR')}</span>` : `Part nette : ${fmt(netPart, 'EUR')} (${ownershipPct}\%) • Banque : <span style="color:var(--accent-yellow);">${fmt(item.debtActual, 'EUR')}</span>`));
+            ? t('neg_equity_msg', { val: fmt(Math.abs(netPart), db.currency) })
+            : (db.lang === 'en' ? `Equity: ${fmt(netPart, db.currency)} (${ownershipPct}\%) • Bank: <span style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</span>` : `Part nette : ${fmt(netPart, db.currency)} (${ownershipPct}\%) • Banque : <span style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</span>`));
 
-      // AJOUT DU CLIC ONCLICK POUR OUVRIR LE MODAL BIEN
       container.innerHTML += `
         <div class="stake-card ${cardClass}" draggable="true" data-id="${item.id}" onclick="openPropertyDetailModal('${item.id}')" title="Détails du bien">
           <div class="stake-card-header">
@@ -1703,10 +1716,10 @@
             <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
               <div>
                 <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>
-                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">Cote : ${fmt(item.valActual, 'EUR')}</div>
+                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">Cote : ${fmt(item.valActual, db.currency)}</div>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 1rem; font-weight: 800; color: ${isFullOwned ? 'var(--accent-green-bright)' : 'var(--accent-blue)'};">${fmt(netPart, 'EUR')}</div>
+                <div style="font-size: 1rem; font-weight: 800; color: ${isFullOwned ? 'var(--accent-green-bright)' : 'var(--accent-blue)'};">${fmt(netPart, db.currency)}</div>
                 <div style="font-size: 0.72rem; opacity: 0.85;">${ownershipPct} %</div>
               </div>
             </div>
@@ -1739,10 +1752,10 @@
             <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
               <div>
                 <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>
-                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">${isFullyRepaid ? t('debt_paid_msg') : t('debt_progress_msg', { repaid: fmt(repaid, 'EUR'), pct: progress })}</div>
+                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">${isFullyRepaid ? t('debt_paid_msg') : t('debt_progress_msg', { repaid: fmt(repaid, db.currency), pct: progress })}</div>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 1rem; font-weight: 800; color: var(--accent-red);">${fmt(remaining, 'EUR')}</div>
+                <div style="font-size: 1rem; font-weight: 800; color: var(--accent-red);">${fmt(remaining, db.currency)}</div>
                 <div style="font-size: 0.72rem; color: var(--text-bright); font-weight: bold;">${progress} %</div>
               </div>
             </div>
@@ -1925,13 +1938,13 @@
         const investedValOrig = item.qty * item.pru;
         const plusValueOrig = grossValOrig - investedValOrig;
 
-        const grossValEur = toEur(grossValOrig, itemCurr);
+        const grossValGlobal = toGlobalCurrency(grossValOrig, itemCurr);
 
-        const totalAssetGrossEur = db.items.filter(i => i.type === 'asset').reduce((sum, i) => sum + toEur(i.qty * (i.curPrice || i.pru), i.assetCurrency || 'USD'), 0);
-        const globalLombardEur = item.lombardDebt || 0;
-        const itemLombardShareEur = totalAssetGrossEur > 0 ? (grossValEur / totalAssetGrossEur) * globalLombardEur : 0;
-        const netValEur = grossValEur - itemLombardShareEur;
-        const equityPct = grossValEur > 0 ? Math.max(0, Math.round((netValEur / grossValEur) * 100)) : 100;
+        const totalAssetGrossGlobal = db.items.filter(i => i.type === 'asset').reduce((sum, i) => sum + toGlobalCurrency(i.qty * (i.curPrice || i.pru), i.assetCurrency || 'USD'), 0);
+        const globalLombardGlobal = item.lombardDebt || 0;
+        const itemLombardShareGlobal = totalAssetGrossGlobal > 0 ? (grossValGlobal / totalAssetGrossGlobal) * globalLombardGlobal : 0;
+        const netValGlobal = grossValGlobal - itemLombardShareGlobal;
+        const equityPct = grossValGlobal > 0 ? Math.max(0, Math.round((netValGlobal / grossValGlobal) * 100)) : 100;
 
         let sharePct = 0;
         if (item.sharesTotal && item.sharesTotal > 0) {
@@ -1952,7 +1965,7 @@
 
         document.getElementById('m-stock-live-price').innerText = fmt(curP, itemCurr);
         document.getElementById('m-stock-pru').innerText = fmt(item.pru, itemCurr);
-        document.getElementById('m-stock-market-val').innerText = `${fmt(grossValEur, 'EUR')} (${fmt(grossValOrig, itemCurr)})`;
+        document.getElementById('m-stock-market-val').innerText = `${fmt(grossValGlobal, db.currency)} (${fmt(grossValOrig, itemCurr)})`;
 
         const pvEl = document.getElementById('m-stock-plus-value');
         const pvSign = plusValueOrig >= 0 ? '+' : '';
@@ -1960,10 +1973,10 @@
         pvEl.innerHTML = `P/L : <strong style="color:${pvColor};">${pvSign}${fmt(plusValueOrig, itemCurr)}</strong>`;
 
         const lombardBox = document.getElementById('m-stock-lombard-box');
-        if (globalLombardEur > 0) {
+        if (globalLombardGlobal > 0) {
             lombardBox.style.display = 'block';
             lombardBox.style.color = 'var(--text-main)';
-            lombardBox.innerHTML = `⚡ <span style="opacity: 0.85;">${t('modal_stock_lombard_title')}</span> ${fmt(globalLombardEur, 'EUR')}<br>• <span style="opacity: 0.85;">${t('modal_stock_lombard_share')}</span> ${fmt(itemLombardShareEur, 'EUR')}<br>• <span style="color: var(--text-bright);">${t('modal_stock_lombard_net')}</span> <strong style="color: var(--accent-green-bright);">${fmt(netValEur, 'EUR')}</strong>`;
+            lombardBox.innerHTML = `⚡ <span style="opacity: 0.85;">${t('modal_stock_lombard_title')}</span> ${fmt(globalLombardGlobal, db.currency)}<br>• <span style="opacity: 0.85;">${t('modal_stock_lombard_share')}</span> ${fmt(itemLombardShareGlobal, db.currency)}<br>• <span style="color: var(--text-bright);">${t('modal_stock_lombard_net')}</span> <strong style="color: var(--accent-green-bright);">${fmt(netValGlobal, db.currency)}</strong>`;
         } else {
             lombardBox.style.display = 'none';
         }
@@ -1975,7 +1988,6 @@
       document.getElementById('stock-detail-modal').classList.remove('active');
     }
 
-    /* FONCTION POUR OUVRIR LE MODAL DÉTAILLÉ DU BIEN */
     function openPropertyDetailModal(itemId) {
       const item = db.items.find(i => i.id === itemId);
       if (!item || item.type !== 'property') return;
@@ -1987,17 +1999,17 @@
 
       document.getElementById('m-prop-title').innerText = item.name;
       document.getElementById('m-prop-net-pct').innerText = `${ownershipPct} % de pleine propriété`;
-      document.getElementById('m-prop-net-val').innerText = `Part nette réelle : ${fmt(netPart, 'EUR')}`;
-      document.getElementById('m-prop-gross-val').innerText = fmt(item.valActual, 'EUR');
-      document.getElementById('m-prop-bank-debt').innerText = fmt(item.debtActual, 'EUR');
+      document.getElementById('m-prop-net-val').innerText = `Part nette réelle : ${fmt(netPart, db.currency)}`;
+      document.getElementById('m-prop-gross-val').innerText = fmt(item.valActual, db.currency);
+      document.getElementById('m-prop-bank-debt').innerText = fmt(item.debtActual, db.currency);
 
       const descBox = document.getElementById('m-prop-desc-text');
       if (isFullOwned) {
         descBox.innerHTML = `🏆 <strong>Pleine propriété acquise !</strong><br>La banque est sortie du jeu. Ce bien t'appartient à 100 % et constitue un pilier de ta souveraineté nette.`;
       } else if (isNegativeEquity) {
-        descBox.innerHTML = `⚠️ <strong>Équité Négative (${fmt(Math.abs(netPart), 'EUR')})</strong><br>Le capital restant dû à la banque dépasse la valeur vénale estimée du bien. Rembourser ce crédit est prioritaire pour restaurer ta marge nette.`;
+        descBox.innerHTML = `⚠️ <strong>Équité Négative (${fmt(Math.abs(netPart), db.currency)})</strong><br>Le capital restant dû à la banque dépasse la valeur vénale estimée du bien. Rembourser ce crédit est prioritaire pour restaurer ta marge nette.`;
       } else {
-        descBox.innerHTML = `🔑 <strong>Rapport de Propriété :</strong><br>• Tu possèdes déjà <strong>${fmt(netPart, 'EUR')}</strong> de ce bien en fonds propres.<br>• La banque possède encore <strong>${fmt(item.debtActual, 'EUR')}</strong> sur ce bien.<br><br>Chaque mensualité versée est un rachat direct des parts de la banque vers ton patrimoine net.`;
+        descBox.innerHTML = `🔑 <strong>Rapport de Propriété :</strong><br>• Tu possèdes déjà <strong>${fmt(netPart, db.currency)}</strong> de ce bien en fonds propres.<br>• La banque possède encore <strong>${fmt(item.debtActual, db.currency)}</strong> sur ce bien.<br><br>Chaque mensualité versée est un rachat direct des parts de la banque vers ton patrimoine net.`;
       }
 
       document.getElementById('property-detail-modal').classList.add('active');
@@ -2025,11 +2037,11 @@
         
         const msg = isPaid
             ? (db.lang === 'en' 
-                ? `Congrats! You repaid all <strong>${fmt(initial, 'EUR')}</strong>.<br><br>Zero debt on this liability!` 
-                : `Félicitations ! Tu as remboursé la totalité des <strong>${fmt(initial, 'EUR')}</strong> de ce passif.<br><br>Ce crédit ne pèse plus sur ton bilan net !`)
+                ? `Congrats! You repaid all <strong>${fmt(initial, db.currency)}</strong>.<br><br>Zero debt on this liability!` 
+                : `Félicitations ! Tu as remboursé la totalité des <strong>${fmt(initial, db.currency)}</strong> de ce passif.<br><br>Ce crédit ne pèse plus sur ton bilan net !`)
             : (db.lang === 'en'
-                ? `You already crushed <strong>${fmt(repaid, 'EUR')} (${pct}\%)</strong> on this debt.<br><br>Remaining: <strong>${fmt(remaining, 'EUR')}</strong>.<br><br>Every dollar repaid expands your real sovereignty!`
-                : `Tu as déjà détruit <strong>${fmt(repaid, 'EUR')} (${pct} %)</strong> sur ce crédit.<br><br>Reste à éliminer : <strong>${fmt(remaining, 'EUR')}</strong>.<br><br>Chaque euro remboursé augmente directement ton patrimoine net réel !`);
+                ? `You already crushed <strong>${fmt(repaid, db.currency)} (${pct}\%)</strong> on this debt.<br><br>Remaining: <strong>${fmt(remaining, db.currency)}</strong>.<br><br>Every dollar repaid expands your real sovereignty!`
+                : `Tu as déjà détruit <strong>${fmt(repaid, db.currency)} (${pct} %)</strong> sur ce crédit.<br><br>Reste à éliminer : <strong>${fmt(remaining, db.currency)}</strong>.<br><br>Chaque euro remboursé augmente directement ton patrimoine net réel !`);
 
         const btnText = isPaid ? (db.lang === 'en' ? 'Awesome!' : 'Génial !') : 'OK';
         showCustomDialog(isPaid ? '🏆' : '🛡️', title, msg, false, null, btnText);
@@ -2041,12 +2053,12 @@
         { id: "r_lombard", icon: "⚡", labelFR: "Levier Financier", descFR: "Utilisation du crédit Lombard pour démultiplier tes positions.", labelEN: "Financial Leverage", descEN: "Using a Lombard loan to boost your portfolio.", anim: "cash" },
         { id: "r_property", icon: "🔑", labelFR: "Détenteur de Clé", descFR: "Bien matériel sous gestion : le rachat de parts commence.", labelEN: "Key Holder", descEN: "Tangible property under management: equity payoff begins.", anim: "cash" },
         { id: "r_positive", icon: "⚖️", labelFR: "Bilan Positif", descFR: "Patrimoine net positif : tes actifs dépassent tes dettes globales.", labelEN: "Positive Net Worth", descEN: "Positive net worth: your assets exceed your total debt.", anim: "cash" },
-        { id: "r_car_free", icon: "🚗", labelFR: "Véhicule Libéré", descFR: "Pleine propriété acquise sur un véhicule : 0 € de crédit !", labelEN: "Debt-Free Vehicle", descEN: "Full ownership acquired on a vehicle: zero debt!", anim: "gold" },
+        { id: "r_car_free", icon: "🚗", labelFR: "Véhicule Libéré", descFR: "Pleine propriété acquise sur un véhicule : 0 crédit !", labelEN: "Debt-Free Vehicle", descEN: "Full ownership acquired on a vehicle: zero debt!", anim: "gold" },
         { id: "r_house_free", icon: "🏰", labelFR: "Maître des Lieux", descFR: "Pleine propriété acquise sur un bien immobilier : la banque est sortie !", labelEN: "Homeowner", descEN: "Full real estate ownership: the bank is out!", anim: "diamonds" },
         { id: "r_sov_50", icon: "🛡️", labelFR: "Souveraineté 50%", descFR: "Plus de la moitié de ton monde matériel t'appartient en fonds propres nets.", labelEN: "50% Sovereignty", descEN: "Over half of your assets owned debt-free.", anim: "gold" },
         { id: "r_sov_100", icon: "👑", labelFR: "Souveraineté Absolue", descFR: "100 % de souveraineté ! Zéro dette bancaire sur l'ensemble de ton patrimoine.", labelEN: "Absolute Sovereignty", descEN: "100% sovereignty! Zero bank debt across your balance sheet.", anim: "crowns" },
-        { id: "r_100k", icon: "🏦", labelFR: "Cap 100k Net", descFR: "100 000 € de patrimoine net réel franchi !", labelEN: "100k Net Worth", descEN: "$100k net worth milestone reached!", anim: "crowns" },
-        { id: "r_debt_slayer", icon: "⚔️", labelFR: "Tueur de Dette", descFR: "Au moins une ligne de crédit pure totalement éradiquée (0 € restant dû).", labelEN: "Debt Slayer", descEN: "At least one consumer loan fully paid off (0 remaining).", anim: "gold" },
+        { id: "r_100k", icon: "🏦", labelFR: "Cap 100k Net", descFR: "100 000 de patrimoine net réel franchi !", labelEN: "100k Net Worth", descEN: "100k net worth milestone reached!", anim: "crowns" },
+        { id: "r_debt_slayer", icon: "⚔️", labelFR: "Tueur de Dette", descFR: "Au moins une ligne de crédit pure totalement éradiquée (0 restant dû).", labelEN: "Debt Slayer", descEN: "At least one consumer loan fully paid off (0 remaining).", anim: "gold" },
         { id: "r_titan_block", icon: "🧱", labelFR: "Bloc de Titan", descFR: "Tu detiens au moins 1 000 actions ou parts d'un même actif productif.", labelEN: "Titan Block", descEN: "You hold at least 1,000 shares of a single productive asset.", anim: "crowns" },
         { id: "r_shielded", icon: "🔰", labelFR: "Bilan Pare-Balle", descFR: "Plus de 80 % de souveraineté nette avec au moins 3 actifs au bilan.", labelEN: "Shielded Balance Sheet", descEN: "Over 80% sovereignty with at least 3 active assets.", anim: "gold" },
         { id: "r_cash_machine", icon: "⚙️", labelFR: "Machine à Cash", descFR: "Plus de 75 % de ton patrimoine brut est placé en actifs productifs.", labelEN: "Cash Machine", descEN: "Over 75% of your gross assets invested in productive assets.", anim: "cash" }
@@ -2102,9 +2114,9 @@
         let productiveAssets = 0;
         db.items.forEach(item => {
             if (item.type === 'asset') {
-                const valEur = toEur(item.qty * (item.curPrice || item.pru), item.assetCurrency || 'USD');
-                totalGrossAssets += valEur;
-                productiveAssets += valEur;
+                const valGlobal = toGlobalCurrency(item.qty * (item.curPrice || item.pru), item.assetCurrency || 'USD');
+                totalGrossAssets += valGlobal;
+                productiveAssets += valGlobal;
             } else if (item.type === 'property') {
                 totalGrossAssets += item.valActual;
             }
@@ -2237,10 +2249,11 @@
             db = imported;
             saveData();
             document.getElementById('user-name-input').value = db.userName || '';
-            document.getElementById('currency-select').value = db.currency || '€';
+            document.getElementById('currency-select').value = db.currency || 'EUR';
             document.getElementById('lang-select').value = db.lang || 'fr';
             document.getElementById('theme-select').value = db.theme || 'dark';
             document.documentElement.setAttribute('data-theme', db.theme || 'dark');
+            changeCurrency(db.currency);
             applyLanguageUI();
             showCustomDialog('✅', 'Import', (db.lang === 'en') ? 'Data imported successfully!' : 'Bilan patrimonial importé avec succès !');
           } else {
@@ -2322,10 +2335,12 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('user-name-input').value = db.userName || '';
-      document.getElementById('currency-select').value = db.currency || '€';
+      document.getElementById('currency-select').value = db.currency || 'EUR';
       document.getElementById('lang-select').value = db.lang || 'fr';
       document.getElementById('theme-select').value = db.theme || 'dark';
       document.documentElement.setAttribute('data-theme', db.theme || 'dark');
+
+      changeCurrency(db.currency || 'EUR');
 
       const initialLombard = db.items.find(i => i.type === 'asset' && i.lombardDebt > 0)?.lombardDebt || 0;
       if (initialLombard > 0) {
