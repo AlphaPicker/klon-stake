@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>KLON Stake</title>
+
+  <!-- Métadonnées Mobile & PWA -->
+  <meta name="color-scheme" content="dark light">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0d1117">
+
+  <link rel="manifest" href="./manifest.json">
+  
+  <!-- ICÔNE FAVICON OFFICIELLE KLON STAKE (ORANGE SIGNATURE) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23F0883E'/><stop offset='100%25' stop-color='%23BD5F15'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23bg)'/><path d='M35 23 V77 M35 50 L68 23 M46 41 L69 77' stroke='white' stroke-width='12' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23F0883E'/><stop offset='100%25' stop-color='%23BD5F15'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23bg)'/><path d='M35 23 V77 M35 50 L68 23 M46 41 L69 77' stroke='white' stroke-width='12' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
+
+  <style>
+    html {
+      background-color: var(--bg-color);
+      min-height: 100%;
+      scrollbar-gutter: stable;
+    }
+
+    :root[data-theme="dark"] {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --border-color: #30363d;
+      --text-main: #c9d1d9;
+      --text-bright: #f0f6fc;
+      --accent-orange: #f0883e;
+      --accent-orange-bright: #ff9b50;
+      --accent-blue: #58a6ff;
+      --accent-green: #238636;
+      --accent-green-bright: #7ee787;
+      --accent-red: #da3633;
+      --accent-purple: #a371f7;
+      --nav-active-bg: #21262d;
+      --nav-active-text: #f0883e;
+      --btn-paypal-bg: #238636;
+      --btn-paypal-text: #ffffff;
+      --badge-bg: rgba(240, 136, 62, 0.12);
+    }
+
+    :root[data-theme="light"] {
+      --bg-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --border-color: #d0d7de;
+      --text-main: #24292f;
+      --text-bright: #1f2328;
+      --accent-orange: #bc4c00;
+      --accent-orange-bright: #d45d0c;
+      --accent-blue: #0969da;
+      --accent-green: #1f883d;
+      --accent-green-bright: #1a7f37;
+      --accent-red: #cf222e;
+      --accent-purple: #8250df;
+      --nav-active-bg: #e1e4e8;
+      --nav-active-text: #bc4c00;
+      --btn-paypal-bg: #1f883d;
+      --btn-paypal-text: #ffffff;
+      --badge-bg: rgba(188, 76, 0, 0.12);
+    }
+
+    :root[data-theme="colorblind"] {
+      --bg-color: #000000;
+      --card-bg: #121212;
+      --border-color: #ffffff;
+      --text-main: #ffffff;
+      --text-bright: #ffff00;
+      --accent-orange: #ff8000;
+      --accent-orange-bright: #ff9933;
+      --accent-blue: #00ffff;
+      --accent-green: #0d6efd;
+      --accent-green-bright: #ffcc00;
+      --accent-red: #ffcc00;
+      --accent-purple: #ffff00;
+      --nav-active-bg: #2a2a2a;
+      --nav-active-text: #ff8000;
+      --btn-paypal-bg: #0d6efd;
+      --btn-paypal-text: #ffffff;
+      --badge-bg: rgba(255, 128, 0, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      transition: background-color 0.2s, color 0.2s;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Scrollbars coordonnées */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-orange); }
+    * { scrollbar-width: thin; scrollbar-color: var(--border-color) var(--bg-color); }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .app-container {
+      width: 100%;
+      max-width: 600px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .app-header { text-align: center; padding: 12px 8px 4px 8px; }
+    .app-header h1 { font-size: 1.6rem; color: var(--text-bright); font-weight: 800; letter-spacing: -0.5px; }
+    .app-header h1 a { transition: opacity 0.2s, transform 0.2s; display: inline-block; text-decoration: none; color: inherit; }
+    .app-header h1 a:hover { opacity: 0.85; transform: scale(1.02); }
+    .app-header h1 a span { color: var(--accent-orange); }
+    .app-header .subtitle { font-size: 0.95rem; color: var(--accent-orange); font-weight: 600; margin-top: 2px; }
+    .app-header .description { font-size: 0.82rem; color: var(--text-main); opacity: 0.8; margin-top: 6px; line-height: 1.35; }
+
+    nav { display: flex; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+    .nav-btn {
+      flex: 1; padding: 12px 6px; background: none; border: none; color: var(--text-main);
+      font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: background-color 0.2s, color 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center;
+    }
+    .nav-btn .nav-icon { font-size: 1.1rem; line-height: 1; }
+    .nav-btn.active { background-color: var(--nav-active-bg); color: var(--nav-active-text); border-bottom: 3px solid var(--nav-active-text); }
+    @media (max-width: 500px) {
+      .nav-btn { flex-direction: column; gap: 3px; padding: 10px 4px; font-size: 0.75rem; }
+      .nav-btn .nav-icon { font-size: 1.25rem; }
+    }
+
+    .tab-content { display: none; flex-direction: column; gap: 16px; }
+    .tab-content.active { display: flex; }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 18px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card-title { font-size: 1.05rem; color: var(--text-bright); font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Hero Dashboard */
+    .stake-hero-card {
+      background: linear-gradient(135deg, var(--card-bg) 0%, rgba(240, 136, 62, 0.08) 100%);
+      border: 1px solid var(--accent-orange);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .stake-hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: center; }
+    .hero-box { display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+    .hero-box .label { font-size: 0.75rem; font-weight: 800; color: var(--accent-green-bright); letter-spacing: 0.5px; }
+    .hero-box .val { font-size: 1.8rem; font-weight: 900; color: var(--text-bright); }
+    .hero-box .sub { font-size: 0.75rem; opacity: 0.85; }
+    .hero-box-right { border-left: 1px solid var(--border-color); padding-left: 10px; }
+    @media (max-width: 500px) {
+      .stake-hero-grid { grid-template-columns: 1fr; }
+      .hero-box-right { border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 10px; }
+    }
+
+    /* Récompenses */
+    .hero-rewards-toggle-row { display: none; justify-content: center; padding-top: 6px; border-top: 1px solid rgba(240, 136, 62, 0.2); }
+    .hero-rewards-toggle-row.has-rewards { display: flex; }
+    .rewards-toggle-btn {
+      background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-bright);
+      padding: 5px 14px; border-radius: 14px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; user-select: none;
+    }
+    .rewards-toggle-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange); }
+    .hero-rewards-wrapper { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+    .corp-rewards-grid { display: flex; flex-wrap: wrap; gap: 8px 10px; justify-content: flex-start; padding: 4px 2px; }
+    .corp-reward-pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 500; background: var(--bg-color); border: 1px solid var(--accent-orange);
+      color: var(--text-bright); box-shadow: 0 0 6px rgba(240, 136, 62, 0.2); cursor: pointer; user-select: none;
+    }
+    .corp-reward-pill:hover { transform: translateY(-2px); box-shadow: 0 0 10px rgba(240, 136, 62, 0.4); }
+
+    /* Inputs */
+    input[type="text"], input[type="number"], select {
+      background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-bright);
+      padding: 10px 12px; border-radius: 6px; font-size: 0.95rem; width: 100%;
+    }
+    select { cursor: pointer; font-weight: bold; color: var(--text-bright); }
+    #lang-select, #theme-select, #currency-select { color: var(--accent-orange) !important; }
+
+    .inline-firstname-input {
+      background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-bright);
+      padding: 10px 12px; border-radius: 6px; font-size: 0.95rem; font-weight: 700; width: 100%;
+    }
+
+    /* PILULES ANTI-SAUT : 1px BORDURE PERMANENTE */
+    .type-selector-pills {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      padding: 4px;
+      border-radius: 8px;
+    }
+    .type-pill-btn {
+      flex: 1;
+      padding: 6px 4px;
+      background: none;
+      border: 1px solid transparent; /* 0 pixel de saut : bordure toujours là ! */
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 0.72rem;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      line-height: 1.15;
+    }
+    .type-pill-btn .pill-icon { font-size: 1.05rem; }
+    .type-pill-btn.active {
+      background-color: var(--card-bg);
+      color: var(--accent-orange);
+      border-color: var(--border-color);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    }
+
+    /* 4 JAUGES GÉNÉRALES CLIQUABLES */
+    .four-gauges-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 500px) {
+      .four-gauges-grid { grid-template-columns: 1fr; }
+    }
+    .gauge-card-mini {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .gauge-card-mini:hover {
+      border-color: var(--accent-orange);
+      transform: translateY(-1px);
+    }
+    .gauge-mini-title { font-size: 0.72rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Cartes d'actifs compactes */
+    .stake-card {
+      background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 14px 16px; position: relative; display: flex; flex-direction: column; gap: 8px;
+      border-left: 4px solid var(--accent-orange); transition: border-color 0.2s, opacity 0.15s;
+      cursor: pointer; user-select: none;
+    }
+    .stake-card.full-owned { border-left-color: var(--accent-green-bright) !important; }
+    .stake-card.negative-equity { border-left-color: var(--accent-red) !important; }
+    .stake-card.pure-debt { border-left-color: var(--accent-purple) !important; }
+    
+    .stake-card-header { display: flex; align-items: center; gap: 10px; }
+
+    .stake-squircle-avatar {
+      width: 44px; height: 44px; border-radius: 8px; background-color: var(--bg-color);
+      border: 1px solid var(--accent-orange); display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; line-height: 1; overflow: hidden; background-size: cover; background-position: center;
+      flex-shrink: 0; cursor: pointer; transition: transform 0.2s;
+    }
+    .stake-squircle-avatar:hover { transform: scale(1.05); }
+
+    .inventory-avatar-mini {
+      width: 32px; height: 32px; border-radius: 6px; background-color: var(--card-bg);
+      border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem; background-size: cover; background-position: center; flex-shrink: 0;
+    }
+
+    .progress-bar-bg { width: 100%; height: 8px; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background-color: var(--accent-orange); width: 0%; transition: width 0.3s ease; }
+    .progress-bar-fill.success { background-color: var(--accent-green-bright); }
+    .progress-bar-fill.danger { background-color: var(--accent-red); }
+    .progress-bar-fill.blue { background-color: var(--accent-blue); }
+    .progress-bar-fill.purple { background-color: var(--accent-purple); }
+
+    .inventory-row {
+      display: flex; justify-content: space-between; align-items: center; padding: 8px 10px;
+      background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px;
+      cursor: pointer; transition: border-color 0.15s ease;
+    }
+    .inventory-row:hover { border-color: var(--accent-orange); }
+
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 12px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-card {
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;
+      width: 100%; max-width: 440px; padding: 16px; display: flex; flex-direction: column; gap: 10px; position: relative;
+    }
+
+    .btn-mini-celebrate {
+      position: absolute; top: 14px; right: 14px; background: var(--bg-color);
+      border: 1px solid var(--border-color); border-radius: 50%; width: 32px; height: 32px;
+      font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .btn-mini-celebrate:hover { border-color: var(--accent-orange); }
+
+    button.btn-primary { background-color: var(--accent-green); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; }
+    button.btn-secondary, label.btn-secondary {
+      background-color: var(--bg-color); color: var(--accent-orange); border: 1px solid var(--border-color);
+      padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold;
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-sizing: border-box; text-align: center;
+    }
+    button.btn-secondary:hover, label.btn-secondary:hover { border-color: var(--accent-orange); color: var(--text-bright); }
+    button.btn-danger { background-color: transparent; color: var(--accent-red); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    button.btn-reset {
+      background-color: transparent; color: var(--accent-red); border: 1px solid var(--accent-red);
+      padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold;
+    }
+    button.btn-reset:hover { background-color: var(--accent-red); color: black; }
+
+    .tooltip-btn {
+      background: var(--bg-color); border: 1px solid var(--border-color); color: var(--accent-orange);
+      border-radius: 50%; width: 20px; height: 20px; font-size: 0.72rem; font-weight: bold; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .tooltip-btn:hover { border-color: var(--accent-orange); color: var(--text-bright); }
+
+    .help-box { display: none; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; font-size: 0.78rem; line-height: 1.4; }
+    .help-box.active { display: block; }
+
+    .link-btn {
+      display: flex; align-items: center; justify-content: center; width: 100%; padding: 12px;
+      background-color: var(--bg-color); color: var(--accent-orange); text-align: center; text-decoration: none;
+      border-radius: 6px; font-size: 0.95rem; font-weight: bold; border: 1px solid var(--border-color); cursor: pointer;
+    }
+    .link-btn:hover { border-color: var(--accent-orange); color: var(--text-bright); }
+    .link-btn-paypal { background-color: var(--btn-paypal-bg) !important; color: var(--btn-paypal-text) !important; }
+    .site-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; color: var(--text-main); opacity: 0.75; display: flex; flex-direction: column; gap: 8px; line-height: 1.4; }
+
+    #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-container">
+    
+    <header class="app-header">
+      <h1>
+        <a href="https://alphapicker.github.io/klon/" title="KLON">
+          KLON <span>STAKE</span>
+        </a>
+      </h1>
+      <div class="subtitle" data-i18n="subtitle">Simulateur de Propriété Réelle</div>
+      <p class="description" data-i18n="desc">
+        Renseigne tes actifs financiers et matériels pour mesurer ta souveraineté nette et la détention de tes parts.
+      </p>
+    </header>
+
+    <nav>
+      <button class="nav-btn active" id="nav-tab1" onclick="switchTab('tab1', event)">
+        <span class="nav-icon">📋</span> <span class="nav-text" data-i18n="tab_input">Saisie & Actifs</span>
+      </button>
+      <button class="nav-btn" id="nav-tab2" onclick="switchTab('tab2', event)">
+        <span class="nav-icon">🏛️</span> <span class="nav-text" data-i18n="tab_balance">Bilan KLON</span>
+      </button>
+      <button class="nav-btn" id="nav-tab3" onclick="switchTab('tab3', event)">
+        <span class="nav-icon">🌐</span> <span class="nav-text" data-i18n="tab_eco">Écosystème</span>
+      </button>
+    </nav>
+
+    <!-- ONGLET 1 : SAISIE -->
+    <div id="tab1" class="tab-content active">
+      
+      <div class="card" style="padding: 10px 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <div style="flex: 1;">
+            <input type="text" id="user-name-input" class="inline-firstname-input" placeholder="Alpha Picker" onblur="saveUserName()" onkeydown="if(event.key==='Enter') this.blur()">
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+            <select id="lang-select" onchange="changeLanguage(this.value)" style="width: auto; padding: 6px 8px; font-size: 0.85rem;">
+              <option value="fr">FR</option>
+              <option value="en">EN</option>
+            </select>
+
+            <select id="theme-select" onchange="changeTheme(this.value)" style="width: auto; padding: 6px 8px; font-size: 0.85rem;">
+              <option value="dark" data-i18n="theme_dark">🌙 Sombre</option>
+              <option value="light" data-i18n="theme_light">☀️ Clair</option>
+              <option value="colorblind" data-i18n="theme_cb">👁️ Daltonien</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULAIRE COMPACT AVEC PILULES STABLES -->
+      <div class="card" id="form-card">
+        <div class="card-title">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span id="form-title" data-i18n="form_add_title">➕ Ajouter un Actif ou Passif</span>
+            <button class="tooltip-btn" onclick="toggleHelp('help-add')" title="Explications">?</button>
+          </div>
+
+          <select id="currency-select" onchange="changeCurrency(this.value)" style="width: auto; padding: 4px 8px; font-size: 0.82rem;">
+            <option value="€">EUR (€)</option>
+            <option value="$">USD ($)</option>
+            <option value="£">GBP (£)</option>
+            <option value="CHF">CHF</option>
+            <option value="CAD">CAD</option>
+          </select>
+        </div>
+
+        <div id="help-add" class="help-box" data-i18n="help_add_text">
+          <strong>3 Catégories :</strong><br>
+          • <strong>Actifs</strong> : Actions cotées, ETF, parts (avec/sans crédit Lombard).<br>
+          • <strong>Biens</strong> : Maison, voiture, équipement. Rachat progressif de parts.<br>
+          • <strong>Dette Pure</strong> : Crédit conso, prêt personnel sans collatéral.
+        </div>
+
+        <!-- 3 PILULES COMPACTES SUR 2 LIGNES (ICÔNE + TEXTE) -->
+        <div class="type-selector-pills">
+          <button type="button" class="type-pill-btn active" id="btn-type-asset" onclick="selectAssetType('asset')">
+            <span class="pill-icon">🏛️</span>
+            <span data-i18n="type_asset">Actifs</span>
+          </button>
+          <button type="button" class="type-pill-btn" id="btn-type-property" onclick="selectAssetType('property')">
+            <span class="pill-icon">🔑</span>
+            <span data-i18n="type_property">Biens</span>
+          </button>
+          <button type="button" class="type-pill-btn" id="btn-type-debt" onclick="selectAssetType('debt')">
+            <span class="pill-icon">💳</span>
+            <span data-i18n="type_debt">Dette Pure</span>
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 2px;">
+          
+          <!-- NOM & TICKER (APPLE SEUL EN PLACEHOLDER) -->
+          <div id="name-asset-row" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 8px;">
+            <div>
+              <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_name_asset">Nom de l'actif</label>
+              <input type="text" id="in-name-asset" placeholder="Apple">
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_ticker">Ticker</label>
+              <input type="text" id="in-ticker" placeholder="AAPL" onblur="triggerLiveTickerCheck()">
+            </div>
+          </div>
+
+          <div id="name-general-row" style="display: none;">
+            <label id="lbl-name-field" style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_name_general">Nom du bien ou crédit</label>
+            <input type="text" id="in-name" placeholder="Maison, Voiture...">
+          </div>
+
+          <!-- ACTIONS : PRÉCISION ET ÉPURATION -->
+          <div id="fields-asset" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div>
+                <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_qty">Quantité de parts</label>
+                <input type="number" id="in-qty" placeholder="100" step="any">
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_pru">PRU Unitaire (<span class="curr-sym">€</span>)</label>
+                <input type="number" id="in-pru" placeholder="58.50" step="any">
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div>
+                <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_cur_price">Cours actuel (<span class="curr-sym">€</span>)</label>
+                <input type="number" id="in-cur-price" placeholder="Auto ou manuel" step="any">
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_lombard">Dette Lombard (<span class="curr-sym">€</span>)</label>
+                <input type="number" id="in-lombard-debt" placeholder="0">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_shares_total">Actions totales en circulation</label>
+              <input type="number" id="in-shares-total" placeholder="Auto via Ticker ou manuel">
+            </div>
+          </div>
+
+          <!-- BIENS -->
+          <div id="fields-property" style="display: none; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div>
+              <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_val_actual">Valeur vénale actuelle (<span class="curr-sym">€</span>)</label>
+              <input type="number" id="in-val-actual" placeholder="250000" step="1">
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_debt_actual">Crédit restant dû (<span class="curr-sym">€</span>)</label>
+              <input type="number" id="in-debt-actual" placeholder="150000" step="1">
+            </div>
+          </div>
+
+          <!-- DETTES -->
+          <div id="fields-debt" style="display: none; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div>
+              <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_debt_initial">Montant emprunté (<span class="curr-sym">€</span>)</label>
+              <input type="number" id="in-debt-initial" placeholder="10000" step="1">
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_debt_repaid">Déjà remboursé (<span class="curr-sym">€</span>)</label>
+              <input type="number" id="in-debt-repaid" placeholder="4000" step="1">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 4px;">
+            <button class="btn-primary" id="btn-submit-form" onclick="submitStakeForm()" style="flex: 1;" data-i18n="btn_submit">Valider & Ajouter au Bilan</button>
+            <button class="btn-secondary" id="btn-cancel-edit" onclick="cancelEditing()" style="display: none;" data-i18n="btn_cancel">Annuler</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVENTAIRE ÉPURÉ -->
+      <div class="card">
+        <div class="card-title">
+          <span data-i18n="inventory_title">📦 Inventaire du Bilan</span>
+          <span id="items-count-badge" style="font-size: 0.72rem; opacity: 0.7;">0 élément</span>
+        </div>
+        <div id="items-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+      </div>
+
+      <!-- GESTION DES DONNÉES -->
+      <div class="card">
+        <div class="card-title" data-i18n="data_mgmt_title">💾 Gestion des Données</div>
+        <div style="display: flex; gap: 8px; margin-top: 2px; flex-wrap: wrap;">
+          <button class="btn-secondary" style="flex: 1; min-width: 90px;" onclick="exportJSON()" data-i18n="btn_export">💾 Exporter</button>
+          <label class="btn-secondary" style="flex: 1; min-width: 90px;">
+            <span data-i18n="btn_import">📂 Importer</span>
+            <input type="file" accept=".json" style="display: none;" onchange="importJSON(event)">
+          </label>
+          <button class="btn-reset" style="flex: 1; min-width: 110px;" onclick="confirmResetDialog()" data-i18n="btn_reset">🗑️ Réinitialiser</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ONGLET 2 : BILAN KLON -->
+    <div id="tab2" class="tab-content">
+      
+      <div class="stake-hero-card">
+        <div class="stake-hero-grid">
+          <div class="hero-box">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span class="label" id="lbl-hero-net-worth" data-i18n="hero_net_worth">PATRIMOINE NET RÉEL</span>
+              <button class="tooltip-btn" onclick="refreshMarketData()" title="Actualiser les cours en direct">🔄</button>
+            </div>
+            <div class="val" id="hero-net-worth" style="color: var(--accent-green-bright);">0 €</div>
+            <div class="sub" id="hero-assets-sub">Actifs Bruts : 0 €</div>
+          </div>
+          <div class="hero-box hero-box-right">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span class="label" style="color: var(--accent-orange);" data-i18n="hero_sov_index">INDICE DE SOUVERAINETÉ</span>
+              <button class="tooltip-btn" onclick="openSovereigntyHelpModal()" title="Explication">?</button>
+            </div>
+            <div class="val" id="hero-sovereignty-val" style="color: var(--accent-orange);">100 %</div>
+            <div class="sub" id="hero-sovereignty-sub">Dette globale : 0 €</div>
+          </div>
+        </div>
+
+        <div class="hero-rewards-toggle-row" id="hero-rewards-toggle-row">
+          <button id="btn-toggle-rewards" class="rewards-toggle-btn" onclick="toggleRewardsVisibility()" data-i18n="btn_rewards">
+            🏆 Voir les Récompenses ▾
+          </button>
+        </div>
+        <div class="hero-rewards-wrapper" id="hero-rewards-wrapper" style="display: none;">
+          <div class="corp-rewards-grid" id="rewards-box"></div>
+        </div>
+      </div>
+
+      <!-- 4 JAUGES GÉNÉRALES CLIQUABLES AVEC MODALES EXPLICATIVES -->
+      <div class="four-gauges-grid">
+        <div class="gauge-card-mini" onclick="openGaugeModal('sov')" title="Cliquer pour comprendre la Souveraineté">
+          <div class="gauge-mini-title">
+            <span data-i18n="gauge_sov">🛡️ Souveraineté Totale</span>
+            <strong id="gauge-val-sov" style="color: var(--accent-orange);">100%</strong>
+          </div>
+          <div class="progress-bar-bg"><div id="gauge-bar-sov" class="progress-bar-fill" style="width: 100%;"></div></div>
+        </div>
+
+        <div class="gauge-card-mini" onclick="openGaugeModal('prod')" title="Cliquer pour comprendre les Actifs Productifs">
+          <div class="gauge-mini-title">
+            <span data-i18n="gauge_prod">🏛️ Actifs Productifs</span>
+            <strong id="gauge-val-prod" style="color: var(--accent-blue);">0%</strong>
+          </div>
+          <div class="progress-bar-bg"><div id="gauge-bar-prod" class="progress-bar-fill blue" style="width: 0%;"></div></div>
+        </div>
+
+        <div class="gauge-card-mini" onclick="openGaugeModal('lev')" title="Cliquer pour comprendre l'Effet de Levier">
+          <div class="gauge-mini-title">
+            <span data-i18n="gauge_lev">⚡ Levier Patrimonial (LTV)</span>
+            <strong id="gauge-val-lev" style="color: var(--accent-green-bright);">0%</strong>
+          </div>
+          <div class="progress-bar-bg"><div id="gauge-bar-lev" class="progress-bar-fill success" style="width: 0%;"></div></div>
+        </div>
+
+        <div class="gauge-card-mini" onclick="openGaugeModal('toxic')" title="Cliquer pour comprendre la Dette Destructrice">
+          <div class="gauge-mini-title">
+            <span data-i18n="gauge_toxic">🔴 Dette Destructrice</span>
+            <strong id="gauge-val-toxic" style="color: var(--accent-red);">0 €</strong>
+          </div>
+          <div class="progress-bar-bg"><div id="gauge-bar-toxic" class="progress-bar-fill danger" style="width: 0%;"></div></div>
+        </div>
+      </div>
+
+      <!-- CARTES D'ACTIFS COMPACTES -->
+      <div id="cards-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+    </div>
+
+    <!-- ONGLET 3 : ÉCOSYSTÈME -->
+    <div id="tab3" class="tab-content">
+      <div class="card" style="border-left: 4px solid var(--accent-orange);">
+        <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-main);" data-i18n="eco_disclaimer">
+          <strong>🤝 Transparence & Parrainage :</strong> Les liens ci-dessous sont des liens d'affiliation et de parrainage. En ouvrant un compte via ces accès, vous pouvez bénéficier des bonus de bienvenue proposés par les plateformes tout en soutenant le développement gratuit de l'application.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-i18n="eco_brokers">📈 Banques & Courtiers</div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="https://dub.sh/klon-traderepublic" target="_blank" rel="noopener noreferrer" class="link-btn">Trade Republic</a>
+          <a href="https://dub.sh/klon-ibkr" target="_blank" rel="noopener noreferrer" class="link-btn">Interactive Brokers (IBKR)</a>
+          <a href="https://dub.sh/klon-boursobank" target="_blank" rel="noopener noreferrer" class="link-btn">BoursoBank</a>
+          <button class="link-btn" id="fortuneo-btn" onclick="copyFortuneoCode()">Fortuneo (Code Parrain : 12874482)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-i18n="eco_crypto">🪙 Crypto & Rendement Alternatif</div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="https://dub.sh/klon-coinbase" target="_blank" rel="noopener noreferrer" class="link-btn">Coinbase</a>
+          <a href="https://crypto.com/app/wu2sfywjnt" target="_blank" rel="noopener noreferrer" class="link-btn">Crypto.com</a>
+          <a href="https://dub.sh/klon-mintos" target="_blank" rel="noopener noreferrer" class="link-btn">Mintos</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-i18n="eco_portfolio">Portefeuille & Performances</div>
+        <a href="https://dub.sh/klon-wikifolio" target="_blank" rel="noopener noreferrer" class="link-btn" data-i18n="eco_wikifolio">Suivre le Wikifolio Alpha Picker</a>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-i18n="eco_theses">Analyses & Thèses</div>
+        <a href="https://dub.sh/klon-substack" target="_blank" rel="noopener noreferrer" class="link-btn" data-i18n="eco_substack">Suivre le Substack Alpha Picker</a>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-i18n="eco_support">Soutenir le Projet</div>
+        <p style="font-size: 0.9rem; line-height: 1.4;" data-i18n="eco_support_desc">
+          Si cet outil vous aide dans votre parcours d'autonomie financière et de souveraineté, vous pouvez soutenir le projet via les liens ci-dessus ou par un don.
+        </p>
+        <a href="https://www.paypal.me/AlphaPicker" target="_blank" rel="noopener noreferrer" class="link-btn link-btn-paypal" data-i18n="eco_paypal">Faire un don via PayPal</a>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div data-i18n="footer_dev"><strong>KLON Stake</strong> — Application gratuite & Open Source développée par <strong>Alpha Picker</strong> et hébergée sur GitHub Pages.</div>
+      <div data-i18n="footer_privacy">🛡️ <strong>Confidentialité :</strong> Aucun cookie de suivi, aucune collecte de données. Toutes vos saisies restent exclusivement stockées dans votre navigateur.</div>
+      <div data-i18n="footer_disclaimer">⚠️ <strong>Avertissement :</strong> Cet outil sert de simulation personnelle et éducative. Il ne constitue en aucun cas un conseil en investissement ou une incitation financière.</div>
+    </footer>
+  </div>
+
+  <!-- MODALE D'EXPLICATION DES JAUGES -->
+  <div id="gauge-info-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 400px; text-align: left;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="font-size: 1.6rem;" id="g-modal-icon">🛡️</div>
+        <div class="card-title" style="margin-bottom: 0;" id="g-modal-title">Indicateur de Bilan</div>
+      </div>
+      <div style="font-size: 0.82rem; line-height: 1.5; color: var(--text-main); opacity: 0.9; margin-top: 6px;" id="g-modal-desc">
+        Explication...
+      </div>
+      <button class="btn-primary" onclick="closeGaugeModal()" style="margin-top: 8px; width: 100%;" data-i18n="btn_understood">Compris</button>
+    </div>
+  </div>
+
+  <!-- MODALE FICHE D'ACTIONNAIRE -->
+  <div id="stock-detail-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 400px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="card-title" style="margin-bottom: 0;" id="m-stock-title">Apple</div>
+        <span id="m-stock-ticker" style="font-size: 0.78rem; font-weight: 800; color: var(--accent-orange); background: var(--badge-bg); padding: 2px 8px; border-radius: 6px; border: 1px solid var(--accent-orange);">AAPL</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; margin-top: 4px;">
+        <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
+          <div style="color: var(--accent-orange); font-weight: bold; font-size: 0.72rem;" data-i18n="modal_stock_share_lbl">DÉTENTION DU CAPITAL</div>
+          <div id="m-stock-exact-pct" style="font-size: 1.15rem; font-weight: 800; color: var(--text-bright); margin-top: 2px;">0.00000066 %</div>
+          <div id="m-stock-shares-count" style="font-size: 0.72rem; opacity: 0.8; margin-top: 2px;">100 actions</div>
+        </div>
+
+        <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span><span data-i18n="modal_stock_live">Cours :</span> <strong id="m-stock-live-price">215,00 €</strong></span>
+            <span>PRU : <strong id="m-stock-pru">58,00 €</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span><span data-i18n="modal_stock_val">Valeur :</span> <strong id="m-stock-market-val" style="color: var(--accent-orange);">0 €</strong></span>
+            <span id="m-stock-plus-value">P/L : +0 €</span>
+          </div>
+          <div id="m-stock-lombard-box" style="margin-top: 4px; font-size: 0.75rem; border-top: 1px dashed var(--border-color); padding-top: 4px; color: var(--accent-orange);"></div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="closeStockDetailModal()" style="margin-top: 6px; width: 100%;" data-i18n="btn_close">Fermer</button>
+    </div>
+  </div>
+
+  <!-- MODALE SYSTÈME -->
+  <div id="custom-dialog-modal" class="modal-overlay" style="z-index: 200;">
+    <div class="modal-card" style="max-width: 360px; text-align: center;">
+      <div style="font-size: 2.6rem; line-height: 1;" id="dialog-icon">ℹ️</div>
+      <div class="card-title" style="justify-content: center; font-size: 1.15rem; margin: 4px 0;" id="dialog-title">Notification</div>
+      <p style="font-size: 0.85rem; line-height: 1.5; color: var(--text-main); margin-bottom: 6px;" id="dialog-message">Message</p>
+      <div style="display: flex; gap: 8px; justify-content: center; margin-top: 6px;" id="dialog-buttons">
+        <button class="btn-primary" onclick="closeCustomDialog()" style="width: 100%; padding: 10px;">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE SOUVERAINETÉ -->
+  <div id="sovereignty-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 420px; text-align: left;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="font-size: 1.6rem;">🛡️</div>
+        <div class="card-title" style="margin-bottom: 0;" data-i18n="modal_sov_title">Souveraineté & Effet de Levier</div>
+      </div>
+      <div style="font-size: 0.82rem; line-height: 1.5; color: var(--text-main); opacity: 0.9; margin-top: 6px;" data-i18n="modal_sov_text">
+        Explication souveraineté...
+      </div>
+      <button class="btn-primary" onclick="closeSovereigntyModal()" style="margin-top: 6px; width: 100%;" data-i18n="btn_understood">Compris</button>
+    </div>
+  </div>
+
+  <!-- MODALE RÉCOMPENSE -->
+  <div id="reward-modal" class="modal-overlay">
+    <div class="modal-card" style="text-align: center; max-width: 360px;">
+      <button class="btn-mini-celebrate" onclick="replayRewardAnimation()" title="Revoir l'explosion">🎆</button>
+      <div id="reward-detail-icon" style="font-size: 3rem; line-height: 1; margin-top: 4px;">🏆</div>
+      <div id="reward-detail-title" class="card-title" style="justify-content: center; font-size: 1.15rem; margin: 4px 0;">Récompense</div>
+      <p id="reward-detail-desc" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-main); opacity: 0.9;">Description...</p>
+      <button class="btn-primary" onclick="closeRewardModal()" style="margin-top: 8px; padding: 10px 16px;" data-i18n="btn_awesome">Génial !</button>
+    </div>
+  </div>
+
+  <input type="file" id="image-upload-input" accept="image/*" style="display: none;" onchange="handleImageSelected(event)">
+
+  <script>
+    /* ==========================================================================
+       DICTIONNAIRE I18N BILINGUE COMPLET (FR / EN)
+       ========================================================================== */
+    const I18N = {
+      fr: {
+        subtitle: "Simulateur de Propriété Réelle",
+        desc: "Renseigne tes actifs financiers et matériels pour mesurer ta souveraineté nette et la détention de tes parts.",
+        tab_input: "Saisie & Actifs",
+        tab_balance: "Bilan KLON",
+        tab_eco: "Écosystème",
+        theme_dark: "🌙 Sombre",
+        theme_light: "☀️ Clair",
+        theme_cb: "👁️ Daltonien",
+        form_add_title: "➕ Ajouter un Actif ou Passif",
+        help_add_text: "<strong>3 Catégories :</strong><br>• <strong>Actifs</strong> : Actions cotées, ETF, parts (avec/sans crédit Lombard).<br>• <strong>Biens</strong> : Maison, voiture, équipement. Toi vs La Banque.<br>• <strong>Dette Pure</strong> : Crédit conso, prêt personnel sans collatéral.",
+        type_asset: "Actifs",
+        type_property: "Biens",
+        type_debt: "Dette Pure",
+        lbl_name_asset: "Nom de l'actif",
+        lbl_ticker: "Ticker",
+        lbl_name_general: "Nom du bien ou crédit",
+        lbl_qty: "Quantité de parts",
+        lbl_pru: "PRU Unitaire",
+        lbl_cur_price: "Cours actuel",
+        lbl_lombard: "Dette Lombard",
+        lbl_shares_total: "Actions totales en circulation",
+        lbl_val_actual: "Valeur vénale actuelle",
+        lbl_debt_actual: "Crédit restant dû",
+        lbl_debt_initial: "Montant emprunté",
+        lbl_debt_repaid: "Déjà remboursé",
+        btn_submit: "Valider & Ajouter au Bilan",
+        btn_update: "💾 Enregistrer les modifications",
+        btn_cancel: "Annuler",
+        inventory_title: "📦 Inventaire du Bilan",
+        items_count: "{n} élément{s}",
+        no_items: "Aucun actif ou passif enregistré pour le moment.",
+        data_mgmt_title: "💾 Gestion des Données",
+        btn_export: "💾 Exporter",
+        btn_import: "📂 Importer",
+        btn_reset: "🗑️ Réinitialiser",
+        hero_net_worth: "PATRIMOINE NET RÉEL",
+        hero_net_worth_named: "PATRIMOINE NET DE {name}",
+        hero_assets_sub: "Actifs Bruts : {val}",
+        hero_sov_index: "INDICE DE SOUVERAINETÉ",
+        hero_debts_sub: "Dette globale : {val}",
+        btn_rewards: "🏆 Voir les Récompenses ▾",
+        btn_rewards_hide: "🏆 Masquer les Récompenses ▴",
+        gauge_sov: "🛡️ Souveraineté Totale",
+        gauge_prod: "🏛️ Actifs Productifs",
+        gauge_lev: "⚡ Levier Patrimonial (LTV)",
+        gauge_toxic: "🔴 Dette Destructrice",
+        eco_disclaimer: "<strong>🤝 Transparence & Parrainage :</strong> Les liens ci-dessous sont des liens d'affiliation et de parrainage. En ouvrant un compte via ces accès, vous pouvez bénéficier des bonus de bienvenue proposés par les plateformes tout en soutenant le développement gratuit de l'application.",
+        eco_brokers: "📈 Banques & Courtiers",
+        eco_crypto: "🪙 Crypto & Rendement Alternatif",
+        eco_portfolio: "Portefeuille & Performances",
+        eco_wikifolio: "Suivre le Wikifolio Alpha Picker",
+        eco_theses: "Analyses & Thèses",
+        eco_substack: "Suivre le Substack Alpha Picker",
+        eco_support: "Soutenir le Projet",
+        eco_support_desc: "Si cet outil vous aide dans votre parcours d'autonomie financière et de souveraineté, vous pouvez soutenir le projet via les liens ci-dessus ou par un don.",
+        eco_paypal: "Faire un don via PayPal",
+        footer_dev: "<strong>KLON Stake</strong> — Application gratuite & Open Source développée par <strong>Alpha Picker</strong> et hébergée sur GitHub Pages.",
+        footer_privacy: "🛡️ <strong>Confidentialité :</strong> Aucun cookie de suivi, aucune collecte de données. Toutes vos saisies restent exclusivement stockées dans votre navigateur.",
+        footer_disclaimer: "⚠️ <strong>Avertissement :</strong> Cet outil sert de simulation personnelle et éducative. Il ne constitue en aucun cas un conseil en investissement ou une incitation financière.",
+        modal_stock_share_lbl: "DÉTENTION DU CAPITAL",
+        modal_stock_live: "Cours :",
+        modal_stock_val: "Valeur :",
+        modal_sov_title: "Souveraineté & Effet de Levier",
+        modal_sov_text: "L'<strong>Indice de Souveraineté</strong> mesure la proportion exacte de ton patrimoine qui t'appartient en fonds propres nets :<br><br><code style=\"background: rgba(240, 136, 62, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-orange); font-weight: bold;\">(Patrimoine Net ÷ Actifs Bruts) × 100</code><br><br><strong>⚡ Bonne dette vs Mauvaise dette :</strong><br>• <strong>L'effet de levier productif (Bonne dette)</strong> : Crédit immobilier ou crédit Lombard. Emprunter pour capter le rendement d'actifs rentables accélère l'enrichissement.<br>• <strong>La dette destructrice (Mauvaise dette)</strong> : Crédits conso, passifs qui décotent sans produire de valeur.<br><br>Chaque remboursement et chaque acquisition augmente ta pleine souveraineté patrimoniale.",
+        btn_close: "Fermer",
+        btn_understood: "Compris",
+        btn_awesome: "Génial !",
+        full_owned_msg: "🏆 Pleine Propriété Acquise ! Dette = 0.",
+        neg_equity_msg: "⚠️ Équité Négative : Dette dépasse la cote de {val}.",
+        debt_progress_msg: "Déjà remboursé : {repaid} ({pct}%)",
+        debt_paid_msg: "🎉 Dette intégralement éradiquée !"
+      },
+      en: {
+        subtitle: "Real Ownership Simulator",
+        desc: "Track your financial and tangible assets to measure your net sovereignty and real equity.",
+        tab_input: "Data & Assets",
+        tab_balance: "KLON Balance",
+        tab_eco: "Ecosystem",
+        theme_dark: "🌙 Dark",
+        theme_light: "☀️ Light",
+        theme_cb: "👁️ Colorblind",
+        form_add_title: "➕ Add Asset or Liability",
+        help_add_text: "<strong>3 Categories :</strong><br>• <strong>Assets</strong> : Stocks, ETFs, equity (with/without Lombard loan).<br>• <strong>Property</strong> : House, car, tools. You vs The Bank.<br>• <strong>Pure Debt</strong> : Consumer credit, personal loans without collateral.",
+        type_asset: "Assets",
+        type_property: "Property",
+        type_debt: "Pure Debt",
+        lbl_name_asset: "Asset name",
+        lbl_ticker: "Ticker",
+        lbl_name_general: "Asset or debt name",
+        lbl_qty: "Quantity of shares",
+        lbl_pru: "Cost Basis (Unit)",
+        lbl_cur_price: "Current Price",
+        lbl_lombard: "Lombard Loan",
+        lbl_shares_total: "Total Shares Outstanding",
+        lbl_val_actual: "Current Market Value",
+        lbl_debt_actual: "Remaining Loan Balance",
+        lbl_debt_initial: "Initial Borrowed Amount",
+        lbl_debt_repaid: "Amount Already Paid",
+        btn_submit: "Submit & Add to Balance",
+        btn_update: "💾 Save Changes",
+        btn_cancel: "Cancel",
+        inventory_title: "📦 Balance Sheet Inventory",
+        items_count: "{n} item{s}",
+        no_items: "No assets or liabilities recorded yet.",
+        data_mgmt_title: "💾 Data Management",
+        btn_export: "💾 Export",
+        btn_import: "📂 Import",
+        btn_reset: "🗑️ Reset",
+        hero_net_worth: "REAL NET WORTH",
+        hero_net_worth_named: "{name}'S NET WORTH",
+        hero_assets_sub: "Gross Assets: {val}",
+        hero_sov_index: "SOVEREIGNTY INDEX",
+        hero_debts_sub: "Total Debt: {val}",
+        btn_rewards: "🏆 View Rewards ▾",
+        btn_rewards_hide: "🏆 Hide Rewards ▴",
+        gauge_sov: "🛡️ Total Sovereignty",
+        gauge_prod: "🏛️ Productive Assets",
+        gauge_lev: "⚡ Portfolio Leverage (LTV)",
+        gauge_toxic: "🔴 Toxic Debt",
+        eco_disclaimer: "<strong>🤝 Transparency & Referrals:</strong> Links below are affiliate/referral links. Opening an account provides welcome bonuses while supporting free development.",
+        eco_brokers: "📈 Banks & Brokers",
+        eco_crypto: "🪙 Crypto & Alternative Yield",
+        eco_portfolio: "Portfolio & Track Record",
+        eco_wikifolio: "Follow Alpha Picker Wikifolio",
+        eco_theses: "Theses & Analysis",
+        eco_substack: "Follow Alpha Picker Substack",
+        eco_support: "Support the Project",
+        eco_support_desc: "If this tool helps you on your path to sovereignty and financial autonomy, you can support development with a donation.",
+        eco_paypal: "Donate via PayPal",
+        footer_dev: "<strong>KLON Stake</strong> — Free & Open Source app developed by <strong>Alpha Picker</strong> and hosted on GitHub Pages.",
+        footer_privacy: "🛡️ <strong>Privacy:</strong> No cookies, no telemetry. All entries are stored locally on your device.",
+        footer_disclaimer: "⚠️ <strong>Disclaimer:</strong> Educational and personal simulation only. Does not constitute financial advice.",
+        modal_stock_share_lbl: "EQUITY OWNERSHIP",
+        modal_stock_live: "Price:",
+        modal_stock_val: "Value:",
+        modal_sov_title: "Sovereignty & Leverage",
+        modal_sov_text: "The <strong>Sovereignty Index</strong> measures the exact percentage of your gross wealth owned with zero debt:<br><br><code style=\"background: rgba(240, 136, 62, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-orange); font-weight: bold;\">(Net Worth ÷ Gross Assets) × 100</code><br><br><strong>⚡ Good Debt vs Bad Debt:</strong><br>• <strong>Productive Leverage (Good debt)</strong> : Mortgage or Lombard loan. Borrowing to capture yields of productive assets accelerates compounding.<br>• <strong>Consumer Debt (Toxic debt)</strong> : Depreciating loans without underlying equity.<br><br>Every payoff and asset purchase expands your sovereignty.",
+        btn_close: "Close",
+        btn_understood: "Understood",
+        btn_awesome: "Awesome!",
+        full_owned_msg: "🏆 Full Ownership! Zero debt.",
+        neg_equity_msg: "⚠️ Negative Equity: Debt exceeds market value by {val}.",
+        debt_progress_msg: "Paid off: {repaid} ({pct}%)",
+        debt_paid_msg: "🎉 Debt completely eradicated!"
+      }
+    };
+
+    function t(key, params = {}) {
+      const lang = db.lang || 'fr';
+      let text = I18N[lang]?.[key] || I18N.fr?.[key] || key;
+      Object.keys(params).forEach(p => {
+        text = text.replace(new RegExp(`\\{${p}\\}`, 'g'), params[p]);
+      });
+      return text;
+    }
+
+    function applyLanguageUI() {
+      const curLang = db.lang || 'fr';
+      document.documentElement.setAttribute('lang', curLang);
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (k) el.innerHTML = t(k);
+      });
+
+      renderItemsList();
+      if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+    }
+
+    /* ==========================================================================
+       ÉTAT DE L'APPLICATION & INITIALISATION
+       ========================================================================== */
+    let currentAssetType = 'asset';
+    let isRewardsVisible = false;
+    let currentEditingItemId = null;
+    let currentImageTargetId = null;
+    let currentRewardAnimType = 'confetti';
+
+    let localData = JSON.parse(localStorage.getItem('klon_stake_db'));
+    if (!localData || !Array.isArray(localData.items)) {
+      localData = {
+        userName: '',
+        currency: '€',
+        theme: 'dark',
+        lang: 'fr',
+        cardsOrder: [],
+        everUnlockedRewards: [],
+        items: []
+      };
+      localStorage.setItem('klon_stake_db', JSON.stringify(localData));
+    }
+    let db = localData;
+    if (!db.currency) db.currency = '€';
+    if (!db.theme) db.theme = 'dark';
+    if (!db.lang) db.lang = 'fr';
+    if (!Array.isArray(db.cardsOrder)) db.cardsOrder = [];
+    if (!Array.isArray(db.everUnlockedRewards)) db.everUnlockedRewards = [];
+
+    function saveData() { localStorage.setItem('klon_stake_db', JSON.stringify(db)); }
+    function fmt(v) { return new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR').format(Math.round(v || 0)) + ' ' + db.currency; }
+    function fmtCompact(v) { return new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR', { notation: 'compact' }).format(Math.round(v || 0)); }
+
+    function switchTab(tabId, e) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      if (e && e.currentTarget) e.currentTarget.classList.add('active');
+      if (tabId === 'tab2') renderTab2();
+    }
+
+    function changeTheme(themeName) {
+      db.theme = themeName;
+      saveData();
+      document.documentElement.setAttribute('data-theme', themeName);
+    }
+
+    function changeCurrency(sym) {
+      db.currency = sym;
+      saveData();
+      document.querySelectorAll('.curr-sym').forEach(el => el.innerText = sym);
+      renderItemsList();
+      renderTab2();
+    }
+
+    function changeLanguage(langCode) {
+      db.lang = langCode;
+      saveData();
+      applyLanguageUI();
+    }
+
+    function saveUserName() {
+      db.userName = document.getElementById('user-name-input').value.trim();
+      saveData();
+      if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+    }
+
+    function toggleHelp(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active');
+    }
+
+    function selectAssetType(type) {
+      currentAssetType = type;
+      document.getElementById('btn-type-asset').classList.toggle('active', type === 'asset');
+      document.getElementById('btn-type-property').classList.toggle('active', type === 'property');
+      document.getElementById('btn-type-debt').classList.toggle('active', type === 'debt');
+
+      document.getElementById('name-asset-row').style.display = type === 'asset' ? 'grid' : 'none';
+      document.getElementById('name-general-row').style.display = type === 'asset' ? 'none' : 'block';
+
+      document.getElementById('fields-asset').style.display = type === 'asset' ? 'flex' : 'none';
+      document.getElementById('fields-property').style.display = type === 'property' ? 'grid' : 'none';
+      document.getElementById('fields-debt').style.display = type === 'debt' ? 'grid' : 'none';
+
+      const nameGeneralInput = document.getElementById('in-name');
+      const lblName = document.getElementById('lbl-name-field');
+      if (type === 'property') {
+        lblName.innerText = t('lbl_name_general');
+        nameGeneralInput.placeholder = (db.lang === 'en') ? "House, Car..." : "Maison, Voiture...";
+      } else {
+        lblName.innerText = t('lbl_name_general');
+        nameGeneralInput.placeholder = (db.lang === 'en') ? "Personal loan..." : "Crédit conso, Prêt personnel...";
+      }
+    }
+
+    /* MOTEUR BOURSIER EN DIRECT VIA YAHOO FINANCE */
+    async function fetchLiveStockData(symbol) {
+      if (!symbol) return null;
+      const clean = symbol.trim().toUpperCase();
+
+      const queries = [
+        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`
+      ];
+
+      for (const qUrl of queries) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3800);
+          const res = await fetch(qUrl, { signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (!res.ok) continue;
+          const data = await res.json();
+          const meta = data?.chart?.result?.[0]?.meta;
+
+          if (meta && meta.regularMarketPrice) {
+            return {
+              name: meta.shortName || meta.symbol || clean,
+              price: meta.regularMarketPrice
+            };
+          }
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    async function triggerLiveTickerCheck() {
+      if (currentAssetType !== 'asset') return;
+      const ticker = document.getElementById('in-ticker').value.trim();
+      if (ticker.length < 2) return;
+
+      const live = await fetchLiveStockData(ticker);
+      if (live) {
+        const priceInput = document.getElementById('in-cur-price');
+        const nameInput = document.getElementById('in-name-asset');
+        if (live.price) priceInput.value = live.price;
+        if (live.name && !nameInput.value) nameInput.value = live.name;
+      }
+    }
+
+    /* FORMULAIRE : AJOUT & ÉDITION */
+    function submitStakeForm() {
+      let name = '';
+      let itemData = {};
+
+      if (currentAssetType === 'asset') {
+        name = document.getElementById('in-name-asset').value.trim();
+        const ticker = document.getElementById('in-ticker').value.trim().toUpperCase();
+        if (!name && ticker) name = ticker;
+        if (!name) {
+          showCustomDialog('⚠️', 'Attention', (db.lang === 'en') ? 'Please enter an asset name or ticker.' : 'Veuillez saisir un nom ou un ticker.');
+          return;
+        }
+
+        const qty = parseFloat(document.getElementById('in-qty').value) || 0;
+        const pru = parseFloat(document.getElementById('in-pru').value) || 0;
+        const curPrice = parseFloat(document.getElementById('in-cur-price').value) || pru;
+        const sharesTotal = parseFloat(document.getElementById('in-shares-total').value) || 0;
+        const lombardDebt = parseFloat(document.getElementById('in-lombard-debt').value) || 0;
+
+        if (qty <= 0 || pru <= 0) {
+          showCustomDialog('⚠️', 'Attention', (db.lang === 'en') ? 'Quantity and Cost Basis must be > 0.' : 'La quantité et le PRU doivent être supérieurs à 0.');
+          return;
+        }
+        itemData = { ticker, qty, pru, curPrice, sharesTotal, lombardDebt };
+      } else if (currentAssetType === 'property') {
+        name = document.getElementById('in-name').value.trim();
+        if (!name) {
+          showCustomDialog('⚠️', 'Attention', (db.lang === 'en') ? 'Please enter asset name.' : 'Veuillez saisir le nom du bien.');
+          return;
+        }
+
+        const valActual = parseFloat(document.getElementById('in-val-actual').value) || 0;
+        const debtActual = parseFloat(document.getElementById('in-debt-actual').value) || 0;
+        itemData = { valActual, debtActual };
+      } else {
+        name = document.getElementById('in-name').value.trim();
+        if (!name) {
+          showCustomDialog('⚠️', 'Attention', (db.lang === 'en') ? 'Please enter debt name.' : 'Veuillez saisir le nom de la dette.');
+          return;
+        }
+
+        const debtInitial = parseFloat(document.getElementById('in-debt-initial').value) || 0;
+        const debtRepaid = parseFloat(document.getElementById('in-debt-repaid').value) || 0;
+        itemData = { debtInitial, debtRepaid };
+      }
+
+      let savedId = null;
+      if (currentEditingItemId) {
+        const existing = db.items.find(i => i.id === currentEditingItemId);
+        if (existing) {
+          existing.name = name;
+          existing.type = currentAssetType;
+          Object.assign(existing, itemData);
+          savedId = existing.id;
+        }
+        cancelEditing();
+      } else {
+        savedId = Date.now().toString();
+        const newItem = { id: savedId, name, type: currentAssetType, customImage: null, ...itemData };
+        db.items.push(newItem);
+        db.cardsOrder.push(savedId);
+      }
+
+      saveData();
+      resetFormInputs();
+      renderItemsList();
+      if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+
+      // Mise à jour discrète en tâche de fond
+      if (currentAssetType === 'asset' && itemData.ticker) {
+        fetchLiveStockData(itemData.ticker).then(live => {
+          if (live && live.price) {
+            const it = db.items.find(i => i.id === savedId);
+            if (it) {
+              it.curPrice = live.price;
+              saveData();
+              renderItemsList();
+              if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+            }
+          }
+        });
+      }
+    }
+
+    function resetFormInputs() {
+      document.getElementById('in-name-asset').value = '';
+      document.getElementById('in-ticker').value = '';
+      document.getElementById('in-name').value = '';
+      document.getElementById('in-qty').value = '';
+      document.getElementById('in-pru').value = '';
+      document.getElementById('in-cur-price').value = '';
+      document.getElementById('in-shares-total').value = '';
+      document.getElementById('in-lombard-debt').value = '';
+      document.getElementById('in-val-actual').value = '';
+      document.getElementById('in-debt-actual').value = '';
+      document.getElementById('in-debt-initial').value = '';
+      document.getElementById('in-debt-repaid').value = '';
+    }
+
+    function editStakeItem(id) {
+      const item = db.items.find(i => i.id === id);
+      if (!item) return;
+
+      currentEditingItemId = item.id;
+      selectAssetType(item.type);
+
+      if (item.type === 'asset') {
+        document.getElementById('in-name-asset').value = item.name;
+        document.getElementById('in-ticker').value = item.ticker || '';
+        document.getElementById('in-qty').value = item.qty;
+        document.getElementById('in-pru').value = item.pru;
+        document.getElementById('in-cur-price').value = item.curPrice || item.pru;
+        document.getElementById('in-shares-total').value = item.sharesTotal || '';
+        document.getElementById('in-lombard-debt').value = item.lombardDebt || '';
+      } else if (item.type === 'property') {
+        document.getElementById('in-name').value = item.name;
+        document.getElementById('in-val-actual').value = item.valActual;
+        document.getElementById('in-debt-actual').value = item.debtActual;
+      } else {
+        document.getElementById('in-name').value = item.name;
+        document.getElementById('in-debt-initial').value = item.debtInitial || '';
+        document.getElementById('in-debt-repaid').value = item.debtRepaid || '';
+      }
+
+      document.getElementById('form-title').innerText = (db.lang === 'en') ? `✏️ Edit "${item.name}"` : `✏️ Modifier « ${item.name} »`;
+      document.getElementById('btn-submit-form').innerText = t('btn_update');
+      document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
+      document.getElementById('form-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEditing() {
+      currentEditingItemId = null;
+      document.getElementById('form-title').innerText = t('form_add_title');
+      document.getElementById('btn-submit-form').innerText = t('btn_submit');
+      document.getElementById('btn-cancel-edit').style.display = 'none';
+      resetFormInputs();
+    }
+
+    function deleteStakeItem(id, e) {
+      if (e) e.stopPropagation();
+      db.items = db.items.filter(item => item.id !== id);
+      db.cardsOrder = db.cardsOrder.filter(cId => cId !== id);
+      if (currentEditingItemId === id) cancelEditing();
+      saveData();
+      renderItemsList();
+      renderTab2();
+    }
+
+    /* INVENTAIRE DE L'ONGLET 1 ÉPURÉ (PARTS, PRU ET LOMBARD UNIQUEMENT) */
+    function renderItemsList() {
+      const box = document.getElementById('items-list');
+      const countEl = document.getElementById('items-count-badge');
+      const s = db.items.length > 1 ? (db.lang === 'en' ? 's' : 's') : '';
+      if (countEl) countEl.innerText = t('items_count', { n: db.items.length, s });
+      box.innerHTML = '';
+
+      if (db.items.length === 0) {
+        box.innerHTML = `<div style="font-size:0.82rem; opacity:0.6; text-align:center; padding:12px;">${t('no_items')}</div>`;
+        return;
+      }
+
+      db.items.forEach(item => {
+        let subText = '';
+        let defaultIcon = item.type === 'asset' ? '🏛️' : (item.type === 'property' ? '🔑' : '💳');
+        
+        let miniAvatar = item.customImage 
+          ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo"></div>`
+          : `<div class="inventory-avatar-mini" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo">${defaultIcon}</div>`;
+
+        if (item.type === 'asset') {
+          const lombardInfo = item.lombardDebt > 0 ? ` • Lombard : ${fmt(item.lombardDebt)}` : '';
+          subText = `${item.qty} parts @ PRU ${item.pru} ${db.currency}${lombardInfo}`;
+        } else if (item.type === 'property') {
+          subText = `Cote : ${fmt(item.valActual)} | Dette : ${fmt(item.debtActual)}`;
+        } else {
+          const remaining = Math.max(0, (item.debtInitial || 0) - (item.debtRepaid || 0));
+          subText = `Reste dû : ${fmt(remaining)} / ${fmt(item.debtInitial || 0)}`;
+        }
+
+        box.innerHTML += `
+          <div class="inventory-row" onclick="editStakeItem('${item.id}')" title="Modifier">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              ${miniAvatar}
+              <div>
+                <strong style="color: var(--text-bright); font-size: 0.88rem;">${item.name}</strong>
+                <div style="font-size: 0.72rem; opacity: 0.75; margin-top: 1px;">${subText}</div>
+              </div>
+            </div>
+            <button class="btn-danger" onclick="deleteStakeItem('${item.id}', event)">✕</button>
+          </div>
+        `;
+      });
+    }
+
+    function triggerImageUpload(itemId) {
+      currentImageTargetId = itemId;
+      document.getElementById('image-upload-input').click();
+    }
+
+    function handleImageSelected(event) {
+      const file = event.target.files[0];
+      if (!file || !currentImageTargetId) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 120; canvas.height = 120;
+          const ctx = canvas.getContext('2d');
+          const minDim = Math.min(img.width, img.height);
+          const sx = (img.width - minDim) / 2;
+          const sy = (img.height - minDim) / 2;
+          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, 120, 120);
+
+          const dataUrl = canvas.toDataURL('image/webp', 0.82);
+          const target = db.items.find(i => i.id === currentImageTargetId);
+          if (target) {
+            target.customImage = dataUrl;
+            saveData();
+            renderItemsList();
+            renderTab2();
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    }
+
+    /* REFRESH BOURSIER */
+    async function refreshMarketData() {
+      const assetItems = db.items.filter(i => i.type === 'asset' && (i.ticker || i.name));
+      if (assetItems.length === 0) return;
+
+      let updatedCount = 0;
+      for (const item of assetItems) {
+        const querySymbol = item.ticker || item.name;
+        const live = await fetchLiveStockData(querySymbol);
+        if (live && live.price) {
+          item.curPrice = live.price;
+          updatedCount++;
+        }
+      }
+
+      saveData();
+      renderTab2();
+      renderItemsList();
+      showCustomDialog('🔄', 'Marché', `${updatedCount} cours de bourse actualisés en direct !`);
+    }
+
+    /* PALIERS D'ACTIONS DÈS 0,0000001% */
+    const STOCK_TIERS = [
+      { target: 0.0000001, label: "Palier Cuivre", color: "#b45309" },
+      { target: 0.000001,  label: "Palier Bronze 🥉", color: "#cd7f32" },
+      { target: 0.00001,   label: "Palier Argent 🥈", color: "#94a3b8" },
+      { target: 0.0001,    label: "Palier Or 🥇", color: "#eab308" },
+      { target: 0.001,     label: "Palier Émeraude 🟢", color: "#10b981" },
+      { target: 0.01,      label: "Palier Saphir 💎", color: "#3b82f6" },
+      { target: 0.1,       label: "Palier Rubis 🔴", color: "#ef4444" },
+      { target: 1.0,       label: "Palier Titan", color: "#a855f7" },
+      { target: 100.0,     label: "Palier Fondateur 👑", color: "#38bdf8" }
+    ];
+
+    function getTierConfig(sharePct) {
+      for (let i = 0; i < STOCK_TIERS.length; i++) {
+        if (sharePct < STOCK_TIERS[i].target) {
+          const prevTier = i > 0 ? STOCK_TIERS[i - 1] : null;
+          const currentTier = STOCK_TIERS[i];
+          const prevTarget = prevTier ? prevTier.target : 0;
+          const progress = Math.min(100, Math.max(0, ((sharePct - prevTarget) / (currentTier.target - prevTarget)) * 100));
+
+          return {
+            currentTier,
+            prevTier,
+            progress,
+            baseColor: prevTier ? prevTier.color : "var(--bg-color)",
+            fillColor: currentTier.color
+          };
+        }
+      }
+      return {
+        currentTier: STOCK_TIERS[STOCK_TIERS.length - 1],
+        prevTier: STOCK_TIERS[STOCK_TIERS.length - 2],
+        progress: 100,
+        baseColor: "#a855f7",
+        fillColor: "#38bdf8"
+      };
+    }
+
+    /* RENDU ONGLET 2 */
+    function renderTab2() {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '';
+
+      let totalGrossAssets = 0;
+      let totalDebts = 0;
+      let productiveAssets = 0;
+      let collateralizedDebts = 0;
+      let toxicDebts = 0;
+
+      db.items.forEach(item => {
+        if (item.type === 'asset') {
+          const curP = item.curPrice || item.pru;
+          const val = item.qty * curP;
+          totalGrossAssets += val;
+          productiveAssets += val;
+          if (item.lombardDebt && item.lombardDebt > 0) {
+            totalDebts += item.lombardDebt;
+            collateralizedDebts += item.lombardDebt;
+          }
+        } else if (item.type === 'property') {
+          totalGrossAssets += item.valActual;
+          totalDebts += item.debtActual;
+          collateralizedDebts += item.debtActual;
+        } else {
+          const remaining = Math.max(0, (item.debtInitial || 0) - (item.debtRepaid || 0));
+          totalDebts += remaining;
+          toxicDebts += remaining;
+        }
+      });
+
+      const netWorth = totalGrossAssets - totalDebts;
+      const sovereigntyRate = totalGrossAssets > 0 
+        ? Math.max(0, Math.min(100, Math.round((netWorth / totalGrossAssets) * 100))) 
+        : (totalDebts > 0 ? 0 : 100);
+
+      // Personnalisation du titre avec le nom s'il est renseigné
+      const heroTitleEl = document.getElementById('lbl-hero-net-worth');
+      if (heroTitleEl) {
+        heroTitleEl.innerText = db.userName.trim() 
+          ? t('hero_net_worth_named', { name: db.userName.trim().toUpperCase() })
+          : t('hero_net_worth');
+      }
+
+      document.getElementById('hero-net-worth').innerText = fmt(netWorth);
+      document.getElementById('hero-assets-sub').innerText = t('hero_assets_sub', { val: fmt(totalGrossAssets) });
+      document.getElementById('hero-sovereignty-val').innerText = `${sovereigntyRate} %`;
+      document.getElementById('hero-sovereignty-sub').innerText = t('hero_debts_sub', { val: fmt(totalDebts) });
+
+      document.getElementById('gauge-val-sov').innerText = `${sovereigntyRate}%`;
+      document.getElementById('gauge-bar-sov').style.width = `${sovereigntyRate}%`;
+
+      const prodPct = totalGrossAssets > 0 ? Math.round((productiveAssets / totalGrossAssets) * 100) : 0;
+      document.getElementById('gauge-val-prod').innerText = `${prodPct}%`;
+      document.getElementById('gauge-bar-prod').style.width = `${prodPct}%`;
+
+      const ltvPct = totalGrossAssets > 0 ? Math.round((collateralizedDebts / totalGrossAssets) * 100) : 0;
+      document.getElementById('gauge-val-lev').innerText = `${ltvPct}%`;
+      document.getElementById('gauge-bar-lev').style.width = `${Math.min(100, ltvPct)}%`;
+
+      document.getElementById('gauge-val-toxic').innerText = fmt(toxicDebts);
+      const toxicPct = totalDebts > 0 ? Math.round((toxicDebts / totalDebts) * 100) : 0;
+      document.getElementById('gauge-bar-toxic').style.width = `${toxicPct}%`;
+
+      let orderedItems = [...db.items];
+      if (db.cardsOrder && db.cardsOrder.length > 0) {
+        orderedItems.sort((a, b) => {
+          let idxA = db.cardsOrder.indexOf(a.id);
+          let idxB = db.cardsOrder.indexOf(b.id);
+          if (idxA === -1) idxA = 999;
+          if (idxB === -1) idxB = 999;
+          return idxA - idxB;
+        });
+      }
+
+      orderedItems.forEach(item => {
+        if (item.type === 'asset') renderAssetCard(container, item);
+        else if (item.type === 'property') renderPropertyCard(container, item);
+        else renderDebtCard(container, item);
+      });
+
+      initDragAndDrop();
+      checkStakeRewards(netWorth, sovereigntyRate, totalDebts);
+    }
+
+    /* CARTE D'ACTION ÉPURÉE (VALEUR NETTE EN HAUT À DROITE) */
+    function renderAssetCard(container, item) {
+      const curP = item.curPrice || item.pru;
+      const grossVal = item.qty * curP;
+      const debt = item.lombardDebt || 0;
+      const netVal = grossVal - debt;
+
+      let sharePct = 0;
+      let rarityBadge = '';
+      if (item.sharesTotal && item.sharesTotal > 0 && item.qty > 0) {
+        sharePct = (item.qty / item.sharesTotal) * 100;
+        const rarity = Math.round(item.sharesTotal / item.qty);
+        rarityBadge = (db.lang === 'en') 
+          ? `🌍 1 in <strong>${fmtCompact(rarity)}</strong> owns this`
+          : `🌍 1 pers. sur <strong>${fmtCompact(rarity)}</strong> possède ce bloc`;
+      } else {
+        rarityBadge = (db.lang === 'en') ? `100% equity` : `100 % fonds propres`;
+      }
+
+      let avatarContent = item.customImage 
+        ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')"></div>`
+        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')">🏛️</div>`;
+
+      const tier = getTierConfig(sharePct);
+      const tickerTag = item.ticker ? `<span style="font-size:0.7rem; color:var(--accent-orange); font-weight:800; background:var(--badge-bg); padding:1px 5px; border-radius:4px; border:1px solid var(--accent-orange);">${item.ticker}</span>` : '';
+
+      container.innerHTML += `
+        <div class="stake-card" data-id="${item.id}" onclick="openStockDetailModal('${item.id}')" style="border-left-color: ${tier.fillColor};" title="Détails de l'action">
+          <div class="stake-card-header">
+            ${avatarContent}
+            <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>
+                  ${tickerTag}
+                </div>
+                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">
+                  ${item.qty} parts @ ${curP} ${db.currency}
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 1rem; font-weight: 800; color: var(--accent-orange);">${fmt(netVal)}</div>
+                <div style="font-size: 0.72rem; color: ${tier.fillColor}; font-weight: bold;">${tier.currentTier.label}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-main); margin-top: -2px;">
+            <span>${rarityBadge}</span>
+          </div>
+          
+          <div class="progress-bar-bg" style="background-color: ${tier.baseColor}; position: relative;">
+            <div class="progress-bar-fill" style="width: ${sharePct > 0 ? tier.progress : 100}%; background-color: ${tier.fillColor}; position: absolute; top: 0; left: 0; height: 100%;"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPropertyCard(container, item) {
+      const netPart = item.valActual - item.debtActual;
+      const isNegativeEquity = netPart < 0;
+      const ownershipPct = item.valActual > 0 ? Math.max(0, Math.min(100, Math.round((netPart / item.valActual) * 100))) : 0;
+      const isFullOwned = item.debtActual <= 0 && item.valActual > 0;
+
+      let cardClass = isFullOwned ? 'full-owned' : (isNegativeEquity ? 'negative-equity' : '');
+
+      let avatarContent = item.customImage 
+        ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')"></div>`
+        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')">🔑</div>`;
+
+      let statusMsg = isFullOwned
+        ? t('full_owned_msg')
+        : (isNegativeEquity 
+            ? t('neg_equity_msg', { val: fmt(Math.abs(netPart)) })
+            : (db.lang === 'en' ? `Equity: ${fmt(netPart)} (${ownershipPct}%) • Bank: ${fmt(item.debtActual)}` : `Part nette : ${fmt(netPart)} (${ownershipPct}%) • Banque : ${fmt(item.debtActual)}`));
+
+      container.innerHTML += `
+        <div class="stake-card ${cardClass}" data-id="${item.id}">
+          <div class="stake-card-header">
+            ${avatarContent}
+            <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>
+                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">Cote : ${fmt(item.valActual)}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 1rem; font-weight: 800; color: ${isFullOwned ? 'var(--accent-green-bright)' : 'var(--accent-orange)'};">${fmt(netPart)}</div>
+                <div style="font-size: 0.72rem; opacity: 0.85;">${ownershipPct} %</div>
+              </div>
+            </div>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--text-main); margin-top: -2px;">
+            ${statusMsg}
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill ${isFullOwned ? 'success' : (isNegativeEquity ? 'danger' : '')}" style="width: ${ownershipPct}%;"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDebtCard(container, item) {
+      const initial = item.debtInitial || 0;
+      const repaid = item.debtRepaid || 0;
+      const remaining = Math.max(0, initial - repaid);
+      const progress = initial > 0 ? Math.min(100, Math.round((repaid / initial) * 100)) : 0;
+      const isFullyRepaid = remaining === 0 && initial > 0;
+
+      let avatarContent = item.customImage 
+        ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')"></div>`
+        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')">💳</div>`;
+
+      container.innerHTML += `
+        <div class="stake-card pure-debt ${isFullyRepaid ? 'full-owned' : ''}" data-id="${item.id}" onclick="openDebtEncouragementModal('${item.id}')">
+          <div class="stake-card-header">
+            ${avatarContent}
+            <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>
+                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">${isFullyRepaid ? t('debt_paid_msg') : t('debt_progress_msg', { repaid: fmt(repaid), pct: progress })}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 1rem; font-weight: 800; color: var(--accent-red);">${fmt(remaining)}</div>
+                <div style="font-size: 0.72rem; color: var(--accent-purple); font-weight: bold;">${progress} %</div>
+              </div>
+            </div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill purple" style="width: ${progress}%;"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* MODALE EXPLICATION DES 4 JAUGES */
+    const GAUGE_INFOS = {
+      sov: {
+        icon: "🛡️",
+        titleFR: "Indice de Souveraineté Totale",
+        titleEN: "Total Sovereignty Index",
+        descFR: "Ce ratio mesure la part de ton patrimoine total qui t'appartient à toi, libre de toute dette.<br><br>• <strong>100 %</strong> signifie que tu ne dois plus un seul centime à aucune banque : pleine émancipation financière !",
+        descEN: "Measures the portion of your total wealth owned free and clear of all debts.<br><br>• <strong>100%</strong> means full financial emancipation with zero liabilities."
+      },
+      prod: {
+        icon: "🏛️",
+        titleFR: "Taux d'Actifs Productifs",
+        titleEN: "Productive Assets Ratio",
+        descFR: "Représente le pourcentage de ton patrimoine investi dans des <strong>machines à cash</strong> (actions cotées, ETF, parts d'entreprises) par rapport aux biens d'usage.<br><br>Plus ce chiffre est élevé, plus ton argent travaille pour toi 24h/24.",
+        descEN: "The percentage of your assets invested in cash-generating engines (equities, ETFs, business shares) versus consumer/use assets."
+      },
+      lev: {
+        icon: "⚡",
+        titleFR: "Levier Patrimonial (LTV)",
+        titleEN: "Portfolio Leverage (LTV)",
+        descFR: "Indique le niveau d'endettement productif sain (crédit immobilier et crédit Lombard) adossé à tes actifs réels.<br><br>Utiliser le levier bancaire pour acquérir des actifs durables accélère l'enrichissement net si le ratio reste maîtrisé.",
+        descEN: "Measures productive leverage (mortgage & Lombard debt) backed by real assets."
+      },
+      toxic: {
+        icon: "🔴",
+        titleFR: "Dette Destructrice (Passif Pur)",
+        titleEN: "Toxic Unsecured Debt",
+        descFR: "Total des crédits à la consommation et passifs sans aucun actif en face.<br><br>Ce sont des poids morts qui rongent ton patrimoine net : à rembourser et détruire en priorité absolue !",
+        descEN: "Total consumer and depreciating loans without collateral. Priority target to eliminate!"
+      }
+    };
+
+    function openGaugeModal(type) {
+      const info = GAUGE_INFOS[type];
+      if (!info) return;
+      const isEn = db.lang === 'en';
+      document.getElementById('g-modal-icon').innerText = info.icon;
+      document.getElementById('g-modal-title').innerText = isEn ? info.titleEN : info.titleFR;
+      document.getElementById('g-modal-desc').innerHTML = isEn ? info.descEN : info.descFR;
+      document.getElementById('gauge-info-modal').classList.add('active');
+    }
+
+    function closeGaugeModal() {
+      document.getElementById('gauge-info-modal').classList.remove('active');
+    }
+
+    /* MODALE FICHE D'ACTIONNAIRE */
+    function openStockDetailModal(itemId) {
+      const item = db.items.find(i => i.id === itemId);
+      if (!item || item.type !== 'asset') return;
+
+      const curP = item.curPrice || item.pru;
+      const grossVal = item.qty * curP;
+      const investedVal = item.qty * item.pru;
+      const plusValue = grossVal - investedVal;
+      const debt = item.lombardDebt || 0;
+      const ltv = grossVal > 0 ? Math.round((debt / grossVal) * 100) : 0;
+
+      let sharePct = 0;
+      if (item.sharesTotal && item.sharesTotal > 0) {
+        sharePct = (item.qty / item.sharesTotal) * 100;
+      }
+
+      document.getElementById('m-stock-title').innerText = item.name;
+      document.getElementById('m-stock-ticker').innerText = item.ticker || 'ACTION';
+      document.getElementById('m-stock-exact-pct').innerText = sharePct > 0 ? `${sharePct.toFixed(8)} %` : '100 %';
+      document.getElementById('m-stock-shares-count').innerText = item.sharesTotal > 0 
+        ? `${new Intl.NumberFormat('fr-FR').format(item.qty)} / ${new Intl.NumberFormat('fr-FR').format(item.sharesTotal)} shares`
+        : `${new Intl.NumberFormat('fr-FR').format(item.qty)} parts`;
+
+      document.getElementById('m-stock-live-price').innerText = `${curP} ${db.currency}`;
+      document.getElementById('m-stock-pru').innerText = `${item.pru} ${db.currency}`;
+      document.getElementById('m-stock-market-val').innerText = fmt(grossVal);
+
+      const pvEl = document.getElementById('m-stock-plus-value');
+      const pvSign = plusValue >= 0 ? '+' : '';
+      const pvColor = plusValue >= 0 ? 'var(--accent-green-bright)' : 'var(--accent-red)';
+      pvEl.innerHTML = `P/L : <strong style="color:${pvColor};">${pvSign}${fmt(plusValue)}</strong>`;
+
+      const lombardBox = document.getElementById('m-stock-lombard-box');
+      if (debt > 0) {
+        lombardBox.style.display = 'block';
+        lombardBox.innerHTML = `⚡ <strong>Lombard :</strong> ${fmt(debt)} (LTV : ${ltv}%) • Net : ${fmt(grossVal - debt)}`;
+      } else {
+        lombardBox.style.display = 'none';
+      }
+
+      document.getElementById('stock-detail-modal').classList.add('active');
+    }
+
+    function closeStockDetailModal() {
+      document.getElementById('stock-detail-modal').classList.remove('active');
+    }
+
+    /* MODALE ENCOURAGEMENT DETTE */
+    function openDebtEncouragementModal(itemId) {
+      const item = db.items.find(i => i.id === itemId);
+      if (!item) return;
+
+      const initial = item.debtInitial || 0;
+      const repaid = item.debtRepaid || 0;
+      const remaining = Math.max(0, initial - repaid);
+      const pct = initial > 0 ? Math.min(100, Math.round((repaid / initial) * 100)) : 0;
+      const isPaid = remaining === 0;
+
+      if (pct >= 50 && typeof triggerCelebration === 'function') triggerCelebration('gold');
+
+      const title = isPaid 
+        ? (db.lang === 'en' ? '🎉 Debt Cleared!' : '🎉 Dette Éradiquée !') 
+        : (db.lang === 'en' ? '💪 Financial Freedom Payoff' : '💪 Rachat de ta Liberté');
+      
+      const msg = isPaid
+        ? (db.lang === 'en' 
+            ? `Congrats! You repaid all <strong>${fmt(initial)}</strong>.<br><br>Zero debt on this liability!` 
+            : `Félicitations ! Tu as remboursé la totalité des <strong>${fmt(initial)}</strong> de ce passif.<br><br>Ce crédit ne pèse plus sur ton bilan net !`)
+        : (db.lang === 'en'
+            ? `You already crushed <strong>${fmt(repaid)} (${pct}%)</strong> on this debt.<br><br>Remaining: <strong>${fmt(remaining)}</strong>.<br><br>Every dollar repaid expands your real sovereignty!`
+            : `Tu as déjà détruit <strong>${fmt(repaid)} (${pct} %)</strong> sur ce crédit.<br><br>Reste à éliminer : <strong>${fmt(remaining)}</strong>.<br><br>Chaque euro remboursé augmente directement ton patrimoine net réel !`);
+
+      showCustomDialog(isPaid ? '🏆' : '🛡️', title, msg);
+    }
+
+    /* RÉCOMPENSES SOUVERAINETÉ */
+    const STAKE_REWARDS = [
+      { id: "r_first", icon: "🪙", label: "Premier Titre", desc: "Premier actif ou passif enregistré sur ton bilan.", anim: "confetti" },
+      { id: "r_share", icon: "🏛️", label: "Actionnaire Réel", desc: "Tu possèdes des parts d'une entreprise dans le monde réel.", anim: "confetti" },
+      { id: "r_lombard", icon: "⚡", label: "Levier Financier", desc: "Utilisation du crédit Lombard pour démultiplier tes positions.", anim: "cash" },
+      { id: "r_property", icon: "🔑", label: "Détenteur de Clé", desc: "Bien matériel sous gestion : le rachat de parts commence.", anim: "cash" },
+      { id: "r_positive", icon: "⚖️", label: "Bilan Positif", desc: "Patrimoine net positif : tes actifs dépassent tes dettes globales.", anim: "cash" },
+      { id: "r_car_free", icon: "🚗", label: "Véhicule Libéré", desc: "Pleine propriété acquise sur un véhicule : 0 € de crédit !", anim: "gold" },
+      { id: "r_house_free", icon: "🏰", label: "Maître des Lieux", desc: "Pleine propriété acquise sur un bien immobilier : la banque est sortie !", anim: "diamonds" },
+      { id: "r_sov_50", icon: "🛡️", label: "Souveraineté 50%", desc: "Plus de la moitié de ton monde matériel t'appartient en fonds propres nets.", anim: "gold" },
+      { id: "r_sov_100", icon: "👑", label: "Souveraineté Absolue", desc: "100 % de souveraineté ! Zéro dette bancaire sur l'ensemble de ton patrimoine.", anim: "crowns" },
+      { id: "r_100k", icon: "🏦", label: "Cap 100k Net", desc: "100 000 € de patrimoine net réel franchi !", anim: "crowns" }
+    ];
+
+    function toggleRewardsVisibility() {
+      isRewardsVisible = !isRewardsVisible;
+      const wrapper = document.getElementById('hero-rewards-wrapper');
+      const btn = document.getElementById('btn-toggle-rewards');
+      if (isRewardsVisible) {
+        wrapper.style.display = 'flex';
+        btn.innerHTML = t('btn_rewards_hide');
+      } else {
+        wrapper.style.display = 'none';
+        btn.innerHTML = t('btn_rewards');
+      }
+    }
+
+    function checkStakeRewards(netWorth, sovereigntyRate, totalDebts) {
+      const box = document.getElementById('rewards-box');
+      const toggleRow = document.getElementById('hero-rewards-toggle-row');
+      const wrapper = document.getElementById('hero-rewards-wrapper');
+      box.innerHTML = '';
+
+      if (db.items.length === 0) {
+        toggleRow.classList.remove('has-rewards');
+        wrapper.style.display = 'none';
+        return;
+      }
+
+      const hasAsset = db.items.some(i => i.type === 'asset');
+      const hasLombard = db.items.some(i => i.type === 'asset' && i.lombardDebt > 0);
+      const hasProperty = db.items.some(i => i.type === 'property');
+      const hasVehicleFree = db.items.some(i => i.type === 'property' && i.debtActual <= 0 && i.valActual > 0 && i.name.toLowerCase().match(/voiture|auto|moto|véhicule/));
+      const hasHouseFree = db.items.some(i => i.type === 'property' && i.debtActual <= 0 && i.valActual > 0 && i.name.toLowerCase().match(/maison|appart|immo|résidence/));
+
+      let newlyUnlockedId = null;
+
+      STAKE_REWARDS.forEach(r => {
+        let isUnlocked = false;
+        if (r.id === "r_first") isUnlocked = db.items.length >= 1;
+        if (r.id === "r_share") isUnlocked = hasAsset;
+        if (r.id === "r_lombard") isUnlocked = hasLombard;
+        if (r.id === "r_property") isUnlocked = hasProperty;
+        if (r.id === "r_positive") isUnlocked = netWorth > 0;
+        if (r.id === "r_car_free") isUnlocked = hasVehicleFree;
+        if (r.id === "r_house_free") isUnlocked = hasHouseFree;
+        if (r.id === "r_sov_50") isUnlocked = sovereigntyRate >= 50 && netWorth > 0;
+        if (r.id === "r_sov_100") isUnlocked = sovereigntyRate >= 100 && totalDebts === 0 && db.items.length > 0;
+        if (r.id === "r_100k") isUnlocked = netWorth >= 100000;
+
+        if (isUnlocked) {
+          if (!db.everUnlockedRewards.includes(r.id)) {
+            db.everUnlockedRewards.push(r.id);
+            newlyUnlockedId = r.id;
+            saveData();
+          }
+          box.innerHTML += `
+            <div class="corp-reward-pill" onclick="openRewardModal('${r.id}')">
+              <span>${r.icon}</span> ${r.label}
+            </div>
+          `;
+        }
+      });
+
+      if (box.children.length > 0) {
+        toggleRow.classList.add('has-rewards');
+        wrapper.style.display = isRewardsVisible ? 'flex' : 'none';
+        document.getElementById('btn-toggle-rewards').innerHTML = isRewardsVisible ? t('btn_rewards_hide') : t('btn_rewards');
+      } else {
+        toggleRow.classList.remove('has-rewards');
+        wrapper.style.display = 'none';
+      }
+
+      if (newlyUnlockedId) {
+        const found = STAKE_REWARDS.find(item => item.id === newlyUnlockedId);
+        if (found) triggerCelebration(found.anim);
+      }
+    }
+
+    function openRewardModal(rewardId) {
+      const r = STAKE_REWARDS.find(item => item.id === rewardId);
+      if (!r) return;
+      currentRewardAnimType = r.anim || 'confetti';
+      document.getElementById('reward-detail-icon').innerText = r.icon;
+      document.getElementById('reward-detail-title').innerText = r.label;
+      document.getElementById('reward-detail-desc').innerText = r.desc;
+      document.getElementById('reward-modal').classList.add('active');
+    }
+    function closeRewardModal() { document.getElementById('reward-modal').classList.remove('active'); }
+    function replayRewardAnimation() { triggerCelebration(currentRewardAnimType); }
+
+    function openSovereigntyHelpModal() {
+      document.getElementById('sovereignty-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSovereigntyModal() {
+      document.getElementById('sovereignty-modal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    /* DIALOGUES */
+    let dialogConfirmCallback = null;
+    function showCustomDialog(icon, title, message, isConfirm = false, onConfirm = null) {
+      document.getElementById('dialog-icon').innerText = icon || 'ℹ️';
+      document.getElementById('dialog-title').innerText = title || 'Notification';
+      document.getElementById('dialog-message').innerHTML = message || '';
+
+      const btnBox = document.getElementById('dialog-buttons');
+      dialogConfirmCallback = onConfirm;
+
+      if (isConfirm) {
+        btnBox.innerHTML = `
+          <button class="btn-reset" onclick="executeDialogConfirm()" style="flex: 1; padding: 8px;">${t('btn_reset')}</button>
+          <button class="btn-secondary" onclick="closeCustomDialog()" style="flex: 1; padding: 8px;">${t('btn_cancel')}</button>
+        `;
+      } else {
+        btnBox.innerHTML = `
+          <button class="btn-primary" onclick="closeCustomDialog()" style="width: 100%; padding: 8px;">OK</button>
+        `;
+      }
+      document.getElementById('custom-dialog-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCustomDialog() {
+      document.getElementById('custom-dialog-modal').classList.remove('active');
+      document.body.style.overflow = '';
+      dialogConfirmCallback = null;
+    }
+
+    function executeDialogConfirm() {
+      const cb = dialogConfirmCallback;
+      closeCustomDialog();
+      if (typeof cb === 'function') cb();
+    }
+
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `KLON_STAKE_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && Array.isArray(imported.items)) {
+            db = imported;
+            saveData();
+            document.getElementById('user-name-input').value = db.userName || '';
+            document.getElementById('currency-select').value = db.currency || '€';
+            document.getElementById('lang-select').value = db.lang || 'fr';
+            document.getElementById('theme-select').value = db.theme || 'dark';
+            document.documentElement.setAttribute('data-theme', db.theme || 'dark');
+            applyLanguageUI();
+            showCustomDialog('✅', 'Import', (db.lang === 'en') ? 'Data imported successfully!' : 'Bilan patrimonial importé avec succès !');
+          } else {
+            showCustomDialog('⚠️', 'Fichier invalide', (db.lang === 'en') ? 'Invalid JSON file.' : 'Le fichier de sauvegarde est invalide.');
+          }
+        } catch (err) {
+          showCustomDialog('⚠️', 'Erreur', 'Erreur lors de la lecture du fichier JSON.');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function confirmResetDialog() {
+      showCustomDialog('🗑️', t('btn_reset'), (db.lang === 'en') ? 'Are you sure you want to reset everything?' : 'Es-tu sûr de vouloir tout réinitialiser à zéro ?', true, () => {
+        db.items = [];
+        db.userName = '';
+        db.cardsOrder = [];
+        db.everUnlockedRewards = [];
+        cancelEditing();
+        saveData();
+        document.getElementById('user-name-input').value = '';
+        renderItemsList();
+        renderTab2();
+      });
+    }
+
+    function copyFortuneoCode() {
+      const code = "12874482";
+      const btn = document.getElementById('fortuneo-btn');
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code);
+      if (btn) btn.innerText = "✅ Code copié ! Redirection...";
+      window.open("https://www.fortuneo.fr", "_blank");
+      setTimeout(() => { if (btn) btn.innerText = "Fortuneo (Code Parrain : 12874482)"; }, 1800);
+    }
+
+    function triggerCelebration(type = 'confetti') {
+      const canvas = document.getElementById('confetti-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let particles = [];
+      const icons = type === 'gold' ? ['✨', '🪙', '⭐'] : (type === 'cash' ? ['💵', '💰', '💸'] : (type === 'crowns' ? ['👑', '⚡', '🌟'] : ['💎', '✨', '🪐']));
+
+      for (let i = 0; i < 55; i++) {
+        particles.push({
+          x: canvas.width / 2, y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 14, vy: (Math.random() - 0.7) * 16,
+          size: 20, icon: icons[Math.floor(Math.random() * icons.length)],
+          rotation: 0, vRot: (Math.random() - 0.5) * 8
+        });
+      }
+
+      let frame = 0;
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, idx) => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.25; p.rotation += p.vRot;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.font = `${p.size}px sans-serif`;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(p.icon, 0, 0);
+          ctx.restore();
+          if (p.y > canvas.height || p.x < 0 || p.x > canvas.width) particles.splice(idx, 1);
+        });
+
+        if (particles.length > 0 && frame < 110) {
+          frame++; requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      animate();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('user-name-input').value = db.userName || '';
+      document.getElementById('currency-select').value = db.currency || '€';
+      document.getElementById('lang-select').value = db.lang || 'fr';
+      document.getElementById('theme-select').value = db.theme || 'dark';
+      document.documentElement.setAttribute('data-theme', db.theme || 'dark');
+
+      applyLanguageUI();
+    });
+  </script>
+</body>
+</html>
