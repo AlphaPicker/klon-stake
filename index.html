@@ -22,7 +22,7 @@
       scrollbar-gutter: stable;
     }
 
-    /* TA PALETTE CSS EXACTE */
+    /* PALETTE CSS */
     :root[data-theme="dark"] {
       color-scheme: dark;
       --bg-color: #0d1117;
@@ -268,12 +268,23 @@
     }
     .gauge-mini-title { font-size: 0.72rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
 
-    /* Cartes d'actifs compactes */
+    /* CARTES D'ACTIFS AVEC DRAG & DROP */
     .stake-card {
       background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
       padding: 14px 16px; position: relative; display: flex; flex-direction: column; gap: 8px;
-      border-left: 4px solid var(--accent-green-bright); transition: border-color 0.2s, opacity 0.15s;
-      cursor: pointer; user-select: none;
+      border-left: 4px solid var(--accent-green-bright); transition: border-color 0.2s, opacity 0.15s, transform 0.15s;
+      cursor: grab; user-select: none; touch-action: manipulation;
+    }
+    .stake-card:active { cursor: grabbing; }
+    .stake-card.dragging {
+      opacity: 0.4;
+      border: 2px dashed var(--accent-orange) !important;
+      transform: scale(0.98);
+    }
+    .stake-card.long-pressing {
+      transform: scale(0.98);
+      opacity: 0.7;
+      border-color: var(--accent-orange) !important;
     }
     .stake-card.property-card { border-left-color: var(--accent-blue) !important; }
     .stake-card.full-owned { border-left-color: var(--accent-green-bright) !important; }
@@ -616,6 +627,7 @@
         </div>
       </div>
 
+      <!-- CARTES DYNAMIQUES AVEC DRAG & DROP -->
       <div id="cards-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
     </div>
 
@@ -1235,7 +1247,7 @@
       renderTab2();
     }
 
-    /* INVENTAIRE ULTRA-ÉPURÉ */
+    /* INVENTAIRE */
     function renderItemsList() {
         const box = document.getElementById('items-list');
         const countEl = document.getElementById('items-count-badge');
@@ -1484,6 +1496,7 @@
         else renderDebtCard(container, item);
       });
 
+      initDragAndDrop();
       checkStakeRewards(netWorth, sovereigntyRate, totalDebts);
     }
 
@@ -1515,7 +1528,7 @@
       const tickerTag = item.ticker ? `<span style="font-size:0.7rem; color:var(--accent-orange); font-weight:800; background:var(--badge-bg); padding:1px 5px; border-radius:4px; border:1px solid var(--accent-orange);">${item.ticker}</span>` : '';
 
       container.innerHTML += `
-        <div class="stake-card" data-id="${item.id}" onclick="openStockDetailModal('${item.id}')" style="border-left-color: ${tier.fillColor};" title="Détails de l'action">
+        <div class="stake-card" draggable="true" data-id="${item.id}" onclick="openStockDetailModal('${item.id}')" style="border-left-color: ${tier.fillColor};" title="Détails de l'action">
           <div class="stake-card-header">
             ${avatarContent}
             <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
@@ -1566,7 +1579,7 @@
             : (db.lang === 'en' ? `Equity: ${fmt(netPart)} (${ownershipPct}\%) • Bank: <span style="color:var(--accent-yellow);">${fmt(item.debtActual)}</span>` : `Part nette : ${fmt(netPart)} (${ownershipPct}\%) • Banque : <span style="color:var(--accent-yellow);">${fmt(item.debtActual)}</span>`));
 
       container.innerHTML += `
-        <div class="stake-card ${cardClass}" data-id="${item.id}">
+        <div class="stake-card ${cardClass}" draggable="true" data-id="${item.id}">
           <div class="stake-card-header">
             ${avatarContent}
             <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
@@ -1602,7 +1615,7 @@
         : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')">💳</div>`;
 
       container.innerHTML += `
-        <div class="stake-card pure-debt ${isFullyRepaid ? 'full-owned' : ''}" data-id="${item.id}" onclick="openDebtEncouragementModal('${item.id}')">
+        <div class="stake-card pure-debt ${isFullyRepaid ? 'full-owned' : ''}" draggable="true" data-id="${item.id}" onclick="openDebtEncouragementModal('${item.id}')">
           <div class="stake-card-header">
             ${avatarContent}
             <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
@@ -1621,6 +1634,124 @@
           </div>
         </div>
       `;
+    }
+
+    /* GESTION DU DRAG AND DROP (SOURIS + MOBILITY TOUCH) */
+    function initDragAndDrop() {
+      const container = document.getElementById('cards-container');
+      if (!container) return;
+      const cards = container.querySelectorAll('.stake-card');
+
+      cards.forEach(card => {
+        card.addEventListener('dragstart', (e) => {
+          card.classList.add('dragging');
+          e.dataTransfer.setData('text/plain', card.dataset.id);
+        });
+
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          saveNewCardsOrder();
+        });
+      });
+
+      container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const draggingCard = container.querySelector('.dragging');
+        if (!draggingCard) return;
+
+        const nextSibling = getDragAfterElement(container, e.clientY);
+        if (nextSibling == null) {
+          container.appendChild(draggingCard);
+        } else {
+          container.insertBefore(draggingCard, nextSibling);
+        }
+      });
+
+      /* Mobile Touch Drag avec appui long */
+      cards.forEach(card => {
+        let touchTimer = null;
+        let startX = 0, startY = 0;
+        let isDragging = false;
+
+        const finishDrag = () => {
+          if (touchTimer) clearTimeout(touchTimer);
+          card.classList.remove('dragging', 'long-pressing');
+          card.style.pointerEvents = '';
+          document.body.style.userSelect = '';
+          document.body.style.overflow = '';
+          if (isDragging) {
+            isDragging = false;
+            saveNewCardsOrder();
+          }
+          document.removeEventListener('touchmove', handleMove);
+          document.removeEventListener('touchend', finishDrag);
+          document.removeEventListener('touchcancel', finishDrag);
+        };
+
+        const handleMove = (e) => {
+          const touch = e.touches[0];
+          if (!isDragging && (Math.abs(touch.clientX - startX) > 8 || Math.abs(touch.clientY - startY) > 8)) {
+            if (touchTimer) clearTimeout(touchTimer);
+            return;
+          }
+
+          if (isDragging) {
+            e.preventDefault();
+            const elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (!elUnder) return;
+            const target = elUnder.closest('.stake-card');
+            if (target && target !== card && target.parentNode === container) {
+              const rect = target.getBoundingClientRect();
+              if (touch.clientY < rect.top + rect.height / 2) {
+                container.insertBefore(card, target);
+              } else {
+                container.insertBefore(card, target.nextSibling);
+              }
+            }
+          }
+        };
+
+        card.addEventListener('touchstart', (e) => {
+          if (e.target.closest('button, input, select, .stake-squircle-avatar')) return;
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          isDragging = false;
+
+          document.addEventListener('touchmove', handleMove, { passive: false });
+          document.addEventListener('touchend', finishDrag);
+          document.addEventListener('touchcancel', finishDrag);
+
+          touchTimer = setTimeout(() => {
+            isDragging = true;
+            card.classList.add('dragging', 'long-pressing');
+            card.style.pointerEvents = 'none';
+            document.body.style.userSelect = 'none';
+            document.body.style.overflow = 'hidden';
+            if (navigator.vibrate) navigator.vibrate(35);
+          }, 220);
+        }, { passive: true });
+      });
+    }
+
+    function getDragAfterElement(container, y) {
+      const draggables = [...container.querySelectorAll('.stake-card:not(.dragging)')];
+      return draggables.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function saveNewCardsOrder() {
+      const container = document.getElementById('cards-container');
+      if (!container) return;
+      const cardEls = container.querySelectorAll('.stake-card');
+      db.cardsOrder = Array.from(cardEls).map(c => c.dataset.id);
+      saveData();
     }
 
     /* MODALE EXPLICATION DES 4 JAUGES */
@@ -1772,51 +1903,6 @@
         { id: "r_titan_block", icon: "🧱", labelFR: "Bloc de Titan", descFR: "Tu detiens au moins 1 000 actions ou parts d'un même actif productif.", labelEN: "Titan Block", descEN: "You hold at least 1,000 shares of a single productive asset.", anim: "crowns" },
         { id: "r_shielded", icon: "🔰", labelFR: "Bilan Pare-Balle", descFR: "Plus de 80 % de souveraineté nette avec au moins 3 actifs au bilan.", labelEN: "Shielded Balance Sheet", descEN: "Over 80% sovereignty with at least 3 active assets.", anim: "gold" },
         { id: "r_cash_machine", icon: "⚙️", labelFR: "Machine à Cash", descFR: "Plus de 75 % de ton patrimoine brut est placé en actifs productifs.", labelEN: "Cash Machine", descEN: "Over 75% of your gross assets invested in productive assets.", anim: "cash" }
-        { 
-  id: "r_half_way", 
-  icon: "⛰️", 
-  labelFR: "Mi-Parcours", 
-  descFR: "Au moins une dette remboursée à plus de 50 %.", 
-  labelEN: "Halfway There", 
-  descEN: "At least one debt paid off over 50%.", 
-  anim: "gold" 
-},
-{ 
-  id: "r_fortress", 
-  icon: "🏰", 
-  labelFR: "Forteresse Financière", 
-  descFR: "Indice de souveraineté supérieur à 90 % avec plus de 50k € d'actifs bruts.", 
-  labelEN: "Financial Fortress", 
-  descEN: "Sovereignty index above 90% with over $50k gross assets.", 
-  anim: "crowns" 
-},
-{ 
-  id: "r_pure_investor", 
-  icon: "💎", 
-  labelFR: "Sans Ancre Ni Chêne", 
-  descFR: "100 % d'actifs productifs (actions/ETF) et 0 € d'immobilier ou passif matériel.", 
-  labelEN: "Liquid Investor", 
-  descEN: "100% productive assets (stocks/ETFs) and 0 real estate/tangible debt.", 
-  anim: "diamonds" 
-},
-{ 
-  id: "r_multi_asset", 
-  icon: "🌐", 
-  labelFR: "Souverain Diversifié", 
-  descFR: "Au moins 5 lignes d'actifs productifs distincts au bilan.", 
-  labelEN: "Diversified Sovereign", 
-  descEN: "At least 5 distinct productive asset positions on your balance sheet.", 
-  anim: "confetti" 
-},
-{ 
-  id: "r_clean_slate", 
-  icon: "🧹", 
-  labelFR: "Table Rase", 
-  descFR: "Zéro dette destructrice (0 € de dette pure conso au bilan).", 
-  labelEN: "Clean Slate", 
-  descEN: "Zero toxic debt (0 consumer loans on balance sheet).", 
-  anim: "cash" 
-}
     ];
 
     function getRewardsList() {
