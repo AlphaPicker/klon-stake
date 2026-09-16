@@ -1255,51 +1255,55 @@
       renderTab2();
     }
 
-   /* INVENTAIRE ULTRA-ÉPURÉ DE L'ONGLET 1 (OPTION B) */
+/* INVENTAIRE ULTRA-ÉPURÉ AVEC CODE COULEUR HARMONISÉ */
 function renderItemsList() {
-  const box = document.getElementById('items-list');
-  const countEl = document.getElementById('items-count-badge');
-  const s = db.items.length > 1 ? 's' : '';
-  if (countEl) countEl.innerText = t('items_count', { n: db.items.length, s });
-  box.innerHTML = '';
+    const box = document.getElementById('items-list');
+    const countEl = document.getElementById('items-count-badge');
+    const s = db.items.length > 1 ? 's' : '';
+    if (countEl) countEl.innerText = t('items_count', { n: db.items.length, s });
+    box.innerHTML = '';
 
-  if (db.items.length === 0) {
-    box.innerHTML = `<div style="font-size:0.82rem; opacity:0.6; text-align:center; padding:12px;">${t('no_items')}</div>`;
-    return;
-  }
-
-  db.items.forEach(item => {
-    let mainValText = '';
-    let defaultIcon = item.type === 'asset' ? '🏛️' : (item.type === 'property' ? '🔑' : '💳');
-    
-    let miniAvatar = item.customImage 
-      ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo"></div>`
-      : `<div class="inventory-avatar-mini" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo">${defaultIcon}</div>`;
-
-    if (item.type === 'asset') {
-      const curP = item.curPrice || item.pru;
-      const grossVal = item.qty * curP;
-      mainValText = fmt(grossVal);
-    } else if (item.type === 'property') {
-      mainValText = `${fmt(item.valActual)}`;
-    } else {
-      const remaining = item.debtRemaining !== undefined ? item.debtRemaining : Math.max(0, (item.debtInitial || 0) - (item.debtRepaid || 0));
-      mainValText = `Reste : ${fmt(remaining)}`;
+    if (db.items.length === 0) {
+        box.innerHTML = `<div style="font-size:0.82rem; opacity:0.6; text-align:center; padding:12px;">${t('no_items')}</div>`;
+        return;
     }
 
-    box.innerHTML += `
-      <div class="inventory-row" onclick="editStakeItem('${item.id}')" title="Cliquer pour modifier">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          ${miniAvatar}
-          <strong style="color: var(--text-bright); font-size: 0.9rem;">${item.name}</strong>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-orange);">${mainValText}</span>
-          <button class="btn-danger" onclick="deleteStakeItem('${item.id}', event)" title="Supprimer">✕</button>
-        </div>
-      </div>
-    `;
-  });
+    db.items.forEach(item => {
+        let mainValText = '';
+        let valColor = '';
+        let defaultIcon = item.type === 'asset' ? '🏛️' : (item.type === 'property' ? '🔑' : '💳');
+        
+        let miniAvatar = item.customImage 
+            ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo"></div>`
+            : `<div class="inventory-avatar-mini" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo">${defaultIcon}</div>`;
+
+        if (item.type === 'asset') {
+            const curP = item.curPrice || item.pru;
+            const grossVal = item.qty * curP;
+            mainValText = fmt(grossVal);
+            valColor = 'var(--accent-green-bright)'; // Vert pour les actions
+        } else if (item.type === 'property') {
+            mainValText = `${fmt(item.valActual)}`;
+            valColor = 'var(--accent-blue)'; // Bleu pour les biens
+        } else {
+            const remaining = item.debtRemaining !== undefined ? item.debtRemaining : Math.max(0, (item.debtInitial || 0) - (item.debtRepaid || 0));
+            mainValText = `Reste : ${fmt(remaining)}`;
+            valColor = 'var(--accent-red)'; // Rouge pour les dettes
+        }
+
+        box.innerHTML += `
+            <div class="inventory-row" onclick="editStakeItem('${item.id}')" title="Cliquer pour modifier">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    ${miniAvatar}
+                    <strong style="color: var(--text-bright); font-size: 0.9rem;">${item.name}</strong>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: ${valColor};">${mainValText}</span>
+                    <button class="btn-danger" onclick="deleteStakeItem('${item.id}', event)" title="Supprimer">✕</button>
+                </div>
+            </div>
+        `;
+    });
 }
 
     function triggerImageUpload(itemId) {
