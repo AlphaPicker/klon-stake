@@ -1049,7 +1049,7 @@
         lblName.innerText = t('lbl_name_general');
         nameGeneralInput.placeholder = (db.lang === 'en') ? "House, Car..." : "Maison, Voiture...";
       } else {
-        lblName.innerText = t('lbl_name_general');
+        lblName.innerText = (db.lang === 'en') ? "Debt name" : "Nom du crédit";
         nameGeneralInput.placeholder = (db.lang === 'en') ? "Personal loan..." : "Crédit conso, Prêt personnel...";
       }
     }
