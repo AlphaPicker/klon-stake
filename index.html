@@ -1120,43 +1120,45 @@
     }
 
     async function fetchLiveStockData(symbol) {
-      if (!symbol) return null;
-      const clean = symbol.trim().toUpperCase();
+  if (!symbol) return null;
+  const clean = symbol.trim().toUpperCase();
 
-      const v8Urls = [
-        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`
-      ];
+  // 1. Tentative prioritaire sur l'endpoint v7 (souvent plus tolérant pour les gros tickers US)
+  const directV7 = await fetchV7QuoteData(clean);
+  if (directV7 && directV7.price) {
+    return directV7;
+  }
 
-      for (const qUrl of v8Urls) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
-          const res = await fetch(qUrl, { signal: controller.signal });
-          clearTimeout(timeoutId);
+  // 2. Fallback sur les charts v8 via proxys si le v7 échoue
+  const v8Urls = [
+    `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`
+  ];
 
-          if (!res.ok) continue;
-          const data = await res.json();
-          const meta = data?.chart?.result?.[0]?.meta;
+  for (const qUrl of v8Urls) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(qUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
 
-          if (meta && meta.regularMarketPrice) {
-            const quoteData = await fetchV7QuoteData(clean);
-            const detectedCurrency = meta.currency || (clean.includes('.') ? 'EUR' : 'USD');
-            return {
-              name: meta.shortName || meta.symbol || clean,
-              price: meta.regularMarketPrice,
-              currency: detectedCurrency,
-              shares: quoteData?.shares || meta.sharesOutstanding || null
-            };
-          }
-        } catch (e) {}
+      if (!res.ok) continue;
+      const data = await res.json();
+      const meta = data?.chart?.result?.[0]?.meta;
+
+      if (meta && meta.regularMarketPrice) {
+        return {
+          name: meta.shortName || meta.symbol || clean,
+          price: meta.regularMarketPrice,
+          currency: meta.currency || 'USD',
+          shares: meta.sharesOutstanding || null
+        };
       }
+    } catch (e) {}
+  }
 
-      const fallbackV7 = await fetchV7QuoteData(clean);
-      if (fallbackV7) return fallbackV7;
-
-      return null;
-    }
+  return null;
+}
 
     async function fetchV7QuoteData(cleanSymbol) {
       const v7Urls = [
