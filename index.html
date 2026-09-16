@@ -99,7 +99,6 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* Scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 4px; }
     ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
@@ -155,7 +154,6 @@
     }
     .card-title { font-size: 1.05rem; color: var(--text-bright); font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
 
-    /* Hero Dashboard */
     .stake-hero-card {
       background: linear-gradient(135deg, var(--card-bg) 0%, rgba(240, 136, 62, 0.08) 100%);
       border: 1px solid var(--accent-orange);
@@ -176,7 +174,6 @@
       .hero-box-right { border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 10px; }
     }
 
-    /* Récompenses */
     .hero-rewards-toggle-row { display: none; justify-content: center; padding-top: 6px; border-top: 1px solid rgba(240, 136, 62, 0.2); }
     .hero-rewards-toggle-row.has-rewards { display: flex; }
     .rewards-toggle-btn {
@@ -194,7 +191,6 @@
     }
     .corp-reward-pill:hover { transform: translateY(-2px); box-shadow: 0 0 10px rgba(240, 136, 62, 0.4); }
 
-    /* Inputs */
     input[type="text"], input[type="number"], select {
       background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-bright);
       padding: 10px 12px; border-radius: 6px; font-size: 0.95rem; width: 100%;
@@ -207,7 +203,6 @@
       padding: 10px 12px; border-radius: 6px; font-size: 0.95rem; font-weight: 700; width: 100%;
     }
 
-    /* PILULES STABLES */
     .type-selector-pills {
       display: flex;
       gap: 6px;
@@ -242,7 +237,6 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.25);
     }
 
-    /* 4 JAUGES GÉNÉRALES CLIQUABLES */
     .four-gauges-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -268,7 +262,6 @@
     }
     .gauge-mini-title { font-size: 0.72rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
 
-    /* CARTES D'ACTIFS AVEC DRAG & DROP */
     .stake-card {
       background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
       padding: 14px 16px; position: relative; display: flex; flex-direction: column; gap: 8px;
@@ -471,11 +464,11 @@
           <div id="name-asset-row" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 8px;">
             <div>
               <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_name_asset">Nom de l'actif</label>
-              <input type="text" id="in-name-asset" placeholder="Apple">
+              <input type="text" id="in-name-asset" placeholder="Adobe">
             </div>
             <div>
               <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_ticker">Ticker</label>
-              <input type="text" id="in-ticker" placeholder="AAPL" onblur="triggerLiveTickerCheck()">
+              <input type="text" id="in-ticker" placeholder="ADBE" onblur="triggerLiveTickerCheck()">
             </div>
           </div>
 
@@ -492,7 +485,7 @@
               </div>
               <div>
                 <label style="font-size: 0.72rem; font-weight: bold; margin-bottom: 2px; display: block;" data-i18n="lbl_pru">Prix de revient (PRU) (<span class="curr-sym">€</span>)</label>
-                <input type="number" id="in-pru" placeholder="58.50" step="any">
+                <input type="number" id="in-pru" placeholder="450.00" step="any">
               </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -627,7 +620,6 @@
         </div>
       </div>
 
-      <!-- CARTES DYNAMIQUES AVEC DRAG & DROP -->
       <div id="cards-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
     </div>
 
@@ -699,8 +691,8 @@
   <div id="stock-detail-modal" class="modal-overlay">
     <div class="modal-card" style="max-width: 400px; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="card-title" style="margin-bottom: 0;" id="m-stock-title">Apple</div>
-        <span id="m-stock-ticker" style="font-size: 0.78rem; font-weight: 800; color: var(--accent-orange); background: var(--badge-bg); padding: 2px 8px; border-radius: 6px; border: 1px solid var(--accent-orange);">AAPL</span>
+        <div class="card-title" style="margin-bottom: 0;" id="m-stock-title">Adobe</div>
+        <span id="m-stock-ticker" style="font-size: 0.78rem; font-weight: 800; color: var(--accent-orange); background: var(--badge-bg); padding: 2px 8px; border-radius: 6px; border: 1px solid var(--accent-orange);">ADBE</span>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; margin-top: 4px;">
@@ -712,8 +704,8 @@
 
         <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span><span data-i18n="modal_stock_live">Cours :</span> <strong id="m-stock-live-price">215,00 €</strong></span>
-            <span>PRU : <strong id="m-stock-pru">58,00 €</strong></span>
+            <span><span data-i18n="modal_stock_live">Cours :</span> <strong id="m-stock-live-price">0,00 €</strong></span>
+            <span>PRU : <strong id="m-stock-pru">0,00 €</strong></span>
           </div>
           <div style="display: flex; justify-content: space-between;">
             <span><span data-i18n="modal_stock_val">Valeur Brute :</span> <strong id="m-stock-market-val" style="color: var(--accent-green-bright);">0 €</strong></span>
@@ -764,7 +756,6 @@
   <input type="file" id="image-upload-input" accept="image/*" style="display: none;" onchange="handleImageSelected(event)">
 
   <script>
-    /* DICTIONNAIRE I18N BILINGUE (FR / EN) */
     const I18N = {
       fr: {
         subtitle: "Simulateur de Propriété Réelle",
@@ -912,7 +903,7 @@
         modal_stock_live: "Price:",
         modal_stock_val: "Gross Value:",
         modal_sov_title: "Sovereignty & Leverage",
-        modal_sov_text: "The <strong>Sovereignty Index</strong> measures the exact percentage of your gross wealth owned with zero debt:<br><br><code style=\"background: rgba(163, 113, 247, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-purple); font-weight: bold;\">(Net Worth ÷ Gross Assets) × 100</code><br><br><strong>⚡ Good Debt vs Bad Debt:</strong><br>• <strong>Productive Leverage (Good debt)</strong> : Mortgage or Lombard loan. Borrowing to capture yields of productive assets accelerates compounding.<br>• <strong>Consumer Debt (Toxic debt)</strong> : Depreciating loans without underlying equity.<br><br>Every payoff and asset purchase expands your sovereignty.",
+        modal_sov_text: "The <strong>Sovereignty Index</strong> measures the exact percentage of your gross wealth owned free and clear of all debts:<br><br><code style=\"background: rgba(163, 113, 247, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-purple); font-weight: bold;\">(Net Worth ÷ Gross Assets) × 100</code><br><br><strong>⚡ Good Debt vs Bad Debt:</strong><br>• <strong>Productive Leverage (Good debt)</strong> : Mortgage or Lombard loan. Borrowing to capture yields of productive assets accelerates compounding.<br>• <strong>Consumer Debt (Toxic debt)</strong> : Depreciating loans without underlying equity.<br><br>Every payoff and asset purchase expands your sovereignty.",
         btn_close: "Close",
         btn_understood: "Understood",
         btn_awesome: "Awesome!",
@@ -954,7 +945,6 @@
       if (document.getElementById('tab2').classList.contains('active')) renderTab2();
     }
 
-    /* ÉTAT DE L'APPLICATION */
     let currentAssetType = 'asset';
     let isRewardsVisible = false;
     let currentEditingItemId = null;
@@ -1046,22 +1036,32 @@
         lblName.innerText = (db.lang === 'en') ? "Debt name" : "Nom du crédit";
         nameGeneralInput.placeholder = (db.lang === 'en') ? "Personal loan..." : "Crédit conso, Prêt personnel...";
       }
+
+      // PRE-REMPLISSAGE AUTOMATIQUE DE LA DETTE LOMBARD EN EXISTENCE
+      if (type === 'asset' && !currentEditingItemId) {
+        const globalLombard = db.items.find(i => i.type === 'asset' && i.lombardDebt > 0)?.lombardDebt || 0;
+        const lombardInput = document.getElementById('in-lombard-debt');
+        if (lombardInput && globalLombard > 0) {
+          lombardInput.value = globalLombard;
+        }
+      }
     }
 
-    /* BOURSE EN DIRECT VIA YAHOO FINANCE */
+    /* SYSTEME ROBUSTE DE RECUPERATION BOURSE & SHARES OUTSTANDING (ADBE FIX) */
     async function fetchLiveStockData(symbol) {
       if (!symbol) return null;
       const clean = symbol.trim().toUpperCase();
 
-      const queries = [
+      // Stratégie 1: Chart V8
+      const v8Urls = [
         `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`
       ];
 
-      for (const qUrl of queries) {
+      for (const qUrl of v8Urls) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3800);
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
           const res = await fetch(qUrl, { signal: controller.signal });
           clearTimeout(timeoutId);
 
@@ -1070,9 +1070,46 @@
           const meta = data?.chart?.result?.[0]?.meta;
 
           if (meta && meta.regularMarketPrice) {
+            // Tenter aussi de récupérer le volume d'actions depuis le quote V7 en parallèle
+            const quoteData = await fetchV7QuoteData(clean);
             return {
               name: meta.shortName || meta.symbol || clean,
-              price: meta.regularMarketPrice
+              price: meta.regularMarketPrice,
+              shares: quoteData?.shares || meta.sharesOutstanding || null
+            };
+          }
+        } catch (e) {}
+      }
+
+      // Stratégie 2: Quote V7 Fallback direct
+      const fallbackV7 = await fetchV7QuoteData(clean);
+      if (fallbackV7) return fallbackV7;
+
+      return null;
+    }
+
+    async function fetchV7QuoteData(cleanSymbol) {
+      const v7Urls = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`
+      ];
+
+      for (const qUrl of v7Urls) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const res = await fetch(qUrl, { signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (!res.ok) continue;
+          const data = await res.json();
+          const result = data?.quoteResponse?.result?.[0];
+
+          if (result && (result.regularMarketPrice || result.sharesOutstanding)) {
+            return {
+              name: result.shortName || result.longName || cleanSymbol,
+              price: result.regularMarketPrice || null,
+              shares: result.sharesOutstanding || null
             };
           }
         } catch (e) {}
@@ -1089,12 +1126,14 @@
       if (live) {
         const priceInput = document.getElementById('in-cur-price');
         const nameInput = document.getElementById('in-name-asset');
+        const sharesInput = document.getElementById('in-shares-total');
+
         if (live.price) priceInput.value = live.price;
         if (live.name && !nameInput.value) nameInput.value = live.name;
+        if (live.shares && (!sharesInput.value || sharesInput.value === '0')) sharesInput.value = live.shares;
       }
     }
 
-    /* FORMULAIRE : AJOUT & ÉDITION */
     function submitStakeForm() {
       let name = '';
       let itemData = {};
@@ -1170,10 +1209,11 @@
 
       if (currentAssetType === 'asset' && itemData.ticker) {
         fetchLiveStockData(itemData.ticker).then(live => {
-          if (live && live.price) {
+          if (live) {
             const it = db.items.find(i => i.id === savedId);
             if (it) {
-              it.curPrice = live.price;
+              if (live.price) it.curPrice = live.price;
+              if (live.shares && !it.sharesTotal) it.sharesTotal = live.shares;
               saveData();
               renderItemsList();
               if (document.getElementById('tab2').classList.contains('active')) renderTab2();
@@ -1191,11 +1231,14 @@
       document.getElementById('in-pru').value = '';
       document.getElementById('in-cur-price').value = '';
       document.getElementById('in-shares-total').value = '';
-      document.getElementById('in-lombard-debt').value = '';
       document.getElementById('in-val-actual').value = '';
       document.getElementById('in-debt-actual').value = '';
       document.getElementById('in-debt-initial').value = '';
       document.getElementById('in-debt-remaining').value = '';
+
+      // CONSERVER LA DETTE LOMBARD GLOBLALE ACTIVE AU LIEU D'AFFICHER 0
+      const globalLombard = db.items.find(i => i.type === 'asset' && i.lombardDebt > 0)?.lombardDebt || 0;
+      document.getElementById('in-lombard-debt').value = globalLombard > 0 ? globalLombard : '';
     }
 
     function editStakeItem(id) {
@@ -1247,7 +1290,6 @@
       renderTab2();
     }
 
-    /* INVENTAIRE */
     function renderItemsList() {
         const box = document.getElementById('items-list');
         const countEl = document.getElementById('items-count-badge');
@@ -1342,8 +1384,9 @@
       for (const item of assetItems) {
         const querySymbol = item.ticker || item.name;
         const live = await fetchLiveStockData(querySymbol);
-        if (live && live.price) {
-          item.curPrice = live.price;
+        if (live) {
+          if (live.price) item.curPrice = live.price;
+          if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
           updatedCount++;
         }
       }
@@ -1354,7 +1397,6 @@
       showCustomDialog('🔄', 'Marché', `${updatedCount} cours de bourse actualisés en direct !`);
     }
 
-    /* PALIERS D'ACTIONS */
     const STOCK_TIERS = [
         { target: 0.0000001, nameFR: "Cuivre", nameEN: "Copper", emoji: "", color: "#b45309" },
         { target: 0.000001,  nameFR: "Bronze", nameEN: "Bronze", emoji: "🥉", color: "#cd7f32" },
@@ -1404,7 +1446,6 @@
         };
     }
 
-    /* RENDU ONGLET 2 */
     function renderTab2() {
       const container = document.getElementById('cards-container');
       container.innerHTML = '';
@@ -1457,7 +1498,6 @@
       document.getElementById('hero-net-worth').innerText = fmt(netWorth);
       document.getElementById('hero-assets-sub').innerText = t('hero_assets_sub', { val: fmt(totalGrossAssets) });
       
-      /* SOUVERAINETÉ EN VIOLET */
       document.getElementById('hero-sovereignty-val').style.color = 'var(--accent-purple)';
       document.getElementById('hero-sovereignty-val').innerText = `${sovereigntyRate} %`;
       document.getElementById('hero-sovereignty-sub').innerText = t('hero_debts_sub', { val: fmt(totalDebts) });
@@ -1500,7 +1540,6 @@
       checkStakeRewards(netWorth, sovereigntyRate, totalDebts);
     }
 
-    /* CARTE D'ACTION */
     function renderAssetCard(container, item) {
       const curP = item.curPrice || item.pru;
       const grossVal = item.qty * curP;
@@ -1636,7 +1675,6 @@
       `;
     }
 
-    /* GESTION DU DRAG AND DROP (SOURIS + MOBILITY TOUCH) */
     function initDragAndDrop() {
       const container = document.getElementById('cards-container');
       if (!container) return;
@@ -1667,7 +1705,6 @@
         }
       });
 
-      /* Mobile Touch Drag avec appui long */
       cards.forEach(card => {
         let touchTimer = null;
         let startX = 0, startY = 0;
@@ -1754,7 +1791,6 @@
       saveData();
     }
 
-    /* MODALE EXPLICATION DES 4 JAUGES */
     const GAUGE_INFOS = {
       sov: {
         icon: "🛡️",
@@ -1800,7 +1836,6 @@
       document.getElementById('gauge-info-modal').classList.remove('active');
     }
 
-    /* MODALE FICHE D'ACTIONNAIRE */
     function openStockDetailModal(itemId) {
         const item = db.items.find(i => i.id === itemId);
         if (!item || item.type !== 'asset') return;
@@ -1824,13 +1859,13 @@
         document.getElementById('m-stock-title').innerText = item.name;
         document.getElementById('m-stock-ticker').innerText = item.ticker || (db.lang === 'en' ? 'STOCK' : 'ACTION');
         
-        const shareText = sharePct > 0 ? `${sharePct.toFixed(8)} \%${t('modal_stock_shares_total')}` : '100 %';
+        const shareText = sharePct > 0 ? `${sharePct.toFixed(8)} \% ${t('modal_stock_shares_total')}` : '100 %';
         document.getElementById('m-stock-exact-pct').innerText = `${t('modal_stock_equity_real', { pct: equityPct })} (${shareText})`;
 
         const stockUnitLabel = item.qty > 1 ? t('lbl_stock_plural') : t('lbl_stock_singular');
         const totalMillions = item.sharesTotal > 0 ? (item.sharesTotal / 1000000).toFixed(item.sharesTotal >= 10000000 ? 0 : 1) : 0;
         document.getElementById('m-stock-shares-count').innerText = item.sharesTotal > 0 
-            ? `${new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR').format(item.qty)} / ${totalMillions}M${stockUnitLabel}`
+            ? `${new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR').format(item.qty)} / ${totalMillions}M ${stockUnitLabel}`
             : `${new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR').format(item.qty)} parts`;
 
         document.getElementById('m-stock-live-price').innerText = `${curP}${db.currency}`;
@@ -1846,7 +1881,7 @@
         if (globalLombard > 0) {
             lombardBox.style.display = 'block';
             lombardBox.style.color = 'var(--text-main)';
-            lombardBox.innerHTML = `⚡ <span style="opacity: 0.85;">${t('modal_stock_lombard_title')}</span>${fmt(globalLombard)}<br>• <span style="opacity: 0.85;">${t('modal_stock_lombard_share')}</span>${fmt(itemLombardShare)}<br>• <span style="color: var(--text-bright);">${t('modal_stock_lombard_net')}</span> <strong style="color: var(--accent-green-bright);">${fmt(netVal)}</strong>`;
+            lombardBox.innerHTML = `⚡ <span style="opacity: 0.85;">${t('modal_stock_lombard_title')}</span> ${fmt(globalLombard)}<br>• <span style="opacity: 0.85;">${t('modal_stock_lombard_share')}</span> ${fmt(itemLombardShare)}<br>• <span style="color: var(--text-bright);">${t('modal_stock_lombard_net')}</span> <strong style="color: var(--accent-green-bright);">${fmt(netVal)}</strong>`;
         } else {
             lombardBox.style.display = 'none';
         }
@@ -1858,7 +1893,6 @@
       document.getElementById('stock-detail-modal').classList.remove('active');
     }
 
-    /* MODALE ENCOURAGEMENT DETTE */
     function openDebtEncouragementModal(itemId) {
         const item = db.items.find(i => i.id === itemId);
         if (!item) return;
@@ -1887,7 +1921,6 @@
         showCustomDialog(isPaid ? '🏆' : '🛡️', title, msg, false, null, btnText);
     }
 
-    /* RÉCOMPENSES SOUVERAINETÉ */
     const STAKE_REWARDS_DATA = [
         { id: "r_first", icon: "🪙", labelFR: "Premier Titre", descFR: "Premier actif ou passif enregistré sur ton bilan.", labelEN: "First Asset", descEN: "First asset or liability added to your balance sheet.", anim: "confetti" },
         { id: "r_share", icon: "📈", labelFR: "Actionnaire Réel", descFR: "Tu possèdes des parts d'une entreprise dans le monde réel.", labelEN: "Real Shareholder", descEN: "You own equity in a real-world company.", anim: "confetti" },
@@ -2035,7 +2068,6 @@
       document.body.style.overflow = '';
     }
 
-    /* DIALOGUES */
     let dialogConfirmCallback = null;
     function showCustomDialog(icon, title, message, isConfirm = false, onConfirm = null, customBtnLabel = 'OK') {
       document.getElementById('dialog-icon').innerText = icon || 'ℹ️';
@@ -2180,6 +2212,12 @@
       document.getElementById('lang-select').value = db.lang || 'fr';
       document.getElementById('theme-select').value = db.theme || 'dark';
       document.documentElement.setAttribute('data-theme', db.theme || 'dark');
+
+      // PRÉ-REMPLIR LA DETTE LOMBARD EXISTANTE AU LANCEMENT
+      const initialLombard = db.items.find(i => i.type === 'asset' && i.lombardDebt > 0)?.lombardDebt || 0;
+      if (initialLombard > 0) {
+        document.getElementById('in-lombard-debt').value = initialLombard;
+      }
 
       applyLanguageUI();
     });
