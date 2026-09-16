@@ -1255,53 +1255,52 @@
       renderTab2();
     }
 
-    /* INVENTAIRE DE L'ONGLET 1 */
-    function renderItemsList() {
-      const box = document.getElementById('items-list');
-      const countEl = document.getElementById('items-count-badge');
-      const s = db.items.length > 1 ? (db.lang === 'en' ? 's' : 's') : '';
-      if (countEl) countEl.innerText = t('items_count', { n: db.items.length, s });
-      box.innerHTML = '';
+   /* INVENTAIRE ULTRA-ÉPURÉ DE L'ONGLET 1 (OPTION B) */
+function renderItemsList() {
+  const box = document.getElementById('items-list');
+  const countEl = document.getElementById('items-count-badge');
+  const s = db.items.length > 1 ? 's' : '';
+  if (countEl) countEl.innerText = t('items_count', { n: db.items.length, s });
+  box.innerHTML = '';
 
-      if (db.items.length === 0) {
-        box.innerHTML = `<div style="font-size:0.82rem; opacity:0.6; text-align:center; padding:12px;">${t('no_items')}</div>`;
-        return;
-      }
+  if (db.items.length === 0) {
+    box.innerHTML = `<div style="font-size:0.82rem; opacity:0.6; text-align:center; padding:12px;">${t('no_items')}</div>`;
+    return;
+  }
 
-      db.items.forEach(item => {
-        let subText = '';
-        let defaultIcon = item.type === 'asset' ? '🏛️' : (item.type === 'property' ? '🔑' : '💳');
-        
-        let miniAvatar = item.customImage 
-          ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo"></div>`
-          : `<div class="inventory-avatar-mini" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo">${defaultIcon}</div>`;
+  db.items.forEach(item => {
+    let mainValText = '';
+    let defaultIcon = item.type === 'asset' ? '🏛️' : (item.type === 'property' ? '🔑' : '💳');
+    
+    let miniAvatar = item.customImage 
+      ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo"></div>`
+      : `<div class="inventory-avatar-mini" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo">${defaultIcon}</div>`;
 
-        if (item.type === 'asset') {
-          const lombardInfo = item.lombardDebt > 0 ? ` • Lombard : ${fmt(item.lombardDebt)}` : '';
-          subText = `${item.qty} parts @ PRU ${item.pru} ${db.currency}${lombardInfo}`;
-        } else if (item.type === 'property') {
-          subText = `Cote : ${fmt(item.valActual)} | Reste dû : ${fmt(item.debtActual)}`;
-        } else {
-          // Affichage automatique du montant DÉJÀ REMBOURSÉ
-          const remaining = item.debtRemaining !== undefined ? item.debtRemaining : Math.max(0, (item.debtInitial || 0) - (item.debtRepaid || 0));
-          const repaid = Math.max(0, (item.debtInitial || 0) - remaining);
-          subText = `Déjà remboursé : ${fmt(repaid)} / ${fmt(item.debtInitial || 0)} (Reste : ${fmt(remaining)})`;
-        }
-
-        box.innerHTML += `
-          <div class="inventory-row" onclick="editStakeItem('${item.id}')" title="Modifier">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              ${miniAvatar}
-              <div>
-                <strong style="color: var(--text-bright); font-size: 0.88rem;">${item.name}</strong>
-                <div style="font-size: 0.72rem; opacity: 0.75; margin-top: 1px;">${subText}</div>
-              </div>
-            </div>
-            <button class="btn-danger" onclick="deleteStakeItem('${item.id}', event)">✕</button>
-          </div>
-        `;
-      });
+    if (item.type === 'asset') {
+      const curP = item.curPrice || item.pru;
+      const grossVal = item.qty * curP;
+      mainValText = fmt(grossVal);
+    } else if (item.type === 'property') {
+      mainValText = `${fmt(item.valActual)}`;
+    } else {
+      const remaining = item.debtRemaining !== undefined ? item.debtRemaining : Math.max(0, (item.debtInitial || 0) - (item.debtRepaid || 0));
+      mainValText = `Reste : ${fmt(remaining)}`;
     }
+
+    box.innerHTML += `
+      <div class="inventory-row" onclick="editStakeItem('${item.id}')" title="Cliquer pour modifier">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          ${miniAvatar}
+          <strong style="color: var(--text-bright); font-size: 0.9rem;">${item.name}</strong>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-orange);">${mainValText}</span>
+          <button class="btn-danger" onclick="deleteStakeItem('${item.id}', event)" title="Supprimer">✕</button>
+        </div>
+      </div>
+    `;
+  });
+}
 
     function triggerImageUpload(itemId) {
       currentImageTargetId = itemId;
