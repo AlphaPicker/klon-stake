@@ -486,7 +486,6 @@
               </div>
               <div>
                 <div style="height: 20px; display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2px;">
-                  <!-- PRU SUPPRIMÉ DES LIBELLÉS FR ET EN -->
                   <label style="font-size: 0.72rem; font-weight: bold; display: block;" data-i18n="lbl_pru">Prix de revient</label>
                   <select id="in-asset-curr" style="width: auto; padding: 1px 4px; font-size: 0.7rem; color: var(--accent-orange); font-weight: bold;">
                     <option value="USD">USD ($)</option>
@@ -1017,7 +1016,6 @@
 
     function saveData() { localStorage.setItem('klon_stake_db', JSON.stringify(db)); }
     
-    // GESTION DU SYMBOLE DE DEVISE GLOBALE
     function getCurrencySymbol(c) {
       const curr = c || db.currency || 'EUR';
       if (curr === 'USD' || curr === '$') return '$';
@@ -1119,46 +1117,47 @@
       } catch (e) {}
     }
 
+    /* REQUETAGE GENERIQUE DU LIVESTOCKDATA ET LOGO S2 DE GOOGLE */
     async function fetchLiveStockData(symbol) {
-  if (!symbol) return null;
-  const clean = symbol.trim().toUpperCase();
+      if (!symbol) return null;
+      const clean = symbol.trim().toUpperCase();
 
-  // 1. Tentative prioritaire sur l'endpoint v7 (souvent plus tolérant pour les gros tickers US)
-  const directV7 = await fetchV7QuoteData(clean);
-  if (directV7 && directV7.price) {
-    return directV7;
-  }
-
-  // 2. Fallback sur les charts v8 via proxys si le v7 échoue
-  const v8Urls = [
-    `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`
-  ];
-
-  for (const qUrl of v8Urls) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
-      const res = await fetch(qUrl, { signal: controller.signal });
-      clearTimeout(timeoutId);
-
-      if (!res.ok) continue;
-      const data = await res.json();
-      const meta = data?.chart?.result?.[0]?.meta;
-
-      if (meta && meta.regularMarketPrice) {
-        return {
-          name: meta.shortName || meta.symbol || clean,
-          price: meta.regularMarketPrice,
-          currency: meta.currency || 'USD',
-          shares: meta.sharesOutstanding || null
-        };
+      const directV7 = await fetchV7QuoteData(clean);
+      if (directV7 && directV7.price) {
+        return directV7;
       }
-    } catch (e) {}
-  }
 
-  return null;
-}
+      const v8Urls = [
+        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`
+      ];
+
+      for (const qUrl of v8Urls) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const res = await fetch(qUrl, { signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (!res.ok) continue;
+          const data = await res.json();
+          const meta = data?.chart?.result?.[0]?.meta;
+
+          if (meta && meta.regularMarketPrice) {
+            const logoUrl = `https://www.google.com/s2/favicons?domain=${clean.toLowerCase()}.com&sz=128`;
+            return {
+              name: meta.shortName || meta.symbol || clean,
+              price: meta.regularMarketPrice,
+              currency: meta.currency || 'USD',
+              shares: meta.sharesOutstanding || null,
+              logo: logoUrl
+            };
+          }
+        } catch (e) {}
+      }
+
+      return null;
+    }
 
     async function fetchV7QuoteData(cleanSymbol) {
       const v7Urls = [
@@ -1179,11 +1178,21 @@
 
           if (result && (result.regularMarketPrice || result.sharesOutstanding)) {
             const currency = result.currency || (cleanSymbol.includes('.') ? 'EUR' : 'USD');
+            
+            let domain = `${cleanSymbol.toLowerCase()}.com`;
+            if (result.website) {
+              try {
+                domain = new URL(result.website).hostname.replace('www.', '');
+              } catch(e) {}
+            }
+            const logoUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+
             return {
               name: result.shortName || result.longName || cleanSymbol,
               price: result.regularMarketPrice || null,
               currency: currency,
-              shares: result.sharesOutstanding || null
+              shares: result.sharesOutstanding || null,
+              logo: logoUrl
             };
           }
         } catch (e) {}
@@ -1274,7 +1283,7 @@
         cancelEditing();
       } else {
         savedId = Date.now().toString();
-        const newItem = { id: savedId, name, type: currentAssetType, customImage: null, ...itemData };
+        const newItem = { id: savedId, name, type: currentAssetType, customImage: null, isUserCustomImage: false, ...itemData };
         db.items.push(newItem);
         db.cardsOrder.push(savedId);
       }
@@ -1292,6 +1301,7 @@
               if (live.price) it.curPrice = live.price;
               if (live.shares && !it.sharesTotal) it.sharesTotal = live.shares;
               if (live.currency) it.assetCurrency = live.currency.toUpperCase();
+              if (live.logo && !it.isUserCustomImage) it.customImage = live.logo;
               saveData();
               renderItemsList();
               if (document.getElementById('tab2').classList.contains('active')) renderTab2();
@@ -1444,6 +1454,7 @@
           const target = db.items.find(i => i.id === currentImageTargetId);
           if (target) {
             target.customImage = dataUrl;
+            target.isUserCustomImage = true; // Marqué pour ne pas être écrasé par l'API
             saveData();
             renderItemsList();
             renderTab2();
@@ -1468,6 +1479,7 @@
           if (live.price) item.curPrice = live.price;
           if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
           if (live.currency) item.assetCurrency = live.currency.toUpperCase();
+          if (live.logo && !item.isUserCustomImage) item.customImage = live.logo;
           updatedCount++;
         }
       }
@@ -1475,7 +1487,7 @@
       saveData();
       renderTab2();
       renderItemsList();
-      showCustomDialog('🔄', 'Marché', `${updatedCount} cours et le taux de change mis à jour en direct !`);
+      showCustomDialog('🔄', 'Marché', `${updatedCount} cours et les icônes de tickers mis à jour en direct !`);
     }
 
     const STOCK_TIERS = [
@@ -1527,10 +1539,8 @@
         };
     }
 
-    // CONVERSION DYNAMIQUE DE TOUTE MONNAIE VERS LA MONNAIE GLOBALE DE L'APPLI
     function toGlobalCurrency(amount, curr) {
       if (!curr || curr === db.currency) return amount;
-      // Exemples de conversion basés sur USD/EUR rate si USD impliqué
       if ((curr === 'USD' || curr === '$') && (db.currency === 'EUR' || db.currency === '€')) return amount * (db.usdEurRate || 0.92);
       if ((curr === 'EUR' || curr === '€') && (db.currency === 'USD' || db.currency === '$')) return amount / (db.usdEurRate || 0.92);
       return amount;
@@ -1653,6 +1663,7 @@
           : `🌍 1 pers. sur <strong>${fmtCompact(rarity)}</strong> possède ce bloc`;
       }
 
+      // AFFICHAGE AVEC FALLBACK SUR L'ICÔNE PAR DÉFAUT SI ERREUR CHARGEMENT IMAGE
       let avatarContent = item.customImage 
         ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')"></div>`
         : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')">📈</div>`;
