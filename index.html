@@ -1226,7 +1226,7 @@ function validateAndSetLogo(item, logoUrl) {
       if (document.getElementById('tab2').classList.contains('active')) renderTab2();
     }
   };
-  img.src = logoUrl;
+  img.src = logoUrl + '&_t=' + Date.now();
 }
 
     async function triggerLiveTickerCheck() {
