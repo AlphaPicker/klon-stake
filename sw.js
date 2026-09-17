@@ -1,5 +1,5 @@
 // 1. Définissez la nouvelle version du cache
-const CACHE_NAME = 'klon-stake-v12'; // <-- À incrémenter à chaque mise à jour (v2, v3, etc.)
+const CACHE_NAME = 'klon-stake-v13'; // <-- À incrémenter à chaque mise à jour (v2, v3, etc.)
 
 const ASSETS = [
   './',
