@@ -1159,46 +1159,75 @@
       return null;
     }
 
-    async function fetchV7QuoteData(cleanSymbol) {
-      const v7Urls = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`,
-        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`
-      ];
+    // Dictionnaire pour corriger les domaines mal renvoyés par Yahoo Finance
+const TICKER_DOMAIN_MAP = {
+  'CRM': 'salesforce.com',
+  'MSTR': 'microstrategy.com',
+  'ADBE': 'adobe.com'
+};
 
-      for (const qUrl of v7Urls) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
-          const res = await fetch(qUrl, { signal: controller.signal });
-          clearTimeout(timeoutId);
+// Fonction de récupération v7 (avec le bon domaine)
+async function fetchV7QuoteData(cleanSymbol) {
+  const v7Urls = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`,
+    `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`
+  ];
 
-          if (!res.ok) continue;
-          const data = await res.json();
-          const result = data?.quoteResponse?.result?.[0];
+  for (const qUrl of v7Urls) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(qUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
 
-          if (result && (result.regularMarketPrice || result.sharesOutstanding)) {
-            const currency = result.currency || (cleanSymbol.includes('.') ? 'EUR' : 'USD');
-            
-            let domain = `${cleanSymbol.toLowerCase()}.com`;
-            if (result.website) {
-              try {
-                domain = new URL(result.website).hostname.replace('www.', '');
-              } catch(e) {}
-            }
-            const logoUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+      if (!res.ok) continue;
+      const data = await res.json();
+      const result = data?.quoteResponse?.result?.[0];
 
-            return {
-              name: result.shortName || result.longName || cleanSymbol,
-              price: result.regularMarketPrice || null,
-              currency: currency,
-              shares: result.sharesOutstanding || null,
-              logo: logoUrl
-            };
-          }
-        } catch (e) {}
+      if (result && (result.regularMarketPrice || result.sharesOutstanding)) {
+        const currency = result.currency || (cleanSymbol.includes('.') ? 'EUR' : 'USD');
+        
+        // Priorité : Dictionnaire manuel > Site Yahoo > Ticker.com
+        let domain = TICKER_DOMAIN_MAP[cleanSymbol];
+        if (!domain && result.website) {
+          try {
+            domain = new URL(result.website).hostname.replace('www.', '');
+          } catch(e) {}
+        }
+        if (!domain) domain = `${cleanSymbol.toLowerCase()}.com`;
+
+        const logoUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+
+        return {
+          name: result.shortName || result.longName || cleanSymbol,
+          price: result.regularMarketPrice || null,
+          currency: currency,
+          shares: result.sharesOutstanding || null,
+          logo: logoUrl
+        };
       }
-      return null;
+    } catch (e) {}
+  }
+  return null;
+}
+
+// Fonction de contrôle : filtre les planètes pixélisées et charge uniquement les vrais logos
+function validateAndSetLogo(item, logoUrl) {
+  if (!logoUrl || item.isUserCustomImage) return;
+
+  const img = new Image();
+  img.crossOrigin = "Anonymous";
+  img.onload = () => {
+    // Si l'image est valide et supérieure au format miniature 16x16 de la planète par défaut
+    if (img.naturalWidth > 16 && img.naturalHeight > 16) {
+      item.customImage = logoUrl;
+      saveData();
+      renderItemsList();
+      if (document.getElementById('tab2').classList.contains('active')) renderTab2();
     }
+  };
+  img.src = logoUrl;
+}
 
     async function triggerLiveTickerCheck() {
       if (currentAssetType !== 'asset') return;
@@ -1301,7 +1330,7 @@
               if (live.price) it.curPrice = live.price;
               if (live.shares && !it.sharesTotal) it.sharesTotal = live.shares;
               if (live.currency) it.assetCurrency = live.currency.toUpperCase();
-              if (live.logo && !it.isUserCustomImage) it.customImage = live.logo;
+              if (live.logo && !it.isUserCustomImage) validateAndSetLogo(it, live.logo);
               saveData();
               renderItemsList();
               if (document.getElementById('tab2').classList.contains('active')) renderTab2();
@@ -1479,7 +1508,7 @@
           if (live.price) item.curPrice = live.price;
           if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
           if (live.currency) item.assetCurrency = live.currency.toUpperCase();
-          if (live.logo && !item.isUserCustomImage) item.customImage = live.logo;
+          if (live.logo && !item.isUserCustomImage) validateAndSetLogo(item, live.logo);
           updatedCount++;
         }
       }
