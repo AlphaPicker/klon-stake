@@ -1425,8 +1425,8 @@ function validateAndSetLogo(item, logoUrl) {
             let defaultIcon = item.type === 'asset' ? '📈' : (item.type === 'property' ? '🔑' : '💳');
             
             let miniAvatar = item.customImage 
-                ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');"></div>`
-                : `<div class="inventory-avatar-mini">${defaultIcon}</div>`;
+              ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');"></div>`
+              : `<div class="inventory-avatar-mini">${defaultIcon}</div>`;
 
             if (item.type === 'asset') {
                 const curP = item.curPrice || item.pru;
@@ -1464,7 +1464,6 @@ function validateAndSetLogo(item, logoUrl) {
 
   currentImageTargetId = itemId;
 
-  // Si l'élément a déjà une image personnalisée, on propose le choix
   if (item.customImage) {
     showCustomDialog(
       '🖼️',
@@ -1477,7 +1476,6 @@ function validateAndSetLogo(item, logoUrl) {
       'OK'
     );
 
-    // Ajustement dynamique des boutons dans la pop-up
     const btnBox = document.getElementById('dialog-buttons');
     btnBox.innerHTML = `
       <button class="btn-primary" onclick="closeCustomDialog(); document.getElementById('image-upload-input').click();" style="flex: 1; padding: 8px;">
@@ -1486,10 +1484,8 @@ function validateAndSetLogo(item, logoUrl) {
       <button class="btn-reset" onclick="resetItemImage('${itemId}')" style="flex: 1; padding: 8px;">
         ${(db.lang === 'en') ? '🔄 Reset' : '🔄 Réinitialiser'}
       </button>
-    `;
-    `;
+    `
   } else {
-    // S'il n'y a pas d'image, on ouvre directement le sélecteur de fichier
     document.getElementById('image-upload-input').click();
   }
 }
