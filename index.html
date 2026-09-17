@@ -1748,8 +1748,8 @@ function validateAndSetLogo(item, logoUrl) {
 
       // AFFICHAGE AVEC FALLBACK SUR L'ICÔNE PAR DÉFAUT SI ERREUR CHARGEMENT IMAGE
       let avatarContent = item.customImage 
-        ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')"></div>`
-        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')">📈</div>`;
+       ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
+       : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">📈</div>`;
 
       const tier = getTierConfig(sharePct);
       const tickerTag = item.ticker ? `<span style="font-size:0.7rem; color:var(--accent-orange); font-weight:800; background:var(--badge-bg); padding:1px 5px; border-radius:4px; border:1px solid var(--accent-orange);">${item.ticker}</span>` : '';
