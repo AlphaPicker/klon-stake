@@ -1218,9 +1218,9 @@ function validateAndSetLogo(item, logoUrl) {
   const img = new Image();
   img.crossOrigin = "Anonymous";
   img.onload = () => {
-    // Si l'image est valide et supérieure au format miniature 16x16 de la planète par défaut
+    // Si l'image fait plus de 16x16, ce n'est pas la planète par défaut de Google
     if (img.naturalWidth > 16 && img.naturalHeight > 16) {
-      item.customImage = logoUrl;
+      item.customImage = logoUrl; // Remplace l'ancienne planète ou crm.com par le vrai logo
       saveData();
       renderItemsList();
       if (document.getElementById('tab2').classList.contains('active')) renderTab2();
@@ -1508,7 +1508,10 @@ function validateAndSetLogo(item, logoUrl) {
           if (live.price) item.curPrice = live.price;
           if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
           if (live.currency) item.assetCurrency = live.currency.toUpperCase();
-          if (live.logo && !item.isUserCustomImage) validateAndSetLogo(item, live.logo);
+          if (live.logo && !item.isUserCustomImage) {
+          // Si ce n'est pas une image importée par l'utilisateur, on re-valide le nouveau logo
+          validateAndSetLogo(item, live.logo);
+          }
           updatedCount++;
         }
       }
