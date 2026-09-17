@@ -1919,6 +1919,7 @@
       let sharePct = 0;
       let rarityBadge = '';
       if (item.sharesTotal && item.sharesTotal > 0 && item.qty > 0) {
+        sharePct = (item.qty / item.sharesTotal) * 100; // <--- Ligne ajoutée
         const rarity = Math.round(item.sharesTotal / item.qty);
         rarityBadge = (db.lang === 'en')
           ? `🌍 Only 1 pers. in <strong>${fmtCompact(rarity)}</strong> can hold this block`
