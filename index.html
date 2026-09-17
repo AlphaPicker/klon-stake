@@ -1496,17 +1496,19 @@ function validateAndSetLogo(item, logoUrl) {
   const item = db.items.find(i => i.id === itemId);
   if (!item) return;
 
+  // 1. Réinitialisation complète des marqueurs d'image
   item.customImage = null;
-  item.isUserCustomImage = false; // Permet à l'API de re-proposer le logo Ticker si dispo
+  item.isUserCustomImage = false;
 
   saveData();
   closeCustomDialog();
   renderItemsList();
   if (document.getElementById('tab2').classList.contains('active')) renderTab2();
 
-  // Si c'est un actif avec Ticker, on relance la validation du logo dynamique
-  if (item.type === 'asset' && item.ticker) {
-    fetchLiveStockData(item.ticker).then(live => {
+  // 2. Si l'actif a un Ticker ou un nom, on va immédiatement re-chercher son logo Google
+  const querySymbol = item.ticker || item.name;
+  if (item.type === 'asset' && querySymbol) {
+    fetchLiveStockData(querySymbol).then(live => {
       if (live && live.logo) {
         validateAndSetLogo(item, live.logo);
       }
