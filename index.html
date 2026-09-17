@@ -1211,16 +1211,16 @@ async function fetchV7QuoteData(cleanSymbol) {
   return null;
 }
 
-// Fonction de contrôle : filtre les planètes pixélisées et charge uniquement les vrais logos
+// Fonction de contrôle et d'assignation du logo Ticker
 function validateAndSetLogo(item, logoUrl) {
   if (!logoUrl || item.isUserCustomImage) return;
 
   const img = new Image();
   img.crossOrigin = "Anonymous";
   img.onload = () => {
-    // Si l'image fait plus de 16x16, ce n'est pas la planète par défaut de Google
+    // Si l'image fait plus de 16x16 pixels (pas le globe par défaut de Google)
     if (img.naturalWidth > 16 && img.naturalHeight > 16) {
-      item.customImage = logoUrl; // Remplace l'ancienne planète ou crm.com par le vrai logo
+      item.customImage = logoUrl;
       saveData();
       renderItemsList();
       if (document.getElementById('tab2').classList.contains('active')) renderTab2();
@@ -1496,7 +1496,7 @@ function validateAndSetLogo(item, logoUrl) {
   const item = db.items.find(i => i.id === itemId);
   if (!item) return;
 
-  // 1. Réinitialisation complète des marqueurs d'image
+  // 1. On efface l'image perso et on réinitialise le drapeau
   item.customImage = null;
   item.isUserCustomImage = false;
 
@@ -1505,14 +1505,16 @@ function validateAndSetLogo(item, logoUrl) {
   renderItemsList();
   if (document.getElementById('tab2').classList.contains('active')) renderTab2();
 
-  // 2. Si l'actif a un Ticker ou un nom, on va immédiatement re-chercher son logo Google
-  const querySymbol = item.ticker || item.name;
-  if (item.type === 'asset' && querySymbol) {
-    fetchLiveStockData(querySymbol).then(live => {
-      if (live && live.logo) {
-        validateAndSetLogo(item, live.logo);
-      }
-    });
+  // 2. Si c'est un actif avec Ticker, on force la re-récupération immédiate
+  if (item.type === 'asset') {
+    const querySymbol = item.ticker || item.name;
+    if (querySymbol) {
+      fetchLiveStockData(querySymbol).then(live => {
+        if (live && live.logo) {
+          validateAndSetLogo(item, live.logo);
+        }
+      });
+    }
   }
 }
 
