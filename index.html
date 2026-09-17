@@ -760,7 +760,7 @@
     </div>
   </div>
 
-  <div id="custom-dialog-modal" class="modal-overlay" style="z-index: 200;">
+  <div id="custom-dialog-modal" class="modal-overlay" style="z-index: 200;" onclick="if(event.target === this) closeCustomDialog();">
     <div class="modal-card" style="max-width: 360px; text-align: center;">
       <div style="font-size: 2.6rem; line-height: 1;" id="dialog-icon">ℹ️</div>
       <div class="card-title" style="justify-content: center; font-size: 1.15rem; margin: 4px 0;" id="dialog-title">Notification</div>
@@ -1425,8 +1425,8 @@ function validateAndSetLogo(item, logoUrl) {
             let defaultIcon = item.type === 'asset' ? '📈' : (item.type === 'property' ? '🔑' : '💳');
             
             let miniAvatar = item.customImage 
-                ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo"></div>`
-                : `<div class="inventory-avatar-mini" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" title="Photo">${defaultIcon}</div>`;
+                ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');"></div>`
+                : `<div class="inventory-avatar-mini">${defaultIcon}</div>`;
 
             if (item.type === 'asset') {
                 const curP = item.curPrice || item.pru;
@@ -1486,6 +1486,7 @@ function validateAndSetLogo(item, logoUrl) {
       <button class="btn-reset" onclick="resetItemImage('${itemId}')" style="flex: 1; padding: 8px;">
         ${(db.lang === 'en') ? '🔄 Reset' : '🔄 Réinitialiser'}
       </button>
+    `;
     `;
   } else {
     // S'il n'y a pas d'image, on ouvre directement le sélecteur de fichier
