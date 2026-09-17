@@ -1181,16 +1181,7 @@ function getFaviconUrlForTicker(symbol) {
       return null;
     }
 
-    // Dictionnaire pour corriger les domaines mal renvoyés par Yahoo Finance
-const TICKER_DOMAIN_MAP = {
-  'GOOGL': 'google.com',
-  'GOOG': 'google.com',
-  'PYPL': 'paypal.com',
-  'CRM': 'salesforce.com',
-  'MSTR': 'microstrategy.com',
-  'ADBE': 'adobe.com'
-};
-
+ 
 // Fonction de récupération v7 (avec le bon domaine)
 async function fetchV7QuoteData(cleanSymbol) {
   const v7Urls = [
@@ -1214,12 +1205,12 @@ async function fetchV7QuoteData(cleanSymbol) {
         
         // Priorité : Dictionnaire manuel > Site Yahoo > Ticker.com
         let domain = TICKER_DOMAIN_MAP[cleanSymbol];
-        if (!domain && result.website) {
-          try {
-            domain = new URL(result.website).hostname.replace('www.', '');
-          } catch(e) {}
-        }
-        if (!domain) domain = `${cleanSymbol.toLowerCase()}.com`;
+          if (!domain && result.website) {
+           try {
+             domain = new URL(result.website).hostname.replace('www.', '');
+           } catch(e) {}
+         }
+         if (!domain) domain = `${cleanSymbol.toLowerCase()}.com`;
 
         const logoUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
 
