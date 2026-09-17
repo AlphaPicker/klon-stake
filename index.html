@@ -568,8 +568,20 @@
       <div class="stake-hero-card">
         <div class="stake-hero-grid">
           <div class="hero-box">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 4px;">
+              <!-- 1. Le Camembert à GAUCHE -->
+              <button class="tooltip-btn" onclick="openAllocationModal()" title="Répartition du Patrimoine" style="display: inline-flex; align-items: center; justify-content: center; padding: 0;">
+                <svg width="15" height="15" viewBox="0 0 24 24" style="display: block;">
+                  <path d="M12 12 L12 2 A10 10 0 0 1 20.66 17 Z" fill="#7ee787" stroke="var(--bg-color)" stroke-width="1.2"/>
+                  <path d="M12 12 L20.66 17 A10 10 0 0 1 3.34 17 Z" fill="#58a6ff" stroke="var(--bg-color)" stroke-width="1.2"/>
+                  <path d="M12 12 L3.34 17 A10 10 0 0 1 12 2 Z" fill="#f59e0b" stroke="var(--bg-color)" stroke-width="1.2"/>
+                </svg>
+              </button>
+
+              <!-- 2. Le Titre au CENTRE -->
               <span class="label" id="lbl-hero-net-worth" data-i18n="hero_net_worth">PATRIMOINE NET RÉEL</span>
+
+              <!-- 3. Le Refresh à DROITE -->
               <button class="tooltip-btn" onclick="refreshMarketData()" title="Actualiser les cours & FX">🔄</button>
             </div>
             <div class="val" id="hero-net-worth" style="color: var(--accent-green-bright);">0 €</div>
@@ -795,6 +807,42 @@
   </div>
 
   <input type="file" id="image-upload-input" accept="image/*" style="display: none;" onchange="handleImageSelected(event)">
+  
+  <div id="allocation-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 440px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <!-- Icône du Camembert Graphique Vectoriel Multicolore -->
+          <div style="display: flex; align-items: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" style="display: block; flex-shrink: 0;">
+              <path d="M12 12 L12 2 A10 10 0 0 1 20.66 17 Z" fill="#7ee787" stroke="var(--card-bg)" stroke-width="1.5"/>
+              <path d="M12 12 L20.66 17 A10 10 0 0 1 3.34 17 Z" fill="#58a6ff" stroke="var(--card-bg)" stroke-width="1.5"/>
+              <path d="M12 12 L3.34 17 A10 10 0 0 1 12 2 Z" fill="#f59e0b" stroke="var(--card-bg)" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="card-title" style="margin-bottom: 0;" data-i18n="modal_alloc_title">Répartition du Patrimoine</div>
+        </div>
+        <button class="btn-danger" onclick="closeAllocationModal()" style="border: none; font-size: 1.1rem; cursor: pointer;">✕</button>
+      </div>
+
+      <div id="alloc-chart-box" style="display: flex; flex-direction: column; align-items: center; margin-top: 6px;"></div>
+
+      <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-top: 6px;">
+        <label style="font-size: 0.76rem; font-weight: bold; display: block; margin-bottom: 4px;">
+          <span data-i18n="lbl_liquidity_field">💶 Trésorerie de réserve / Liquidités (Livrets, Cash)</span> (<span class="curr-sym">€</span>)
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <input type="number" id="in-liquidity-cash" placeholder="0" step="1" style="flex: 1;">
+          <button class="btn-primary" onclick="saveLiquidityCash()" style="padding: 8px 14px; font-size: 0.85rem;" data-i18n="btn_save">Valider</button>
+        </div>
+        <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 4px;" data-i18n="liquidity_desc">
+          Optionnel : intègre ton épargne de précaution au camembert sans polluer ton bilan d'actifs.
+        </div>
+      </div>
+
+      <button class="btn-secondary" onclick="closeAllocationModal()" style="margin-top: 4px; width: 100%;" data-i18n="btn_close">Fermer</button>
+    </div>
+  </div>
 
   <script>
     const I18N = {
@@ -862,7 +910,7 @@
         modal_stock_live: "Cours :",
         modal_stock_val: "Valeur Brute :",
         modal_sov_title: "Souveraineté & Effet de Levier",
-        modal_sov_text: "L'<strong>Indice de Souveraineté</strong> mesure la proportion exacte de ton patrimoine qui t'appartient en fonds propres nets :<br><br><code style=\"background: rgba(163, 113, 247, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-purple); font-weight: bold;\">(Patrimoine Net ÷ Actifs Bruts) × 100</code><br><br><strong>⚡ Bonne dette vs Mauvaise dette :</strong><br>• <strong>L'effet de levier productif (Bonne dette)</strong> : Crédit immobilier ou crédit Lombard. Emprunter pour capter le rendement d'actifs rentables accélère l'enrichissement.<br>• <strong>La dette destructrice (Mauvaise dette)</strong> : Crédits conso, passifs qui décotent sans produire de valeur.<br><br>Chaque remboursement et chaque acquisition augmente ta pleine souveraineté patrimoniale.",
+        modal_sov_text: "L'<strong>Indice de Souveraineté</strong> mesure la proportion exacte de ton patrimoine qui t'appartient en fonds propres nets :<br><br><code style='background: rgba(163, 113, 247, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-purple); font-weight: bold;'>(Patrimoine Net ÷ Actifs Bruts) × 100</code><br><br><strong>⚡ Bonne dette vs Mauvaise dette :</strong><br>• <strong>L'effet de levier productif (Bonne dette)</strong> : Crédit immobilier ou crédit Lombard. Emprunter pour capter le rendement d'actifs rentables accélère l'enrichissement.<br>• <strong>La dette destructrice (Mauvaise dette)</strong> : Crédits conso, passifs qui décotent sans produire de valeur.<br><br>Chaque remboursement et chaque acquisition augmente ta pleine souveraineté patrimoniale.",
         btn_close: "Fermer",
         btn_understood: "Compris",
         btn_awesome: "Génial !",
@@ -879,6 +927,23 @@
         lbl_stock_singular: "action",
         lbl_stock_plural: "actions",
         tier_prefix: "Palier",
+        modal_alloc_title: "Répartition du Patrimoine",
+        lbl_liquidity_field: "💶 Trésorerie de réserve / Liquidités (Livrets, Cash)",
+        btn_save: "Valider",
+        liquidity_desc: "Optionnel : intègre ton épargne de précaution au camembert sans polluer ton bilan d'actifs.",
+        alloc_productive: "📈 Actifs Productifs",
+        alloc_tangible: "🔑 Biens Tangibles Nets",
+        alloc_liquidity: "💶 Liquidités / Livrets",
+        alloc_total: "TOTAL",
+        alloc_empty: "Aucun actif net enregistré pour le moment.",
+		alloc_title_assets: "1. Actifs Bruts",
+        alloc_title_liabilities: "2. Financement & Dettes",
+        alloc_net_equity: "🛡️ Fonds Propres Nets",
+        alloc_healthy_debt: "⚡ Dette Levier (Immo/Lombard)",
+        alloc_toxic_debt: "🔴 Dette Destructrice (Conso)",
+        alloc_recap_brut: "Brut",
+        alloc_recap_dettes: "Dettes",
+        alloc_recap_net: "Net Réel",
       },
       en: {
         subtitle: "Real Ownership Simulator",
@@ -944,7 +1009,7 @@
         modal_stock_live: "Price:",
         modal_stock_val: "Gross Value:",
         modal_sov_title: "Sovereignty & Leverage",
-        modal_sov_text: "The <strong>Sovereignty Index</strong> measures the exact percentage of your gross wealth owned free and clear of all debts:<br><br><code style=\"background: rgba(163, 113, 247, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-purple); font-weight: bold;\">(Net Worth ÷ Gross Assets) × 100</code><br><br><strong>⚡ Good Debt vs Bad Debt:</strong><br>• <strong>Productive Leverage (Good debt)</strong> : Mortgage or Lombard loan. Borrowing to capture yields of productive assets accelerates compounding.<br>• <strong>Consumer Debt (Toxic debt)</strong> : Depreciating loans without underlying equity.<br><br>Every payoff and asset purchase expands your sovereignty.",
+        modal_sov_text: "The <strong>Sovereignty Index</strong> measures the exact percentage of your gross wealth owned free and clear of all debts:<br><br><code style='background: rgba(163, 113, 247, 0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent-purple); font-weight: bold;'>(Net Worth ÷ Gross Assets) × 100</code><br><br><strong>⚡ Good Debt vs Bad Debt:</strong><br>• <strong>Productive Leverage (Good debt)</strong> : Mortgage or Lombard loan. Borrowing to capture yields of productive assets accelerates compounding.<br>• <strong>Consumer Debt (Toxic debt)</strong> : Depreciating loans without underlying equity.<br><br>Every payoff and asset purchase expands your sovereignty.",
         btn_close: "Close",
         btn_understood: "Understood",
         btn_awesome: "Awesome!",
@@ -961,6 +1026,23 @@
         lbl_stock_singular: "share",
         lbl_stock_plural: "shares",
         tier_prefix: "Tier",
+        modal_alloc_title: "Asset Allocation",
+        lbl_liquidity_field: "💶 Cash & Savings Reserve",
+        btn_save: "Save",
+        liquidity_desc: "Optional: integrate your cash reserve into the pie chart without cluttering your main asset inventory.",
+        alloc_productive: "📈 Productive Assets",
+        alloc_tangible: "🔑 Net Tangible Property",
+        alloc_liquidity: "💶 Cash & Savings",
+        alloc_total: "TOTAL",
+        alloc_empty: "No net assets registered yet.",
+		alloc_title_assets: "1. Gross Assets",
+        alloc_title_liabilities: "2. Capital & Debts",
+        alloc_net_equity: "🛡️ Real Net Equity",
+        alloc_healthy_debt: "⚡ Leverage Debt (Mortgage/Lombard)",
+        alloc_toxic_debt: "🔴 Toxic Debt (Consumer)",
+        alloc_recap_brut: "Gross",
+        alloc_recap_dettes: "Debts",
+        alloc_recap_net: "Real Net",
       }
     };
 
@@ -984,6 +1066,7 @@
 
       renderItemsList();
       if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+      if (document.getElementById('allocation-modal').classList.contains('active')) renderAllocationChart();
     }
 
     let currentAssetType = 'asset';
@@ -1000,6 +1083,7 @@
         theme: 'dark',
         lang: 'fr',
         usdEurRate: 0.92,
+        liquidityCash: 0,
         cardsOrder: [],
         everUnlockedRewards: [],
         items: []
@@ -1011,6 +1095,7 @@
     if (!db.theme) db.theme = 'dark';
     if (!db.lang) db.lang = 'fr';
     if (!db.usdEurRate) db.usdEurRate = 0.92;
+    if (db.liquidityCash === undefined) db.liquidityCash = 0;
     if (!Array.isArray(db.cardsOrder)) db.cardsOrder = [];
     if (!Array.isArray(db.everUnlockedRewards)) db.everUnlockedRewards = [];
 
@@ -1051,6 +1136,7 @@
       document.querySelectorAll('.curr-sym').forEach(el => el.innerText = symbolText);
       renderItemsList();
       renderTab2();
+      if (document.getElementById('allocation-modal').classList.contains('active')) renderAllocationChart();
     }
 
     function changeLanguage(langCode) {
@@ -1117,29 +1203,128 @@
       } catch (e) {}
     }
 
+    // Dictionnaire officiel : Cryptos, Géants Mondiaux, S&P 500, Nasdaq & ETF Stars
     const TICKER_DOMAIN_MAP = {
-  'GOOGL': 'google.com',
-  'GOOG': 'google.com',
-  'PYPL': 'paypal.com',
-  'CRM': 'salesforce.com',
-  'MSTR': 'microstrategy.com',
-  'ADBE': 'adobe.com',
-  'AAPL': 'apple.com',
-  'MSFT': 'microsoft.com',
-  'AMZN': 'amazon.com',
-  'TSLA': 'tesla.com',
-  'NVDA': 'nvidia.com',
-  'META': 'meta.com'
-};
+      // 1. CRYPTOMONNAIES & WEB3
+      'BTC': 'bitcoin.org', 'BITCOIN': 'bitcoin.org',
+      'ETH': 'ethereum.org', 'ETHEREUM': 'ethereum.org',
+      'SOL': 'solana.com', 'SOLANA': 'solana.com',
+      'BNB': 'binance.com', 'BINANCE': 'binance.com',
+      'XRP': 'ripple.com', 'RIPPLE': 'ripple.com',
+      'ADA': 'cardano.org', 'CARDANO': 'cardano.org',
+      'DOGE': 'dogecoin.com', 'DOGECOIN': 'dogecoin.com',
+      'AVAX': 'avax.network', 'AVALANCHE': 'avax.network',
+      'DOT': 'polkadot.network', 'POLKADOT': 'polkadot.network',
+      'LINK': 'chain.link', 'CHAINLINK': 'chain.link',
+      'MATIC': 'polygon.technology', 'POL': 'polygon.technology', 'POLYGON': 'polygon.technology',
+      'SHIB': 'shib.io', 'LTC': 'litecoin.org', 'NEAR': 'near.org',
+      'UNI': 'uniswap.org', 'SUI': 'sui.io', 'APT': 'aptosfoundation.org',
+      'PEPE': 'pepe.vip', 'RENDER': 'rendernetwork.com', 'RNDR': 'rendernetwork.com',
+      'FET': 'fetch.ai', 'TAO': 'bittensor.com', 'KAS': 'kaspa.org',
+      'USDT': 'tether.to', 'USDC': 'circle.com',
 
-function getFaviconUrlForTicker(symbol) {
-  if (!symbol) return null;
-  const clean = symbol.trim().toUpperCase();
-  const domain = TICKER_DOMAIN_MAP[clean] || `${clean.toLowerCase()}.com`;
-  return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-}
+      // 2. GÉANTS MONDIAUX
+      'SONY': 'sony.com', 'TM': 'toyota.com', 'TOYOTA': 'toyota.com',
+      'NTDOY': 'nintendo.com', 'NINTENDO': 'nintendo.com',
+      'HMC': 'honda.com', 'HONDA': 'honda.com', 'MUFG': 'mufg.jp',
+      'NESN': 'nestle.com', 'NSRGY': 'nestle.com', 'NESTLE': 'nestle.com',
+      'ROG': 'roche.com', 'RHHBY': 'roche.com', 'ROCHE': 'roche.com',
+      'NOVN': 'novartis.com', 'NVS': 'novartis.com', 'NOVARTIS': 'novartis.com',
+      'UBS': 'ubs.com', 'UBSG': 'ubs.com', 'CFR': 'richemont.com', 'RICHEMONT': 'richemont.com',
+      'LOGI': 'logitech.com', 'LOGN': 'logitech.com', 'LOGITECH': 'logitech.com',
+      'RIO': 'riotinto.com', 'RIO TINTO': 'riotinto.com',
+      'BP': 'bp.com', 'SHEL': 'shell.com', 'SHELL': 'shell.com',
+      'AZN': 'astrazeneca.com', 'ASTRAZENECA': 'astrazeneca.com',
+      'ULVR': 'unilever.com', 'UL': 'unilever.com', 'UNILEVER': 'unilever.com',
+      'BTI': 'bat.com', 'BATS': 'bat.com', 'BRITISH AMERICAN TOBACCO': 'bat.com',
+      'GSK': 'gsk.com', 'HSBC': 'hsbc.com', 'DGE': 'diageo.com',
+      'BABA': 'alibabagroup.com', 'ALIBABA': 'alibabagroup.com',
+      'TCEHY': 'tencent.com', 'TENCENT': 'tencent.com',
+      'PDD': 'pinduoduo.com', 'TEMU': 'pinduoduo.com',
+      'JD': 'jd.com', 'BIDU': 'baidu.com',
+      'MELI': 'mercadolibre.com', 'SE': 'sea.com', 'NU': 'nubank.com.br',
 
-    /* REQUETAGE GENERIQUE DU LIVESTOCKDATA ET LOGO S2 DE GOOGLE */
+      // 3. CATALOGUE ETF STARS
+      'VUAA': 'vanguard.com', 'VUSA': 'vanguard.com', 'VWCE': 'vanguard.com', 'VWRL': 'vanguard.com',
+      'VGWL': 'vanguard.com', 'VHYL': 'vanguard.com', 'VGWE': 'vanguard.com', 'VEUR': 'vanguard.com',
+      'VFEM': 'vanguard.com', 'VAGF': 'vanguard.com', 'VETY': 'vanguard.com',
+      'VOO': 'vanguard.com', 'VTI': 'vanguard.com', 'VXUS': 'vanguard.com', 'BND': 'vanguard.com',
+      'WPEA': 'ishares.com', 'CW8': 'amundietf.com', 'EWLD': 'amundietf.com', 'LCWD': 'amundietf.com',
+      'WEBN': 'amundietf.com', 'ESE': 'bnpparibas-am.com', 'PE500': 'amundietf.com', 'PUST': 'amundietf.com',
+      'C40': 'amundietf.com', 'MEUD': 'amundietf.com', 'PAASI': 'amundietf.com', 'PAEEM': 'amundietf.com',
+      'LQQ': 'amundietf.com', 'CL2': 'amundietf.com', 'CSH2': 'amundietf.com', 'XEON': 'dws.com',
+      'SXR8': 'ishares.com', 'CSPX': 'ishares.com', 'IWDA': 'ishares.com', 'SWDA': 'ishares.com',
+      'SSAC': 'ishares.com', 'ISAC': 'ishares.com', 'SXRV': 'ishares.com', 'QDVE': 'ishares.com',
+      'EMIM': 'ishares.com', 'EIMI': 'ishares.com', 'EQQQ': 'invesco.com', 'FWRA': 'invesco.com',
+      'SPY': 'ssga.com', 'SPLG': 'ssga.com', 'QQQ': 'invesco.com', 'QQQM': 'invesco.com',
+      'IVV': 'ishares.com', 'IWM': 'ishares.com', 'SCHD': 'schwab.com', 'JEPI': 'jpmorgan.com',
+      'JEPQ': 'jpmorgan.com', 'SMH': 'vaneck.com', 'IBIT': 'ishares.com', 'FBTC': 'fidelity.com',
+      'GLD': 'spdrgoldshares.com', 'IAU': 'ishares.com', 'SLV': 'ishares.com', 'ARKK': 'ark-funds.com',
+
+      // 4. CAC 40 & VALEURS EUROPÉENNES
+      'MC': 'lvmh.com', 'LVMH': 'lvmh.com',
+      'AI': 'airliquide.com', 'AIR LIQUIDE': 'airliquide.com',
+      'TTE': 'totalenergies.com', 'TOTAL': 'totalenergies.com',
+      'RMS': 'hermes.com', 'HERMES': 'hermes.com',
+      'OR': 'loreal.com', 'LOREAL': 'loreal.com',
+      'SAN': 'sanofi.com', 'SANOFI': 'sanofi.com',
+      'AIR': 'airbus.com', 'AIRBUS': 'airbus.com',
+      'SU': 'se.com', 'SCHNEIDER': 'se.com',
+      'BNP': 'group.bnpparibas', 'BNP PARIBAS': 'group.bnpparibas',
+      'DG': 'vinci.com', 'VINCI': 'vinci.com',
+      'SAF': 'safran-group.com', 'EL': 'essilorluxottica.com',
+      'CS': 'axa.com', 'DSY': '3ds.com', 'KER': 'kering.com',
+      'GLE': 'societegenerale.com', 'CAP': 'capgemini.com', 'STM': 'st.com', 'ORA': 'orange.com',
+      'NVO': 'novonordisk.com', 'ASML': 'asml.com', 'SAP': 'sap.com', 'SIE': 'siemens.com',
+      'RACE': 'ferrari.com', 'ALV': 'allianz.com', 'ITX': 'inditex.com', 'MBG': 'mercedes-benz.com', 'BMW': 'bmw.com',
+
+      // 5. WALL STREET
+      'AAPL': 'apple.com', 'MSFT': 'microsoft.com', 'GOOGL': 'google.com', 'GOOG': 'google.com',
+      'AMZN': 'amazon.com', 'META': 'meta.com', 'NVDA': 'nvidia.com', 'TSLA': 'tesla.com',
+      'PYPL': 'paypal.com', 'PAYPAL': 'paypal.com',
+      'BRK.A': 'berkshirehathaway.com', 'BRK.B': 'berkshirehathaway.com', 'BERKSHIRE': 'berkshirehathaway.com',
+      'AVGO': 'broadcom.com', 'TXN': 'ti.com', 'QCOM': 'qualcomm.com',
+      'CRM': 'salesforce.com', 'ADBE': 'adobe.com', 'NOW': 'servicenow.com',
+      'PLTR': 'palantir.com', 'MSTR': 'microstrategy.com', 'COIN': 'coinbase.com', 'HOOD': 'robinhood.com',
+      'AMD': 'amd.com', 'INTC': 'intel.com', 'NFLX': 'netflix.com', 'SPOT': 'spotify.com',
+      'DIS': 'disney.com', 'KO': 'coca-cola.com', 'PEP': 'pepsico.com', 'MCD': 'mcdonalds.com',
+      'V': 'visa.com', 'MA': 'mastercard.com', 'HD': 'homedepot.com', 'LOW': 'lowes.com',
+      'CAT': 'caterpillar.com', 'BA': 'boeing.com', 'DE': 'deere.com', 'GE': 'ge.com',
+      'T': 'att.com', 'VZ': 'verizon.com', 'O': 'realtyincome.com', 'WMT': 'walmart.com', 'COST': 'costco.com',
+      'JPM': 'jpmorganchase.com', 'BAC': 'bankofamerica.com', 'WFC': 'wellsfargo.com', 'GS': 'goldmansachs.com',
+      'LLY': 'lilly.com', 'UNH': 'unitedhealthgroup.com', 'JNJ': 'jnj.com', 'PFE': 'pfizer.com',
+      'XOM': 'exxonmobil.com', 'CVX': 'chevron.com', 'NET': 'cloudflare.com', 'SQ': 'block.xyz'
+    };
+
+    function getFaviconUrlForTicker(symbol) {
+      if (!symbol) return null;
+      const raw = symbol.trim().toUpperCase();
+
+      const clean = raw
+        .replace(/-(USD|EUR|GBP|CAD|CHF)$/i, '')
+        .replace(/\.(PA|DE|AS|L|MI|MC|SW|TO|T)$/i, '');
+
+      const normalized = clean.replace('-', '.');
+
+      const domain = TICKER_DOMAIN_MAP[raw] 
+                  || TICKER_DOMAIN_MAP[clean] 
+                  || TICKER_DOMAIN_MAP[normalized] 
+                  || (clean.length > 1 ? `${clean.toLowerCase()}.com` : null);
+
+      return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null;
+    }
+
+    function getItemAvatarUrl(item) {
+      if (!item) return null;
+      if (item.customImage && item.isUserCustomImage) {
+        return item.customImage;
+      }
+      if (item.type === 'asset') {
+        return getFaviconUrlForTicker(item.ticker) || getFaviconUrlForTicker(item.name) || item.customImage || null;
+      }
+      return item.customImage || null;
+    }
+
     async function fetchLiveStockData(symbol) {
       if (!symbol) return null;
       const clean = symbol.trim().toUpperCase();
@@ -1166,7 +1351,7 @@ function getFaviconUrlForTicker(symbol) {
           const meta = data?.chart?.result?.[0]?.meta;
 
           if (meta && meta.regularMarketPrice) {
-            const logoUrl = `https://www.google.com/s2/favicons?domain=${clean.toLowerCase()}.com&sz=128`;
+            const logoUrl = getFaviconUrlForTicker(clean);
             return {
               name: meta.shortName || meta.symbol || clean,
               price: meta.regularMarketPrice,
@@ -1181,68 +1366,54 @@ function getFaviconUrlForTicker(symbol) {
       return null;
     }
 
- 
-// Fonction de récupération v7 (avec le bon domaine)
-async function fetchV7QuoteData(cleanSymbol) {
-  const v7Urls = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`
-  ];
+    async function fetchV7QuoteData(cleanSymbol) {
+      const v7Urls = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`
+      ];
 
-  for (const qUrl of v7Urls) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
-      const res = await fetch(qUrl, { signal: controller.signal });
-      clearTimeout(timeoutId);
+      for (const qUrl of v7Urls) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const res = await fetch(qUrl, { signal: controller.signal });
+          clearTimeout(timeoutId);
 
-      if (!res.ok) continue;
-      const data = await res.json();
-      const result = data?.quoteResponse?.result?.[0];
+          if (!res.ok) continue;
+          const data = await res.json();
+          const result = data?.quoteResponse?.result?.[0];
 
-      if (result && (result.regularMarketPrice || result.sharesOutstanding)) {
-        const currency = result.currency || (cleanSymbol.includes('.') ? 'EUR' : 'USD');
-        
-        // Priorité : Dictionnaire manuel > Site Yahoo > Ticker.com
-        let domain = TICKER_DOMAIN_MAP[cleanSymbol];
-          if (!domain && result.website) {
-           try {
-             domain = new URL(result.website).hostname.replace('www.', '');
-           } catch(e) {}
-         }
-         if (!domain) domain = `${cleanSymbol.toLowerCase()}.com`;
+          if (result && (result.regularMarketPrice || result.sharesOutstanding)) {
+            const currency = result.currency || (cleanSymbol.includes('.') ? 'EUR' : 'USD');
+            const logoUrl = getFaviconUrlForTicker(cleanSymbol);
 
-        const logoUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-
-        return {
-          name: result.shortName || result.longName || cleanSymbol,
-          price: result.regularMarketPrice || null,
-          currency: currency,
-          shares: result.sharesOutstanding || null,
-          logo: logoUrl
-        };
+            return {
+              name: result.shortName || result.longName || cleanSymbol,
+              price: result.regularMarketPrice || null,
+              currency: currency,
+              shares: result.sharesOutstanding || null,
+              logo: logoUrl
+            };
+          }
+        } catch (e) {}
       }
-    } catch (e) {}
-  }
-  return null;
-}
-
-// Fonction de contrôle et d'assignation du logo Ticker
-function validateAndSetLogo(item, logoUrl) {
-  if (!logoUrl || item.isUserCustomImage) return;
-
-  const img = new Image();
-  img.onload = () => {
-    // Si l'image fait au moins 16px (évite les retours vides)
-    if (img.naturalWidth >= 16 && img.naturalHeight >= 16) {
-      item.customImage = logoUrl;
-      saveData();
-      renderItemsList();
-      if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+      return null;
     }
-  };
-  img.src = logoUrl;
-}
+
+    function validateAndSetLogo(item, logoUrl) {
+      if (!logoUrl || item.isUserCustomImage) return;
+
+      const img = new Image();
+      img.onload = () => {
+        if (img.naturalWidth >= 16 && img.naturalHeight >= 16) {
+          item.customImage = logoUrl;
+          saveData();
+          renderItemsList();
+          if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+        }
+      };
+      img.src = logoUrl;
+    }
 
     async function triggerLiveTickerCheck() {
       if (currentAssetType !== 'asset') return;
@@ -1342,6 +1513,7 @@ function validateAndSetLogo(item, logoUrl) {
           if (live) {
             const it = db.items.find(i => i.id === savedId);
             if (it) {
+              if (live.name && (!it.name || it.name === it.ticker)) it.name = live.name;
               if (live.price) it.curPrice = live.price;
               if (live.shares && !it.sharesTotal) it.sharesTotal = live.shares;
               if (live.currency) it.assetCurrency = live.currency.toUpperCase();
@@ -1438,9 +1610,10 @@ function validateAndSetLogo(item, logoUrl) {
             let mainValText = '';
             let valColor = '';
             let defaultIcon = item.type === 'asset' ? '📈' : (item.type === 'property' ? '🔑' : '💳');
+            const avatarUrl = getItemAvatarUrl(item);
             
-            let miniAvatar = item.customImage 
-              ? `<div class="inventory-avatar-mini" style="background-image: url('${item.customImage}');"></div>`
+            let miniAvatar = avatarUrl 
+              ? `<div class="inventory-avatar-mini" style="background-image: url('${avatarUrl}');"></div>`
               : `<div class="inventory-avatar-mini">${defaultIcon}</div>`;
 
             if (item.type === 'asset') {
@@ -1474,69 +1647,49 @@ function validateAndSetLogo(item, logoUrl) {
     }
 
     function triggerImageUpload(itemId) {
-  const item = db.items.find(i => i.id === itemId);
-  if (!item) return;
+      const item = db.items.find(i => i.id === itemId);
+      if (!item) return;
 
-  currentImageTargetId = itemId;
+      currentImageTargetId = itemId;
 
-  // Si l'élément a déjà une image personnalisée, on propose le choix
-  if (item.customImage) {
-    showCustomDialog(
-      '🖼️',
-      (db.lang === 'en') ? 'Image Settings' : 'Gestion de l\'image',
-      (db.lang === 'en') 
-        ? 'Do you want to change the image or reset to the default icon?' 
-        : 'Souhaites-tu remplacer l\'image ou réinitialiser l\'icône par défaut ?',
-      false,
-      null,
-      'OK'
-    );
+      if (item.isUserCustomImage && item.customImage) {
+        showCustomDialog(
+          '🖼️',
+          (db.lang === 'en') ? 'Image Settings' : 'Gestion de l\'image',
+          (db.lang === 'en') 
+            ? 'Do you want to change the image or reset to the default icon?' 
+            : 'Souhaites-tu remplacer l\'image ou réinitialiser l\'icône par défaut ?',
+          false,
+          null,
+          'OK'
+        );
 
-    // Ajustement dynamique des boutons dans la pop-up (Changer & Réinitialiser)
-    const btnBox = document.getElementById('dialog-buttons');
-    btnBox.innerHTML = `
-      <button class="btn-primary" onclick="closeCustomDialog(); document.getElementById('image-upload-input').click();" style="flex: 1; padding: 8px;">
-        ${(db.lang === 'en') ? '📷 Change' : '📷 Changer'}
-      </button>
-      <button class="btn-reset" onclick="resetItemImage('${itemId}')" style="flex: 1; padding: 8px;">
-        ${(db.lang === 'en') ? '🔄 Reset' : '🔄 Réinitialiser'}
-      </button>
-    `;
-  } else {
-    // S'il n'y a pas d'image, on ouvre directement le sélecteur de fichier
-    document.getElementById('image-upload-input').click();
-  }
-}
-    function resetItemImage(itemId) {
-  const item = db.items.find(i => i.id === itemId);
-  if (!item) return;
-
-  // 1. On efface l'image perso et on réinitialise le drapeau
-  item.customImage = null;
-  item.isUserCustomImage = false;
-
-  saveData();
-  closeCustomDialog();
-  renderItemsList();
-  if (document.getElementById('tab2').classList.contains('active')) renderTab2();
-
-  // 2. Si c'est un actif, on réassigne immédiatement le logo officiel du ticker
-  if (item.type === 'asset') {
-    const querySymbol = item.ticker || item.name;
-    if (querySymbol) {
-      const fallbackLogo = getFaviconUrlForTicker(querySymbol);
-      if (fallbackLogo) {
-        validateAndSetLogo(item, fallbackLogo);
+        const btnBox = document.getElementById('dialog-buttons');
+        btnBox.innerHTML = `
+          <button class="btn-primary" onclick="closeCustomDialog(); document.getElementById('image-upload-input').click();" style="flex: 1; padding: 8px;">
+            ${(db.lang === 'en') ? '📷 Change' : '📷 Changer'}
+          </button>
+          <button class="btn-reset" onclick="resetItemImage('${itemId}')" style="flex: 1; padding: 8px;">
+            ${(db.lang === 'en') ? '🔄 Reset' : '🔄 Réinitialiser'}
+          </button>
+        `;
+      } else {
+        document.getElementById('image-upload-input').click();
       }
-      // Mise à jour éventuelle des cours en arrière-plan
-      fetchLiveStockData(querySymbol).then(live => {
-        if (live && live.logo) {
-          validateAndSetLogo(item, live.logo);
-        }
-      });
     }
-  }
-}
+
+    function resetItemImage(itemId) {
+      const item = db.items.find(i => i.id === itemId);
+      if (!item) return;
+
+      item.customImage = null;
+      item.isUserCustomImage = false;
+
+      saveData();
+      closeCustomDialog();
+      renderItemsList();
+      if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+    }
 
     function handleImageSelected(event) {
       const file = event.target.files[0];
@@ -1558,7 +1711,7 @@ function validateAndSetLogo(item, logoUrl) {
           const target = db.items.find(i => i.id === currentImageTargetId);
           if (target) {
             target.customImage = dataUrl;
-            target.isUserCustomImage = true; // Marqué pour ne pas être écrasé par l'API
+            target.isUserCustomImage = true;
             saveData();
             renderItemsList();
             renderTab2();
@@ -1584,8 +1737,7 @@ function validateAndSetLogo(item, logoUrl) {
           if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
           if (live.currency) item.assetCurrency = live.currency.toUpperCase();
           if (live.logo && !item.isUserCustomImage) {
-          // Si ce n'est pas une image importée par l'utilisateur, on re-valide le nouveau logo
-          validateAndSetLogo(item, live.logo);
+            validateAndSetLogo(item, live.logo);
           }
           updatedCount++;
         }
@@ -1689,6 +1841,10 @@ function validateAndSetLogo(item, logoUrl) {
         }
       });
 
+      // Ajout immédiat de la trésorerie de réserve au patrimoine brut
+      const liquidityVal = parseFloat(db.liquidityCash) || 0;
+      totalGrossAssets += liquidityVal;
+
       totalDebts += globalLombardDebt;
       collateralizedDebts += globalLombardDebt;
 
@@ -1763,16 +1919,22 @@ function validateAndSetLogo(item, logoUrl) {
       let sharePct = 0;
       let rarityBadge = '';
       if (item.sharesTotal && item.sharesTotal > 0 && item.qty > 0) {
-        sharePct = (item.qty / item.sharesTotal) * 100;
         const rarity = Math.round(item.sharesTotal / item.qty);
         rarityBadge = (db.lang === 'en')
-          ? `🌍 1 pers. out of <strong>${fmtCompact(rarity)}</strong> owns this block`
-          : `🌍 1 pers. sur <strong>${fmtCompact(rarity)}</strong> possède ce bloc`;
+          ? `🌍 Only 1 pers. in <strong>${fmtCompact(rarity)}</strong> can hold this block`
+          : `🌍 Seule 1 pers. sur <strong>${fmtCompact(rarity)}</strong> peut posséder ce bloc`;
       }
 
-      // AFFICHAGE AVEC FALLBACK SUR L'ICÔNE PAR DÉFAUT SI ERREUR CHARGEMENT IMAGE
-      let avatarContent = item.customImage 
-       ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
+      // Flèche discrète de tendance (vert si curP >= pru, rouge si curP < pru)
+      const isGain = curP >= item.pru;
+      const trendTitle = isGain ? (db.lang === 'en' ? 'In profit' : 'En plus-value') : (db.lang === 'en' ? 'In loss' : 'En moins-value');
+      const trendArrow = isGain 
+        ? `<span style="color: var(--accent-green-bright); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▲</span>` 
+        : `<span style="color: var(--accent-red); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▼</span>`;
+
+      const avatarUrl = getItemAvatarUrl(item);
+      let avatarContent = avatarUrl 
+       ? `<div class="stake-squircle-avatar" style="background-image: url('${avatarUrl}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">📈</div>`;
 
       const tier = getTierConfig(sharePct);
@@ -1787,8 +1949,8 @@ function validateAndSetLogo(item, logoUrl) {
                 <div style="display: flex; align-items: center; gap: 5px;">
                   <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>${tickerTag}
                 </div>
-                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">
-                  ${item.qty} parts @ ${fmt(curP, itemCurr)}
+                <div style="font-size: 0.75rem; opacity: 0.85; margin-top: 2px; display: inline-flex; align-items: center;">
+                  ${item.qty} parts @ ${fmt(curP, itemCurr)} ${trendArrow}
                 </div>
               </div>
               <div style="text-align: right;">
@@ -1803,7 +1965,7 @@ function validateAndSetLogo(item, logoUrl) {
           </div>
           
           <div class="progress-bar-bg" style="background-color: ${tier.baseColor}; position: relative;">
-            <div class="progress-bar-fill" style="width: ${sharePct > 0 ? tier.progress : 100}\%; background-color: ${tier.fillColor}; position: absolute; top: 0; left: 0; height: 100%;"></div>
+            <div class="progress-bar-fill" style="width: ${sharePct > 0 ? tier.progress : 100}%; background-color: ${tier.fillColor}; position: absolute; top: 0; left: 0; height: 100%;"></div>
           </div>
         </div>
       `;
@@ -1819,15 +1981,16 @@ function validateAndSetLogo(item, logoUrl) {
       if (isFullOwned) cardClass = 'full-owned';
       else if (isNegativeEquity) cardClass = 'negative-equity';
 
-      let avatarContent = item.customImage 
-       ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
+      const avatarUrl = getItemAvatarUrl(item);
+      let avatarContent = avatarUrl 
+       ? `<div class="stake-squircle-avatar" style="background-image: url('${avatarUrl}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">🔑</div>`;
 
       let statusMsg = isFullOwned
         ? t('full_owned_msg')
         : (isNegativeEquity 
             ? t('neg_equity_msg', { val: fmt(Math.abs(netPart), db.currency) })
-            : (db.lang === 'en' ? `Equity: ${fmt(netPart, db.currency)} (${ownershipPct}\%) • Bank: <span style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</span>` : `Part nette : ${fmt(netPart, db.currency)} (${ownershipPct}\%) • Banque : <span style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</span>`));
+            : (db.lang === 'en' ? `Equity: ${fmt(netPart, db.currency)} (${ownershipPct}%) • Bank: <span style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</span>` : `Part nette : ${fmt(netPart, db.currency)} (${ownershipPct}%) • Banque : <span style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</span>`));
 
       container.innerHTML += `
         <div class="stake-card ${cardClass}" draggable="true" data-id="${item.id}" onclick="openPropertyDetailModal('${item.id}')" title="Détails du bien">
@@ -1861,8 +2024,9 @@ function validateAndSetLogo(item, logoUrl) {
       const progress = initial > 0 ? Math.min(100, Math.round((repaid / initial) * 100)) : 0;
       const isFullyRepaid = remaining === 0 && initial > 0;
 
-      let avatarContent = item.customImage 
-       ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
+      const avatarUrl = getItemAvatarUrl(item);
+      let avatarContent = avatarUrl 
+       ? `<div class="stake-squircle-avatar" style="background-image: url('${avatarUrl}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">💳</div>`;
 
       container.innerHTML += `
@@ -2074,7 +2238,7 @@ function validateAndSetLogo(item, logoUrl) {
         document.getElementById('m-stock-title').innerText = item.name;
         document.getElementById('m-stock-ticker').innerText = item.ticker || (db.lang === 'en' ? 'STOCK' : 'ACTION');
         
-        const shareText = sharePct > 0 ? `${sharePct.toFixed(8)} \% ${t('modal_stock_shares_total')}` : '100 %';
+        const shareText = sharePct > 0 ? `${sharePct.toFixed(8)} % ${t('modal_stock_shares_total')}` : '100 %';
         document.getElementById('m-stock-exact-pct').innerText = `${t('modal_stock_equity_real', { pct: equityPct })} (${shareText})`;
 
         const stockUnitLabel = item.qty > 1 ? t('lbl_stock_plural') : t('lbl_stock_singular');
@@ -2159,8 +2323,8 @@ function validateAndSetLogo(item, logoUrl) {
             ? (db.lang === 'en' 
                 ? `Congrats! You repaid all <strong>${fmt(initial, db.currency)}</strong>.<br><br>Zero debt on this liability!` 
                 : `Félicitations ! Tu as remboursé la totalité des <strong>${fmt(initial, db.currency)}</strong> de ce passif.<br><br>Ce crédit ne pèse plus sur ton bilan net !`)
-            : (db.lang === 'en'
-                ? `You already crushed <strong>${fmt(repaid, db.currency)} (${pct}\%)</strong> on this debt.<br><br>Remaining: <strong>${fmt(remaining, db.currency)}</strong>.<br><br>Every dollar repaid expands your real sovereignty!`
+            : (db.lang === 'en' 
+                ? `You already crushed <strong>${fmt(repaid, db.currency)} (${pct}%)</strong> on this debt.<br><br>Remaining: <strong>${fmt(remaining, db.currency)}</strong>.<br><br>Every dollar repaid expands your real sovereignty!`
                 : `Tu as déjà détruit <strong>${fmt(repaid, db.currency)} (${pct} %)</strong> sur ce crédit.<br><br>Reste à éliminer : <strong>${fmt(remaining, db.currency)}</strong>.<br><br>Chaque euro remboursé augmente directement ton patrimoine net réel !`);
 
         const btnText = isPaid ? (db.lang === 'en' ? 'Awesome!' : 'Génial !') : 'OK';
@@ -2367,6 +2531,7 @@ function validateAndSetLogo(item, logoUrl) {
           const imported = JSON.parse(e.target.result);
           if (imported && Array.isArray(imported.items)) {
             db = imported;
+            if (db.liquidityCash === undefined) db.liquidityCash = 0;
             saveData();
             document.getElementById('user-name-input').value = db.userName || '';
             document.getElementById('currency-select').value = db.currency || 'EUR';
@@ -2391,6 +2556,7 @@ function validateAndSetLogo(item, logoUrl) {
       showCustomDialog('🗑️', t('btn_reset'), (db.lang === 'en') ? 'Are you sure you want to reset everything?' : 'Es-tu sûr de vouloir tout réinitialiser à zéro ?', true, () => {
         db.items = [];
         db.userName = '';
+        db.liquidityCash = 0;
         db.cardsOrder = [];
         db.everUnlockedRewards = [];
         cancelEditing();
@@ -2470,6 +2636,173 @@ function validateAndSetLogo(item, logoUrl) {
       fetchUsdEurRate();
       applyLanguageUI();
     });
+
+    function openAllocationModal() {
+      renderAllocationChart();
+      const inCash = document.getElementById('in-liquidity-cash');
+      if (inCash) inCash.value = (db.liquidityCash && db.liquidityCash > 0) ? db.liquidityCash : '';
+      document.getElementById('allocation-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAllocationModal() {
+      document.getElementById('allocation-modal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function saveLiquidityCash() {
+      const val = parseFloat(document.getElementById('in-liquidity-cash').value) || 0;
+      db.liquidityCash = Math.max(0, val);
+      saveData();
+      renderTab2();
+      renderAllocationChart();
+      showCustomDialog('💶', (db.lang === 'en' ? 'Cash Reserve' : 'Liquidités'), (db.lang === 'en') ? 'Cash reserve updated!' : 'Trésorerie de réserve mise à jour !');
+    }
+
+    function renderAllocationChart() {
+      const box = document.getElementById('alloc-chart-box');
+      if (!box) return;
+
+      let productiveVal = 0;
+      let tangibleGrossVal = 0;
+      let mortgageDebt = 0;
+      let toxicDebt = 0;
+      let globalLombard = 0;
+
+      db.items.forEach(item => {
+        if (item.type === 'asset') {
+          const curP = item.curPrice || item.pru;
+          const grossVal = toGlobalCurrency(item.qty * curP, item.assetCurrency || 'USD');
+          productiveVal += grossVal;
+          if (item.lombardDebt > 0) globalLombard = item.lombardDebt;
+        } else if (item.type === 'property') {
+          tangibleGrossVal += item.valActual;
+          mortgageDebt += item.debtActual;
+        } else {
+          const remaining = item.debtRemaining !== undefined ? item.debtRemaining : Math.max(0, (item.debtInitial || 0) - (item.debtRepaid || 0));
+          toxicDebt += remaining;
+        }
+      });
+
+      const liquidityVal = parseFloat(db.liquidityCash) || 0;
+      const totalGross = productiveVal + tangibleGrossVal + liquidityVal;
+      const totalDebt = mortgageDebt + globalLombard + toxicDebt;
+      const netEquity = Math.max(0, totalGross - totalDebt);
+
+      if (totalGross <= 0 && totalDebt <= 0) {
+        box.innerHTML = `<div style="font-size:0.85rem; opacity:0.6; padding: 20px 0; text-align: center;">${t('alloc_empty')}</div>`;
+        return;
+      }
+
+      // Constante circonférence cercle SVG r=34
+      const C = 213.628;
+
+      // 1. Calculs Camembert Actifs
+      const pProd = totalGross > 0 ? (productiveVal / totalGross) * 100 : 0;
+      const pTang = totalGross > 0 ? (tangibleGrossVal / totalGross) * 100 : 0;
+      const pLiq = totalGross > 0 ? (liquidityVal / totalGross) * 100 : 0;
+
+      const lenProd = (pProd / 100) * C;
+      const lenTang = (pTang / 100) * C;
+      const lenLiq = (pLiq / 100) * C;
+
+      // 2. Calculs Camembert Passif / Financement
+      const totalFunding = netEquity + totalDebt;
+      const pNet = totalFunding > 0 ? (netEquity / totalFunding) * 100 : 0;
+      const pLev = totalFunding > 0 ? ((mortgageDebt + globalLombard) / totalFunding) * 100 : 0;
+      const pTox = totalFunding > 0 ? (toxicDebt / totalFunding) * 100 : 0;
+
+      const lenNet = (pNet / 100) * C;
+      const lenLev = (pLev / 100) * C;
+      const lenTox = (pTox / 100) * C;
+
+      box.innerHTML = `
+        <!-- Bandeau Récapitulatif Brut / Dettes / Net -->
+        <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: center; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 4px; margin-bottom: 12px; font-size: 0.72rem;">
+          <div>
+            <div style="opacity: 0.75;">${t('alloc_recap_brut')}</div>
+            <strong style="color: var(--text-bright); font-size: 0.85rem;">${fmt(totalGross, db.currency)}</strong>
+          </div>
+          <div style="border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
+            <div style="opacity: 0.75; color: var(--accent-red);">${t('alloc_recap_dettes')}</div>
+            <strong style="color: var(--accent-red); font-size: 0.85rem;">-${fmt(totalDebt, db.currency)}</strong>
+          </div>
+          <div>
+            <div style="opacity: 0.75; color: var(--accent-green-bright);">${t('alloc_recap_net')}</div>
+            <strong style="color: var(--accent-green-bright); font-size: 0.85rem;">${fmt(totalGross - totalDebt, db.currency)}</strong>
+          </div>
+        </div>
+
+        <!-- Les 2 Camemberts côte à côte -->
+        <div style="display: flex; justify-content: space-around; align-items: center; width: 100%; gap: 10px; margin-bottom: 12px;">
+          <!-- Camembert 1 : Actifs Bruts -->
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <span style="font-size: 0.72rem; font-weight: bold; margin-bottom: 4px; color: var(--text-bright);">${t('alloc_title_assets')}</span>
+            <div style="position: relative; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
+              <svg width="110" height="110" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--bg-color)" stroke-width="12"></circle>
+                ${lenProd > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-green-bright)" stroke-width="12" stroke-dasharray="${lenProd} ${C - lenProd}" stroke-dashoffset="0" transform="rotate(-90 50 50)"></circle>` : ''}
+                ${lenTang > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-blue)" stroke-width="12" stroke-dasharray="${lenTang} ${C - lenTang}" stroke-dashoffset="${-lenProd}" transform="rotate(-90 50 50)"></circle>` : ''}
+                ${lenLiq > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-yellow)" stroke-width="12" stroke-dasharray="${lenLiq} ${C - lenLiq}" stroke-dashoffset="${-(lenProd + lenTang)}" transform="rotate(-90 50 50)"></circle>` : ''}
+              </svg>
+              <div style="position: absolute; text-align: center; pointer-events: none;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-bright);">${fmtCompact(totalGross)}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Camembert 2 : Financement & Dettes -->
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <span style="font-size: 0.72rem; font-weight: bold; margin-bottom: 4px; color: var(--text-bright);">${t('alloc_title_liabilities')}</span>
+            <div style="position: relative; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
+              <svg width="110" height="110" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--bg-color)" stroke-width="12"></circle>
+                ${lenNet > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-purple)" stroke-width="12" stroke-dasharray="${lenNet} ${C - lenNet}" stroke-dashoffset="0" transform="rotate(-90 50 50)"></circle>` : ''}
+                ${lenLev > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-orange)" stroke-width="12" stroke-dasharray="${lenLev} ${C - lenLev}" stroke-dashoffset="${-lenNet}" transform="rotate(-90 50 50)"></circle>` : ''}
+                ${lenTox > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-red)" stroke-width="12" stroke-dasharray="${lenTox} ${C - lenTox}" stroke-dashoffset="${-(lenNet + lenLev)}" transform="rotate(-90 50 50)"></circle>` : ''}
+              </svg>
+              <div style="position: absolute; text-align: center; pointer-events: none;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--accent-purple);">${Math.round(pNet)}% Net</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Légendes détaillées des 2 volets -->
+        <div style="display: flex; flex-direction: column; gap: 5px; width: 100%; font-size: 0.78rem; border-top: 1px solid var(--border-color); padding-top: 8px;">
+          <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.6; text-transform: uppercase;">Actifs :</div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green-bright);"></span>${t('alloc_productive')}</span>
+            <strong>${fmt(productiveVal, db.currency)} (${Math.round(pProd)}%)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-blue);"></span>${t('alloc_tangible')}</span>
+            <strong>${fmt(tangibleGrossVal, db.currency)} (${Math.round(pTang)}%)</strong>
+          </div>
+          ${liquidityVal > 0 ? `
+          <div style="display: flex; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-yellow);"></span>${t('alloc_liquidity')}</span>
+            <strong>${fmt(liquidityVal, db.currency)} (${Math.round(pLiq)}%)</strong>
+          </div>` : ''}
+
+          <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.6; text-transform: uppercase; margin-top: 6px;">Financement & Dettes :</div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-purple);"></span>${t('alloc_net_equity')}</span>
+            <strong style="color: var(--accent-purple);">${fmt(netEquity, db.currency)} (${Math.round(pNet)}%)</strong>
+          </div>
+          ${(mortgageDebt + globalLombard) > 0 ? `
+          <div style="display: flex; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-orange);"></span>${t('alloc_healthy_debt')}</span>
+            <strong style="color: var(--accent-orange);">${fmt(mortgageDebt + globalLombard, db.currency)} (${Math.round(pLev)}%)</strong>
+          </div>` : ''}
+          ${toxicDebt > 0 ? `
+          <div style="display: flex; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-red);"></span>${t('alloc_toxic_debt')}</span>
+            <strong style="color: var(--accent-red);">${fmt(toxicDebt, db.currency)} (${Math.round(pTox)}%)</strong>
+          </div>` : ''}
+        </div>
+      `;
+    }
   </script>
 </body>
 </html>
