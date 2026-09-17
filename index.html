@@ -1906,71 +1906,71 @@
     }
 
     function renderAssetCard(container, item) {
-      const curP = item.curPrice || item.pru;
-      const itemCurr = item.assetCurrency || 'USD';
-      const grossValOrig = item.qty * curP;
-      const grossValGlobal = toGlobalCurrency(grossValOrig, itemCurr);
+  const curP = item.curPrice || item.pru;
+  const itemCurr = item.assetCurrency || 'USD';
+  const grossValOrig = item.qty * curP;
+  const grossValGlobal = toGlobalCurrency(grossValOrig, itemCurr);
 
-      const totalAssetGrossGlobal = db.items.filter(i => i.type === 'asset').reduce((sum, i) => sum + toGlobalCurrency(i.qty * (i.curPrice || i.pru), i.assetCurrency || 'USD'), 0);
-      const globalLombardGlobal = item.lombardDebt || 0;
-      const itemLombardShareGlobal = totalAssetGrossGlobal > 0 ? (grossValGlobal / totalAssetGrossGlobal) * globalLombardGlobal : 0;
-      const netValGlobal = grossValGlobal - itemLombardShareGlobal;
+  const totalAssetGrossGlobal = db.items.filter(i => i.type === 'asset').reduce((sum, i) => sum + toGlobalCurrency(i.qty * (i.curPrice || i.pru), i.assetCurrency || 'USD'), 0);
+  const globalLombardGlobal = item.lombardDebt || 0;
+  const itemLombardShareGlobal = totalAssetGrossGlobal > 0 ? (grossValGlobal / totalAssetGrossGlobal) * globalLombardGlobal : 0;
+  const netValGlobal = grossValGlobal - itemLombardShareGlobal;
 
-      let sharePct = 0;
-      let rarityBadge = '';
-      if (item.sharesTotal && item.sharesTotal > 0 && item.qty > 0) {
-        sharePct = (item.qty / item.sharesTotal) * 100; // <--- Ligne ajoutée
-        const rarity = Math.round(item.sharesTotal / item.qty);
-        rarityBadge = (db.lang === 'en')
-          ? `🌍 Only 1 pers. in <strong>${fmtCompact(rarity)}</strong> can hold this block`
-          : `🌍 Seule 1 pers. sur <strong>${fmtCompact(rarity)}</strong> peut posséder ce bloc`;
-      }
+  // --- CALCUL DU POURCENTAGE DE DÉTENTION ---
+  let sharePct = 0;
+  let rarityBadge = '';
+  if (item.sharesTotal && item.sharesTotal > 0 && item.qty > 0) {
+    sharePct = (item.qty / item.sharesTotal) * 100; // <--- INDISPENSABLE
+    const rarity = Math.round(item.sharesTotal / item.qty);
+    rarityBadge = (db.lang === 'en')
+      ? `🌍 Only 1 pers. in <strong>${fmtCompact(rarity)}</strong> can hold this block`
+      : `🌍 Seule 1 pers. sur <strong>${fmtCompact(rarity)}</strong> peut posséder ce bloc`;
+  }
 
-      // Flèche discrète de tendance (vert si curP >= pru, rouge si curP < pru)
-      const isGain = curP >= item.pru;
-      const trendTitle = isGain ? (db.lang === 'en' ? 'In profit' : 'En plus-value') : (db.lang === 'en' ? 'In loss' : 'En moins-value');
-      const trendArrow = isGain 
-        ? `<span style="color: var(--accent-green-bright); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▲</span>` 
-        : `<span style="color: var(--accent-red); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▼</span>`;
+  const isGain = curP >= item.pru;
+  const trendTitle = isGain ? (db.lang === 'en' ? 'In profit' : 'En plus-value') : (db.lang === 'en' ? 'In loss' : 'En moins-value');
+  const trendArrow = isGain 
+    ? `<span style="color: var(--accent-green-bright); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▲</span>` 
+    : `<span style="color: var(--accent-red); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▼</span>`;
 
-      const avatarUrl = getItemAvatarUrl(item);
-      let avatarContent = avatarUrl 
-       ? `<div class="stake-squircle-avatar" style="background-image: url('${avatarUrl}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
-       : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">📈</div>`;
+  const avatarUrl = getItemAvatarUrl(item);
+  let avatarContent = avatarUrl 
+   ? `<div class="stake-squircle-avatar" style="background-image: url('${avatarUrl}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
+   : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">📈</div>`;
 
-      const tier = getTierConfig(sharePct);
-      const tickerTag = item.ticker ? `<span style="font-size:0.7rem; color:var(--accent-orange); font-weight:800; background:var(--badge-bg); padding:1px 5px; border-radius:4px; border:1px solid var(--accent-orange);">${item.ticker}</span>` : '';
+  const tier = getTierConfig(sharePct);
+  const tickerTag = item.ticker ? `<span style="font-size:0.7rem; color:var(--accent-orange); font-weight:800; background:var(--badge-bg); padding:1px 5px; border-radius:4px; border:1px solid var(--accent-orange);">${item.ticker}</span>` : '';
 
-      container.innerHTML += `
-        <div class="stake-card" draggable="true" data-id="${item.id}" onclick="openStockDetailModal('${item.id}')" style="border-left-color: ${tier.fillColor};" title="Détails de l'action">
-          <div class="stake-card-header">
-            ${avatarContent}
-            <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                  <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>${tickerTag}
-                </div>
-                <div style="font-size: 0.75rem; opacity: 0.85; margin-top: 2px; display: inline-flex; align-items: center;">
-                  ${item.qty} parts @ ${fmt(curP, itemCurr)} ${trendArrow}
-                </div>
-              </div>
-              <div style="text-align: right;">
-                <div style="font-size: 1rem; font-weight: 800; color: var(--accent-green-bright);">${fmt(netValGlobal, db.currency)}</div>
-                <div style="font-size: 0.72rem; color: ${tier.fillColor}; font-weight: bold;">${tier.currentTier.label}</div>
-              </div>
+  container.innerHTML += `
+    <div class="stake-card" draggable="true" data-id="${item.id}" onclick="openStockDetailModal('${item.id}')" style="border-left-color: ${tier.fillColor};" title="Détails de l'action">
+      <div class="stake-card-header">
+        ${avatarContent}
+        <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>${tickerTag}
+            </div>
+            <div style="font-size: 0.75rem; opacity: 0.85; margin-top: 2px; display: inline-flex; align-items: center;">
+              ${item.qty} parts @ ${fmt(curP, itemCurr)} ${trendArrow}
             </div>
           </div>
-          
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-main); margin-top: -2px;">
-            <span>${rarityBadge}</span>
-          </div>
-          
-          <div class="progress-bar-bg" style="background-color: ${tier.baseColor}; position: relative;">
-            <div class="progress-bar-fill" style="width: ${sharePct > 0 ? tier.progress : 100}%; background-color: ${tier.fillColor}; position: absolute; top: 0; left: 0; height: 100%;"></div>
+          <div style="text-align: right;">
+            <div style="font-size: 1rem; font-weight: 800; color: var(--accent-green-bright);">${fmt(netValGlobal, db.currency)}</div>
+            <div style="font-size: 0.72rem; color: ${tier.fillColor}; font-weight: bold;">${tier.currentTier.label}</div>
           </div>
         </div>
-      `;
-    }
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-main); margin-top: -2px;">
+        <span>${rarityBadge}</span>
+      </div>
+      
+      <div class="progress-bar-bg" style="background-color: ${tier.baseColor}; position: relative;">
+        <div class="progress-bar-fill" style="width: ${tier.progress}%; background-color: ${tier.fillColor}; position: absolute; top: 0; left: 0; height: 100%;"></div>
+      </div>
+    </div>
+  `;
+}
 
     function renderPropertyCard(container, item) {
       const netPart = item.valActual - item.debtActual;
