@@ -1117,6 +1117,28 @@
       } catch (e) {}
     }
 
+    const TICKER_DOMAIN_MAP = {
+  'GOOGL': 'google.com',
+  'GOOG': 'google.com',
+  'PYPL': 'paypal.com',
+  'CRM': 'salesforce.com',
+  'MSTR': 'microstrategy.com',
+  'ADBE': 'adobe.com',
+  'AAPL': 'apple.com',
+  'MSFT': 'microsoft.com',
+  'AMZN': 'amazon.com',
+  'TSLA': 'tesla.com',
+  'NVDA': 'nvidia.com',
+  'META': 'meta.com'
+};
+
+function getFaviconUrlForTicker(symbol) {
+  if (!symbol) return null;
+  const clean = symbol.trim().toUpperCase();
+  const domain = TICKER_DOMAIN_MAP[clean] || `${clean.toLowerCase()}.com`;
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+}
+
     /* REQUETAGE GENERIQUE DU LIVESTOCKDATA ET LOGO S2 DE GOOGLE */
     async function fetchLiveStockData(symbol) {
       if (!symbol) return null;
@@ -1219,17 +1241,16 @@ function validateAndSetLogo(item, logoUrl) {
   if (!logoUrl || item.isUserCustomImage) return;
 
   const img = new Image();
-  img.crossOrigin = "Anonymous";
   img.onload = () => {
-    // Si l'image fait plus de 16x16 pixels (pas le globe par défaut de Google)
-    if (img.naturalWidth > 16 && img.naturalHeight > 16) {
+    // Si l'image fait au moins 16px (évite les retours vides)
+    if (img.naturalWidth >= 16 && img.naturalHeight >= 16) {
       item.customImage = logoUrl;
       saveData();
       renderItemsList();
       if (document.getElementById('tab2').classList.contains('active')) renderTab2();
     }
   };
-  img.src = logoUrl + '&_t=' + Date.now();
+  img.src = logoUrl;
 }
 
     async function triggerLiveTickerCheck() {
@@ -1508,10 +1529,15 @@ function validateAndSetLogo(item, logoUrl) {
   renderItemsList();
   if (document.getElementById('tab2').classList.contains('active')) renderTab2();
 
-  // 2. Si c'est un actif avec Ticker, on force la re-récupération immédiate
+  // 2. Si c'est un actif, on réassigne immédiatement le logo officiel du ticker
   if (item.type === 'asset') {
     const querySymbol = item.ticker || item.name;
     if (querySymbol) {
+      const fallbackLogo = getFaviconUrlForTicker(querySymbol);
+      if (fallbackLogo) {
+        validateAndSetLogo(item, fallbackLogo);
+      }
+      // Mise à jour éventuelle des cours en arrière-plan
       fetchLiveStockData(querySymbol).then(live => {
         if (live && live.logo) {
           validateAndSetLogo(item, live.logo);
