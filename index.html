@@ -1796,8 +1796,8 @@ function validateAndSetLogo(item, logoUrl) {
       else if (isNegativeEquity) cardClass = 'negative-equity';
 
       let avatarContent = item.customImage 
-        ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')"></div>`
-        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')">🔑</div>`;
+       ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
+       : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">🔑</div>`;
 
       let statusMsg = isFullOwned
         ? t('full_owned_msg')
@@ -1838,8 +1838,8 @@ function validateAndSetLogo(item, logoUrl) {
       const isFullyRepaid = remaining === 0 && initial > 0;
 
       let avatarContent = item.customImage 
-        ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')"></div>`
-        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')">💳</div>`;
+       ? `<div class="stake-squircle-avatar" style="background-image: url('${item.customImage}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
+       : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">💳</div>`;
 
       container.innerHTML += `
         <div class="stake-card pure-debt ${isFullyRepaid ? 'full-owned' : ''}" draggable="true" data-id="${item.id}" onclick="openDebtEncouragementModal('${item.id}')">
