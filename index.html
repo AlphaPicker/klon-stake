@@ -1459,9 +1459,60 @@ function validateAndSetLogo(item, logoUrl) {
     }
 
     function triggerImageUpload(itemId) {
-      currentImageTargetId = itemId;
-      document.getElementById('image-upload-input').click();
-    }
+  const item = db.items.find(i => i.id === itemId);
+  if (!item) return;
+
+  currentImageTargetId = itemId;
+
+  // Si l'élément a déjà une image personnalisée, on propose le choix
+  if (item.customImage) {
+    showCustomDialog(
+      '🖼️',
+      (db.lang === 'en') ? 'Image Settings' : 'Gestion de l\'image',
+      (db.lang === 'en') 
+        ? 'Do you want to change the image or reset to the default icon?' 
+        : 'Souhaites-tu remplacer l\'image ou réinitialiser l\'icône par défaut ?',
+      false,
+      null,
+      'OK'
+    );
+
+    // Ajustement dynamique des boutons dans la pop-up
+    const btnBox = document.getElementById('dialog-buttons');
+    btnBox.innerHTML = `
+      <button class="btn-primary" onclick="closeCustomDialog(); document.getElementById('image-upload-input').click();" style="flex: 1; padding: 8px;">
+        ${(db.lang === 'en') ? '📷 Change' : '📷 Changer'}
+      </button>
+      <button class="btn-reset" onclick="resetItemImage('${itemId}')" style="flex: 1; padding: 8px;">
+        ${(db.lang === 'en') ? '🔄 Reset' : '🔄 Réinitialiser'}
+      </button>
+    `;
+  } else {
+    // S'il n'y a pas d'image, on ouvre directement le sélecteur de fichier
+    document.getElementById('image-upload-input').click();
+  }
+}
+    function resetItemImage(itemId) {
+  const item = db.items.find(i => i.id === itemId);
+  if (!item) return;
+
+  item.customImage = null;
+  item.isUserCustomImage = false; // Permet à l'API de re-proposer le logo Ticker si dispo
+
+  saveData();
+  closeCustomDialog();
+  renderItemsList();
+  if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+
+  // Si c'est un actif avec Ticker, on relance la validation du logo dynamique
+  if (item.type === 'asset' && item.ticker) {
+    fetchLiveStockData(item.ticker).then(live => {
+      if (live && live.logo) {
+        validateAndSetLogo(item, live.logo);
+      }
+    });
+  }
+}
 
     function handleImageSelected(event) {
       const file = event.target.files[0];
