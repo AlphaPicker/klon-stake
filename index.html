@@ -2512,15 +2512,40 @@
       if (typeof cb === 'function') cb();
     }
 
-    function exportJSON() {
-      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `KLON_STAKE_backup_${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
+    	
+	function exportJSON() {
+  const jsonContent = JSON.stringify(db, null, 2);
+  const today = new Date().toISOString().slice(0, 10);
+  const fileName = `KLON_STAKE_backup_${today}.json`;
+  const blob = new Blob([jsonContent], { type: 'application/json' });
+
+  const isEn = db.lang === 'en';
+  const exportNote = isEn 
+    ? "Note: If you also use KLON-CORP and KLON-STAKE, remember to export them separately. Backups are distinct."
+    : "Note : Si vous utilisez aussi KLON-CORP et KLON-STAKE, pensez à les exporter séparément. Les sauvegardes sont distinctes.";
+
+  const discoverCorp = isEn ? "👉 Discover KLON Corp" : "👉 Découvrir KLON Corp";
+  const discoverMain = isEn ? "👉 Discover KLON" : "👉 Découvrir KLON";
+
+  const msg = `${exportNote}<br><br>` +
+  `<a href="https://alphapicker.github.io/klon-corp/" target="_blank" style="color: var(--accent-purple); font-weight: bold; text-decoration: underline; display: inline-block; margin-top: 4px;">${discoverCorp}</a><br>` +
+  `<a href="https://alphapicker.github.io/klon/" target="_blank" style="color: var(--accent-orange); font-weight: bold; text-decoration: underline; display: inline-block; margin-top: 4px;">${discoverMain}</a>`;
+
+  // Téléchargement (identique à ton code actuel)
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  // Affichage de la boîte de dialogue de confirmation
+  setTimeout(() => {
+    showCustomDialog('💾', (isEn ? 'Backup Exported' : 'Export Réussi'), msg, false, null);
+    URL.revokeObjectURL(url);
+  }, 700);
+}
 
     function importJSON(event) {
       const file = event.target.files[0];
