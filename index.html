@@ -1248,37 +1248,35 @@
     }
 
     async function fetchUsdEurRate() {
-  try {
-    // Tentative 1 : API dédiée au taux de change (sans authentification)
-    const resFx = await fetch('https://open.er-api.com/v6/latest/EUR');
-    if (resFx.ok) {
-      const dataFx = await resFx.json();
-      if (dataFx?.rates?.USD) {
-        db.usdEurRate = 1 / dataFx.rates.USD;
-        saveData();
-        return;
+      try {
+        const resFx = await fetch('https://open.er-api.com/v6/latest/EUR');
+        if (resFx.ok) {
+          const dataFx = await resFx.json();
+          if (dataFx?.rates?.USD) {
+            db.usdEurRate = 1 / dataFx.rates.USD;
+            saveData();
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("Échec de la source primaire FX, tentative via Yahoo...");
       }
-    }
-  } catch (e) {
-    console.warn("Échec de la source primaire FX, tentative via Yahoo...");
-  }
 
-  // Tentative 2 : Fallback Yahoo via un autre endpoint si besoin
-  try {
-    const url = `https://corsproxy.io/?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d')}`;
-    const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-      if (rate && rate > 0) {
-        db.usdEurRate = 1 / rate;
-        saveData();
+      try {
+        const url = `https://corsproxy.io/?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d')}`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+          if (rate && rate > 0) {
+            db.usdEurRate = 1 / rate;
+            saveData();
+          }
+        }
+      } catch (e) {
+        console.error("Erreur globale FX :", e);
       }
     }
-  } catch (e) {
-    console.error("Erreur globale FX :", e);
-  }
-}
 
     const TICKER_DOMAIN_MAP = {
       'BTC': 'bitcoin.org', 'BITCOIN': 'bitcoin.org',
@@ -1367,6 +1365,21 @@
       'XOM': 'exxonmobil.com', 'CVX': 'chevron.com', 'NET': 'cloudflare.com', 'SQ': 'block.xyz'
     };
 
+    const NAME_TO_TICKER_MAP = {
+      'GOOGLE': 'GOOGL',
+      'ALPHABET': 'GOOGL',
+      'APPLE': 'AAPL',
+      'MICROSOFT': 'MSFT',
+      'AMAZON': 'AMZN',
+      'TESLA': 'TSLA',
+      'META': 'META',
+      'FACEBOOK': 'META',
+      'ADOBE': 'ADBE',
+      'PAYPAL': 'PYPL',
+      'NVIDIA': 'NVDA',
+      'NETFLIX': 'NFLX'
+    };
+
     function getFaviconUrlForTicker(symbol) {
       if (!symbol) return null;
       const raw = symbol.trim().toUpperCase();
@@ -1397,96 +1410,54 @@
     }
 
     async function fetchLiveStockData(symbol) {
-  if (!symbol) return null;
-  const clean = symbol.trim().toUpperCase();
-  const logoUrl = getFaviconUrlForTicker(clean);
-
-  // --- SOURCE 1 : Yahoo Finance Chart (Endpoint léger, 1.5s max) ---
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1500);
-    
-    const qUrl = `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d&range=1d`)}`;
-    const res = await fetch(qUrl, { signal: controller.signal });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const data = await res.json();
-      const meta = data?.chart?.result?.[0]?.meta;
-      if (meta && meta.regularMarketPrice) {
-        return {
-          name: meta.shortName || meta.longName || meta.symbol || clean,
-          price: parseFloat(meta.regularMarketPrice),
-          currency: meta.currency || 'USD',
-          shares: meta.sharesOutstanding || null,
-          logo: logoUrl
-        };
-      }
-    }
-  } catch (e) {}
-
-  // --- SOURCE 2 : Stooq (Secours week-end / fermeture du marché, 1.5s max) ---
-  try {
-    const stooqTicker = clean.includes('.') ? clean : `${clean}.US`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1500);
-
-    const stooqUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://stooq.com/q/l/?s=${stooqTicker}&f=sd2t2ohlcvn&h&e=json`)}`;
-    const res = await fetch(stooqUrl, { signal: controller.signal });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const data = await res.json();
-      const symbolData = data?.symbols?.[0];
+      if (!symbol) return null;
+      let clean = symbol.trim().toUpperCase();
       
-      // Extraction robuste du cours (même le dimanche/week-end)
-      const rawPrice = symbolData?.close || symbolData?.open || symbolData?.high;
-      if (rawPrice && !isNaN(parseFloat(rawPrice)) && parseFloat(rawPrice) > 0) {
-        return {
-          name: (symbolData.name && symbolData.name !== stooqTicker) ? symbolData.name : clean,
-          price: parseFloat(rawPrice),
-          currency: clean.endsWith('.PA') || clean.endsWith('.DE') ? 'EUR' : 'USD',
-          shares: null,
-          logo: logoUrl
-        };
+      if (NAME_TO_TICKER_MAP[clean]) {
+        clean = NAME_TO_TICKER_MAP[clean];
       }
-    }
-  } catch (e) {}
 
-  return { name: clean, price: null, currency: 'USD', shares: null, logo: logoUrl };
-}
-    async function fetchV7QuoteData(cleanSymbol) {
-      const v7Urls = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`,
-        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`
+      const logoUrl = getFaviconUrlForTicker(clean);
+
+      const urls = [
+        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d&range=5d`)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d&range=5d`)}`
       ];
 
-      for (const qUrl of v7Urls) {
+      for (const qUrl of urls) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
           const res = await fetch(qUrl, { signal: controller.signal });
           clearTimeout(timeoutId);
 
           if (!res.ok) continue;
           const data = await res.json();
-          const result = data?.quoteResponse?.result?.[0];
+          const result = data?.chart?.result?.[0];
+          const meta = result?.meta;
 
-          if (result && (result.regularMarketPrice || result.sharesOutstanding)) {
-            const currency = result.currency || (cleanSymbol.includes('.') ? 'EUR' : 'USD');
-            const logoUrl = getFaviconUrlForTicker(cleanSymbol);
+          if (meta) {
+            let price = meta.regularMarketPrice;
+            if ((!price || price === 0) && result?.indicators?.quote?.[0]?.close) {
+              const closes = result.indicators.quote[0].close.filter(p => p !== null && p !== undefined);
+              if (closes.length > 0) price = closes[closes.length - 1];
+            }
 
-            return {
-              name: result.shortName || result.longName || cleanSymbol,
-              price: result.regularMarketPrice || null,
-              currency: currency,
-              shares: result.sharesOutstanding || null,
-              logo: logoUrl
-            };
+            if (price && price > 0) {
+              return {
+                ticker: clean,
+                name: meta.shortName || meta.longName || meta.symbol || clean,
+                price: parseFloat(price),
+                currency: meta.currency || 'USD',
+                shares: meta.sharesOutstanding || null,
+                logo: logoUrl
+              };
+            }
           }
         } catch (e) {}
       }
-      return null;
+
+      return { ticker: clean, name: clean, price: null, currency: 'USD', shares: null, logo: logoUrl };
     }
 
     function validateAndSetLogo(item, logoUrl) {
@@ -1506,20 +1477,28 @@
 
     async function triggerLiveTickerCheck() {
       if (currentAssetType !== 'asset') return;
-      const ticker = document.getElementById('in-ticker').value.trim();
-      if (ticker.length < 2) return;
+      const inputEl = document.getElementById('in-ticker');
+      const rawInput = inputEl.value.trim();
+      if (rawInput.length < 2) return;
 
-      const live = await fetchLiveStockData(ticker);
-      if (live) {
+      const live = await fetchLiveStockData(rawInput);
+      if (live && live.price) {
+        if (live.ticker) inputEl.value = live.ticker;
         const priceInput = document.getElementById('in-cur-price');
         const nameInput = document.getElementById('in-name-asset');
         const sharesInput = document.getElementById('in-shares-total');
         const currSelect = document.getElementById('in-asset-curr');
 
-        if (live.price) priceInput.value = live.price;
-        if (live.name && !nameInput.value) nameInput.value = live.name;
-        if (live.shares && (!sharesInput.value || sharesInput.value === '0')) sharesInput.value = live.shares;
-        if (live.currency && currSelect) currSelect.value = live.currency.toUpperCase();
+        priceInput.value = live.price;
+        if (live.name && (!nameInput.value || nameInput.value.toUpperCase() === rawInput.toUpperCase())) {
+          nameInput.value = live.name;
+        }
+        if (live.shares && (!sharesInput.value || sharesInput.value === '0')) {
+          sharesInput.value = live.shares;
+        }
+        if (live.currency && currSelect) {
+          currSelect.value = live.currency.toUpperCase();
+        }
       }
     }
 
@@ -1827,35 +1806,33 @@
     }
 
     async function refreshMarketData() {
-  // Lancer en parallèle le taux de change ET les actions simultanément
-  const assetItems = db.items.filter(i => i.type === 'asset' && (i.ticker || i.name));
-  
-  const fxPromise = fetchUsdEurRate();
-  const stocksPromise = Promise.all(assetItems.map(async (item) => {
-    const querySymbol = item.ticker || item.name;
-    const live = await fetchLiveStockData(querySymbol);
-    if (live && live.price) {
-      item.curPrice = live.price;
-      if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
-      if (live.currency) item.assetCurrency = live.currency.toUpperCase();
-      if (live.logo && !item.isUserCustomImage) {
-        validateAndSetLogo(item, live.logo);
-      }
-      return true;
+      const assetItems = db.items.filter(i => i.type === 'asset' && (i.ticker || i.name));
+      
+      const fxPromise = fetchUsdEurRate();
+      const stocksPromise = Promise.all(assetItems.map(async (item) => {
+        const querySymbol = item.ticker || item.name;
+        const live = await fetchLiveStockData(querySymbol);
+        if (live && live.price) {
+          item.curPrice = live.price;
+          if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
+          if (live.currency) item.assetCurrency = live.currency.toUpperCase();
+          if (live.logo && !item.isUserCustomImage) {
+            validateAndSetLogo(item, live.logo);
+          }
+          return true;
+        }
+        return false;
+      }));
+
+      const [_, results] = await Promise.all([fxPromise, stocksPromise]);
+      const updatedCount = results ? results.filter(Boolean).length : 0;
+
+      markUnsavedChanges();
+      renderTab2();
+      renderItemsList();
+
+      showCustomDialog('🔄', 'Marché', `${updatedCount} cours et les icônes de tickers mis à jour en direct !`);
     }
-    return false;
-  }));
-
-  // Attendre la résolution combinée
-  const [_, results] = await Promise.all([fxPromise, stocksPromise]);
-  const updatedCount = results ? results.filter(Boolean).length : 0;
-
-  markUnsavedChanges();
-  renderTab2();
-  renderItemsList();
-
-  showCustomDialog('🔄', 'Marché', `${updatedCount} cours et les icônes de tickers mis à jour en direct !`);
-}
 
     const STOCK_TIERS = [
         { target: 0.0000001, nameFR: "Cuivre", nameEN: "Copper", emoji: "", color: "#b45309" },
