@@ -1401,51 +1401,19 @@
   const clean = symbol.trim().toUpperCase();
   const logoUrl = getFaviconUrlForTicker(clean);
 
-  // --- 1. ESSAI VIA STOOQ (Très fiable pour les actions US/EU, sans clé) ---
+  // --- SOURCE 1 : Yahoo Finance Chart (Endpoint léger, 1.5s max) ---
   try {
-    const stooqTicker = clean.includes('.') ? clean : `${clean}.US`;
-    const stooqUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://stooq.com/q/l/?s=${stooqTicker}&f=sd2t2ohlcvn&h&e=json`)}`;
-    
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-    const res = await fetch(stooqUrl, { signal: controller.signal });
+    const timeoutId = setTimeout(() => controller.abort(), 1500);
+    
+    // URL directe via un proxy CORS rapide
+    const qUrl = `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d&range=1d`)}`;
+    const res = await fetch(qUrl, { signal: controller.signal });
     clearTimeout(timeoutId);
 
     if (res.ok) {
       const data = await res.json();
-      const symbolData = data?.symbols?.[0];
-      if (symbolData && symbolData.close && !isNaN(parseFloat(symbolData.close))) {
-        const price = parseFloat(symbolData.close);
-        return {
-          name: symbolData.name || clean,
-          price: price,
-          currency: clean.endsWith('.PA') || clean.endsWith('.DE') ? 'EUR' : 'USD',
-          shares: null,
-          logo: logoUrl
-        };
-      }
-    }
-  } catch (e) {
-    console.warn(`[Stooq] Échec pour ${clean}, bascule sur le secours...`);
-  }
-
-  // --- 2. ESSAI VIA YAHOO V8 (Fallback avec gestion d'erreur 401) ---
-  const v8Urls = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`
-  ];
-
-  for (const qUrl of v8Urls) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
-      const res = await fetch(qUrl, { signal: controller.signal });
-      clearTimeout(timeoutId);
-
-      if (!res.ok) continue;
-      const data = await res.json();
       const meta = data?.chart?.result?.[0]?.meta;
-
       if (meta && meta.regularMarketPrice) {
         return {
           name: meta.shortName || meta.symbol || clean,
@@ -1455,10 +1423,36 @@
           logo: logoUrl
         };
       }
-    } catch (e) {}
+    }
+  } catch (e) {
+    // Si timeout ou 401, on passe immédiatement à la source de secours
   }
 
-  // Si tout échoue, renvoie au moins le logo précalculé
+  // --- SOURCE 2 : Stooq (Secours ultra-rapide, 1.5s max) ---
+  try {
+    const stooqTicker = clean.includes('.') ? clean : `${clean}.US`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+    const stooqUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://stooq.com/q/l/?s=${stooqTicker}&f=sd2t2ohlcvn&h&e=json`)}`;
+    const res = await fetch(stooqUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      const symbolData = data?.symbols?.[0];
+      if (symbolData && symbolData.close && !isNaN(parseFloat(symbolData.close))) {
+        return {
+          name: symbolData.name || clean,
+          price: parseFloat(symbolData.close),
+          currency: clean.endsWith('.PA') || clean.endsWith('.DE') ? 'EUR' : 'USD',
+          shares: null,
+          logo: logoUrl
+        };
+      }
+    }
+  } catch (e) {}
+
   return { name: clean, price: null, currency: 'USD', shares: null, logo: logoUrl };
 }
 
@@ -1834,35 +1828,33 @@
     }
 
     async function refreshMarketData() {
-  // 1. Lancement du taux FX
-  await fetchUsdEurRate();
-
+  // Lancer en parallèle le taux de change ET les actions simultanément
   const assetItems = db.items.filter(i => i.type === 'asset' && (i.ticker || i.name));
-  if (assetItems.length === 0) return;
-
-  // 2. Traitement de TOUS les tickers en parallèle
-  const updates = await Promise.all(assetItems.map(async (item) => {
+  
+  const fxPromise = fetchUsdEurRate();
+  const stocksPromise = Promise.all(assetItems.map(async (item) => {
     const querySymbol = item.ticker || item.name;
     const live = await fetchLiveStockData(querySymbol);
-    if (live) {
-      if (live.price) item.curPrice = live.price;
+    if (live && live.price) {
+      item.curPrice = live.price;
       if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
       if (live.currency) item.assetCurrency = live.currency.toUpperCase();
       if (live.logo && !item.isUserCustomImage) {
         validateAndSetLogo(item, live.logo);
       }
-      return true; // Succès
+      return true;
     }
     return false;
   }));
 
-  const updatedCount = updates.filter(Boolean).length;
+  // Attendre la résolution combinée
+  const [_, results] = await Promise.all([fxPromise, stocksPromise]);
+  const updatedCount = results ? results.filter(Boolean).length : 0;
 
   markUnsavedChanges();
   renderTab2();
   renderItemsList();
 
-  // 3. Notification affichée immédiatement après la fin des requêtes parallèles
   showCustomDialog('🔄', 'Marché', `${updatedCount} cours et les icônes de tickers mis à jour en direct !`);
 }
 
