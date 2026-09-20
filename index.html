@@ -352,7 +352,7 @@
     }
     .tooltip-btn:hover { border-color: var(--accent-orange); color: var(--text-bright); }
 
-    .help-box { display: none; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; font-size: 0.78rem; line-height: 1.4; }
+    .help-box { display: none; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; font-size: 0.78rem; line-height: 1.45; }
     .help-box.active { display: block; }
 
     .link-btn {
@@ -361,7 +361,26 @@
       border-radius: 6px; font-size: 0.95rem; font-weight: bold; border: 1px solid var(--border-color); cursor: pointer;
     }
     .link-btn:hover { border-color: var(--accent-orange); color: var(--text-bright); }
+    .link-btn-blue { color: var(--accent-blue) !important; }
+    .link-btn-blue:hover { border-color: var(--accent-blue) !important; color: var(--text-bright) !important; }
+    .link-btn-purple { color: var(--accent-purple) !important; }
+    .link-btn-purple:hover { border-color: var(--accent-purple) !important; color: var(--text-bright) !important; }
+    .link-btn-yellow { color: var(--accent-yellow) !important; }
+    .link-btn-yellow:hover { border-color: var(--accent-yellow) !important; color: var(--text-bright) !important; }
     .link-btn-paypal { background-color: var(--btn-paypal-bg) !important; color: var(--btn-paypal-text) !important; }
+
+    .backup-warning-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; background-color: #F0883E; color: #ffffff;
+      border-radius: 50%; font-size: 0.75rem; font-weight: bold; cursor: pointer;
+      margin-left: 6px; animation: pulse-warning 2s infinite;
+    }
+    @keyframes pulse-warning {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+
     .site-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; color: var(--text-main); opacity: 0.75; display: flex; flex-direction: column; gap: 8px; line-height: 1.4; }
 
     #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
@@ -437,10 +456,9 @@
         </div>
 
         <div id="help-add" class="help-box" data-i18n="help_add_text">
-          <strong>3 Catégories :</strong><br>
-          • <strong>Actifs</strong> : Actions cotées, ETF, parts (avec/sans crédit Lombard).<br>
-          • <strong>Biens</strong> : Maison, voiture, équipement. Toi vs La Banque.<br>
-          • <strong>Dette Pure</strong> : Crédit conso, prêt personnel sans collatéral.
+          <strong>Actifs</strong> : Actions cotées, ETF, parts.<br>
+          <strong>Biens</strong> : Immobilier, véhicules, équipements.<br>
+          <strong>Dette Pure</strong> : Crédit conso, prêt personnel.
         </div>
 
         <div class="type-selector-pills">
@@ -551,14 +569,19 @@
       </div>
 
       <div class="card">
-        <div class="card-title" data-i18n="data_mgmt_title">💾 Gestion des Données</div>
+        <div class="card-title">
+          <div style="display: inline-flex; align-items: center;">
+            <span data-i18n="data_mgmt_title">💾 Gestion des Données</span>
+            <span id="backup-warning" class="backup-warning-badge" style="display: none;" onclick="showBackupWarningInfo()" title="Modifications non sauvegardées">!</span>
+          </div>
+        </div>
         <div style="display: flex; gap: 8px; margin-top: 2px; flex-wrap: wrap;">
           <button class="btn-secondary" style="flex: 1; min-width: 90px;" onclick="exportJSON()" data-i18n="btn_export">💾 Exporter</button>
           <label class="btn-secondary" style="flex: 1; min-width: 90px;">
             <span data-i18n="btn_import">📂 Importer</span>
             <input type="file" accept=".json" style="display: none;" onchange="importJSON(event)">
           </label>
-          <button class="btn-reset" style="flex: 1; min-width: 110px;" onclick="confirmResetDialog()" data-i18n="btn_reset">🗑️ Réinitialiser</button>
+          <button class="btn-reset" style="flex: 1; min-width: 110px;" onclick="confirmResetDialog()" data-i18n="btn_reset">Réinitialiser</button>
         </div>
       </div>
     </div>
@@ -569,7 +592,6 @@
         <div class="stake-hero-grid">
           <div class="hero-box">
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 4px;">
-              <!-- 1. Le Camembert à GAUCHE -->
               <button class="tooltip-btn" onclick="openAllocationModal()" title="Répartition du Patrimoine" style="display: inline-flex; align-items: center; justify-content: center; padding: 0;">
                 <svg width="15" height="15" viewBox="0 0 24 24" style="display: block;">
                   <path d="M12 12 L12 2 A10 10 0 0 1 20.66 17 Z" fill="#7ee787" stroke="var(--bg-color)" stroke-width="1.2"/>
@@ -578,10 +600,8 @@
                 </svg>
               </button>
 
-              <!-- 2. Le Titre au CENTRE -->
               <span class="label" id="lbl-hero-net-worth" data-i18n="hero_net_worth">PATRIMOINE NET RÉEL</span>
 
-              <!-- 3. Le Refresh à DROITE -->
               <button class="tooltip-btn" onclick="refreshMarketData()" title="Actualiser les cours & FX">🔄</button>
             </div>
             <div class="val" id="hero-net-worth" style="color: var(--accent-green-bright);">0 €</div>
@@ -644,6 +664,7 @@
       <div id="cards-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
     </div>
 
+    <!-- ONGLET 3 : ÉCOSYSTÈME COMPLET ALPHA PICKER -->
     <div id="tab3" class="tab-content">
       <div class="card" style="border-left: 4px solid var(--accent-orange);">
         <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-main);" data-i18n="eco_disclaimer">
@@ -671,17 +692,26 @@
       </div>
 
       <div class="card">
-        <div class="card-title" data-i18n="eco_portfolio">Portefeuille & Performances</div>
+        <div class="card-title" data-i18n="eco_portfolio">🎯 Portefeuille & Performances</div>
         <a href="https://dub.sh/klon-wikifolio" target="_blank" rel="noopener noreferrer" class="link-btn" data-i18n="eco_wikifolio">Suivre le Wikifolio Alpha Picker</a>
       </div>
 
       <div class="card">
-        <div class="card-title" data-i18n="eco_theses">Analyses & Thèses</div>
+        <div class="card-title" data-i18n="eco_theses">🔬 Analyses & Thèses</div>
         <a href="https://dub.sh/klon-substack" target="_blank" rel="noopener noreferrer" class="link-btn" data-i18n="eco_substack">Suivre le Substack Alpha Picker</a>
       </div>
 
       <div class="card">
-        <div class="card-title" data-i18n="eco_support">Soutenir le Projet</div>
+        <div class="card-title" data-i18n="eco_suite">🧰 La Suite KLON</div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="https://alphapicker.github.io/klon/" target="_blank" rel="noopener noreferrer" class="link-btn link-btn-blue">KLON — Simulateur de liberté financière</a>
+          <a href="https://alphapicker.github.io/klon-corp/" target="_blank" rel="noopener noreferrer" class="link-btn link-btn-purple">KLON Corp — Simulateur de capacité financière</a>
+          <a href="https://alphapicker.github.io/klon-pulse/" target="_blank" rel="noopener noreferrer" class="link-btn link-btn-yellow">KLON Pulse — Simulateur de transmission vivante</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-i18n="eco_support">☕ Soutenir le Projet</div>
         <p style="font-size: 0.9rem; line-height: 1.4;" data-i18n="eco_support_desc">
           Si cet outil vous aide dans votre parcours d'autonomie financière et de souveraineté, vous pouvez soutenir le projet via les liens ci-dessus ou par un don.
         </p>
@@ -812,7 +842,6 @@
     <div class="modal-card" style="max-width: 440px; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <!-- Icône du Camembert Graphique Vectoriel Multicolore -->
           <div style="display: flex; align-items: center;">
             <svg width="24" height="24" viewBox="0 0 24 24" style="display: block; flex-shrink: 0;">
               <path d="M12 12 L12 2 A10 10 0 0 1 20.66 17 Z" fill="#7ee787" stroke="var(--card-bg)" stroke-width="1.5"/>
@@ -855,7 +884,7 @@
         theme_light: "☀️ Clair",
         theme_cb: "👁️ Daltonien",
         form_add_title: "Actif ou Passif",
-        help_add_text: "<strong>3 Catégories :</strong><br>• <strong>Actifs</strong> : Actions cotées, ETF, parts (avec/sans crédit Lombard).<br>• <strong>Biens</strong> : Maison, voiture, équipement. Toi vs La Banque.<br>• <strong>Dette Pure</strong> : Crédit conso, prêt personnel sans collatéral.",
+        help_add_text: "<strong>Actifs</strong> : Actions cotées, ETF, parts.<br><strong>Biens</strong> : Immobilier, véhicules, équipements.<br><strong>Dette Pure</strong> : Crédit conso, prêt personnel.",
         type_asset: "Actifs",
         type_property: "Biens",
         type_debt: "Dette Pure",
@@ -874,13 +903,14 @@
         btn_submit: "Ajouter au Bilan",
         btn_update: "Valider",
         btn_cancel: "Annuler",
+        btn_delete: "🗑️ Supprimer",
         inventory_title: "📦 Inventaire du Bilan",
         items_count: "{n} élément{s}",
         no_items: "Aucun actif ou passif enregistré pour le moment.",
         data_mgmt_title: "💾 Gestion des Données",
         btn_export: "💾 Exporter",
         btn_import: "📂 Importer",
-        btn_reset: "🗑️ Réinitialiser",
+        btn_reset: "Réinitialiser",
         hero_net_worth: "PATRIMOINE NET RÉEL",
         hero_net_worth_named: "PATRIMOINE NET DE {name}",
         hero_assets_sub: "Actifs Bruts : {val}",
@@ -895,11 +925,12 @@
         eco_disclaimer: "<strong>🤝 Transparence & Parrainage :</strong> Les liens ci-dessous sont des liens d'affiliation et de parrainage. En ouvrant un compte via ces accès, vous pouvez bénéficier des bonus de bienvenue proposés par les plateformes tout en soutenant le développement gratuit de l'application.",
         eco_brokers: "📈 Banques & Courtiers",
         eco_crypto: "🪙 Crypto & Rendement Alternatif",
-        eco_portfolio: "Portefeuille & Performances",
+        eco_portfolio: "🎯 Portefeuille & Performances",
         eco_wikifolio: "Suivre le Wikifolio Alpha Picker",
-        eco_theses: "Analyses & Thèses",
+        eco_theses: "🔬 Analyses & Thèses",
         eco_substack: "Suivre le Substack Alpha Picker",
-        eco_support: "Soutenir le Projet",
+        eco_suite: "🧰 La Suite KLON",
+        eco_support: "☕ Soutenir le Projet",
         eco_support_desc: "Si cet outil vous aide dans votre parcours d'autonomie financière et de souveraineté, vous pouvez soutenir le projet via les liens ci-dessus ou par un don.",
         eco_paypal: "Faire un don via PayPal",
         footer_dev: "<strong>KLON Stake</strong> — Application gratuite & Open Source développée par <strong>Alpha Picker</strong> et hébergée sur GitHub Pages.",
@@ -935,7 +966,7 @@
         alloc_liquidity: "💶 Liquidités / Livrets",
         alloc_total: "TOTAL",
         alloc_empty: "Aucun actif net enregistré pour le moment.",
-		alloc_title_assets: "1. Actifs Bruts",
+        alloc_title_assets: "1. Actifs Bruts",
         alloc_title_liabilities: "2. Financement & Dettes",
         alloc_net_equity: "🛡️ Fonds Propres Nets",
         alloc_healthy_debt: "⚡ Dette Levier (Immo/Lombard)",
@@ -943,6 +974,8 @@
         alloc_recap_brut: "Brut",
         alloc_recap_dettes: "Dettes",
         alloc_recap_net: "Net Réel",
+        backup_unsaved_title: "Sauvegarde Recommandée",
+        backup_unsaved_msg: "De nouvelles modifications ont été enregistrées localement dans ton navigateur, mais n'ont pas encore été exportées en fichier JSON de sauvegarde."
       },
       en: {
         subtitle: "Real Ownership Simulator",
@@ -954,7 +987,7 @@
         theme_light: "☀️ Light",
         theme_cb: "👁️ Colorblind",
         form_add_title: "Asset or Liability",
-        help_add_text: "<strong>3 Categories :</strong><br>• <strong>Assets</strong> : Stocks, ETFs, equity (with/without Lombard loan).<br>• <strong>Property</strong> : House, car, tools. You vs The Bank.<br>• <strong>Pure Debt</strong> : Consumer credit, personal loans without collateral.",
+        help_add_text: "<strong>Assets</strong>: Stocks, ETFs, equity.<br><strong>Property</strong>: Real estate, vehicles, tools.<br><strong>Pure Debt</strong>: Consumer credit, personal loans.",
         type_asset: "Assets",
         type_property: "Property",
         type_debt: "Pure Debt",
@@ -973,13 +1006,14 @@
         btn_submit: "Add to Balance",
         btn_update: "Submit",
         btn_cancel: "Cancel",
+        btn_delete: "🗑️ Delete",
         inventory_title: "📦 Balance Sheet Inventory",
         items_count: "{n} item{s}",
         no_items: "No assets or liabilities recorded yet.",
         data_mgmt_title: "💾 Data Management",
         btn_export: "💾 Export",
         btn_import: "📂 Import",
-        btn_reset: "🗑️ Reset",
+        btn_reset: "Reset",
         hero_net_worth: "REAL NET WORTH",
         hero_net_worth_named: "{name}'S NET WORTH",
         hero_assets_sub: "Gross Assets: {val}",
@@ -994,11 +1028,12 @@
         eco_disclaimer: "<strong>🤝 Transparency & Referrals:</strong> Links below are affiliate/referral links. Opening an account provides welcome bonuses while supporting free development.",
         eco_brokers: "📈 Banks & Brokers",
         eco_crypto: "🪙 Crypto & Alternative Yield",
-        eco_portfolio: "Portfolio & Track Record",
+        eco_portfolio: "🎯 Portfolio & Track Record",
         eco_wikifolio: "Follow Alpha Picker Wikifolio",
-        eco_theses: "Theses & Analysis",
+        eco_theses: "🔬 Theses & Analysis",
         eco_substack: "Follow Alpha Picker Substack",
-        eco_support: "Support the Project",
+        eco_suite: "🧰 KLON Suite",
+        eco_support: "☕ Support the Project",
         eco_support_desc: "If this tool helps you on your path to sovereignty and financial autonomy, you can support development with a donation.",
         eco_paypal: "Donate via PayPal",
         footer_dev: "<strong>KLON Stake</strong> — Free & Open Source app developed by <strong>Alpha Picker</strong> and hosted on GitHub Pages.",
@@ -1034,7 +1069,7 @@
         alloc_liquidity: "💶 Cash & Savings",
         alloc_total: "TOTAL",
         alloc_empty: "No net assets registered yet.",
-		alloc_title_assets: "1. Gross Assets",
+        alloc_title_assets: "1. Gross Assets",
         alloc_title_liabilities: "2. Capital & Debts",
         alloc_net_equity: "🛡️ Real Net Equity",
         alloc_healthy_debt: "⚡ Leverage Debt",
@@ -1042,6 +1077,8 @@
         alloc_recap_brut: "Gross",
         alloc_recap_dettes: "Debts",
         alloc_recap_net: "Real Net",
+        backup_unsaved_title: "Unsaved Changes",
+        backup_unsaved_msg: "New movements or updates have been saved in your browser, but not exported to a JSON file yet."
       }
     };
 
@@ -1083,6 +1120,7 @@
         lang: 'fr',
         usdEurRate: 0.92,
         liquidityCash: 0,
+        hasUnsavedChanges: false,
         cardsOrder: [],
         everUnlockedRewards: [],
         items: []
@@ -1093,12 +1131,31 @@
     if (!db.currency) db.currency = 'EUR';
     if (!db.theme) db.theme = 'dark';
     if (!db.lang) db.lang = 'fr';
+    if (db.userName === undefined) db.userName = '';
+    if (db.hasUnsavedChanges === undefined) db.hasUnsavedChanges = false;
     if (!db.usdEurRate) db.usdEurRate = 0.92;
     if (db.liquidityCash === undefined) db.liquidityCash = 0;
     if (!Array.isArray(db.cardsOrder)) db.cardsOrder = [];
     if (!Array.isArray(db.everUnlockedRewards)) db.everUnlockedRewards = [];
 
     function saveData() { localStorage.setItem('klon_stake_db', JSON.stringify(db)); }
+
+    function updateBackupWarningUI() {
+      const badge = document.getElementById('backup-warning');
+      if (badge) {
+        badge.style.display = db.hasUnsavedChanges ? 'inline-flex' : 'none';
+      }
+    }
+
+    function markUnsavedChanges() {
+      db.hasUnsavedChanges = true;
+      saveData();
+      updateBackupWarningUI();
+    }
+
+    function showBackupWarningInfo() {
+      showCustomDialog('💾', t('backup_unsaved_title'), t('backup_unsaved_msg'));
+    }
     
     function getCurrencySymbol(c) {
       const curr = c || db.currency || 'EUR';
@@ -1145,9 +1202,12 @@
     }
 
     function saveUserName() {
-      db.userName = document.getElementById('user-name-input').value.trim();
-      saveData();
-      if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+      const newName = document.getElementById('user-name-input').value.trim();
+      if (db.userName !== newName) {
+        db.userName = newName;
+        markUnsavedChanges();
+        if (document.getElementById('tab2').classList.contains('active')) renderTab2();
+      }
     }
 
     function toggleHelp(id) {
@@ -1202,9 +1262,7 @@
       } catch (e) {}
     }
 
-    // Dictionnaire officiel : Cryptos, Géants Mondiaux, S&P 500, Nasdaq & ETF Stars
     const TICKER_DOMAIN_MAP = {
-      // 1. CRYPTOMONNAIES & WEB3
       'BTC': 'bitcoin.org', 'BITCOIN': 'bitcoin.org',
       'ETH': 'ethereum.org', 'ETHEREUM': 'ethereum.org',
       'SOL': 'solana.com', 'SOLANA': 'solana.com',
@@ -1222,7 +1280,6 @@
       'FET': 'fetch.ai', 'TAO': 'bittensor.com', 'KAS': 'kaspa.org',
       'USDT': 'tether.to', 'USDC': 'circle.com',
 
-      // 2. GÉANTS MONDIAUX
       'SONY': 'sony.com', 'TM': 'toyota.com', 'TOYOTA': 'toyota.com',
       'NTDOY': 'nintendo.com', 'NINTENDO': 'nintendo.com',
       'HMC': 'honda.com', 'HONDA': 'honda.com', 'MUFG': 'mufg.jp',
@@ -1243,7 +1300,6 @@
       'JD': 'jd.com', 'BIDU': 'baidu.com',
       'MELI': 'mercadolibre.com', 'SE': 'sea.com', 'NU': 'nubank.com.br',
 
-      // 3. CATALOGUE ETF STARS
       'VUAA': 'vanguard.com', 'VUSA': 'vanguard.com', 'VWCE': 'vanguard.com', 'VWRL': 'vanguard.com',
       'VGWL': 'vanguard.com', 'VHYL': 'vanguard.com', 'VGWE': 'vanguard.com', 'VEUR': 'vanguard.com',
       'VFEM': 'vanguard.com', 'VAGF': 'vanguard.com', 'VETY': 'vanguard.com',
@@ -1260,7 +1316,6 @@
       'JEPQ': 'jpmorgan.com', 'SMH': 'vaneck.com', 'IBIT': 'ishares.com', 'FBTC': 'fidelity.com',
       'GLD': 'spdrgoldshares.com', 'IAU': 'ishares.com', 'SLV': 'ishares.com', 'ARKK': 'ark-funds.com',
 
-      // 4. CAC 40 & VALEURS EUROPÉENNES
       'MC': 'lvmh.com', 'LVMH': 'lvmh.com',
       'AI': 'airliquide.com', 'AIR LIQUIDE': 'airliquide.com',
       'TTE': 'totalenergies.com', 'TOTAL': 'totalenergies.com',
@@ -1277,7 +1332,6 @@
       'NVO': 'novonordisk.com', 'ASML': 'asml.com', 'SAP': 'sap.com', 'SIE': 'siemens.com',
       'RACE': 'ferrari.com', 'ALV': 'allianz.com', 'ITX': 'inditex.com', 'MBG': 'mercedes-benz.com', 'BMW': 'bmw.com',
 
-      // 5. WALL STREET
       'AAPL': 'apple.com', 'MSFT': 'microsoft.com', 'GOOGL': 'google.com', 'GOOG': 'google.com',
       'AMZN': 'amazon.com', 'META': 'meta.com', 'NVDA': 'nvidia.com', 'TSLA': 'tesla.com',
       'PYPL': 'paypal.com', 'PAYPAL': 'paypal.com',
@@ -1406,7 +1460,7 @@
       img.onload = () => {
         if (img.naturalWidth >= 16 && img.naturalHeight >= 16) {
           item.customImage = logoUrl;
-          saveData();
+          markUnsavedChanges();
           renderItemsList();
           if (document.getElementById('tab2').classList.contains('active')) renderTab2();
         }
@@ -1502,7 +1556,7 @@
         db.cardsOrder.push(savedId);
       }
 
-      saveData();
+      markUnsavedChanges();
       resetFormInputs();
       renderItemsList();
       if (document.getElementById('tab2').classList.contains('active')) renderTab2();
@@ -1517,7 +1571,7 @@
               if (live.shares && !it.sharesTotal) it.sharesTotal = live.shares;
               if (live.currency) it.assetCurrency = live.currency.toUpperCase();
               if (live.logo && !it.isUserCustomImage) validateAndSetLogo(it, live.logo);
-              saveData();
+              markUnsavedChanges();
               renderItemsList();
               if (document.getElementById('tab2').classList.contains('active')) renderTab2();
             }
@@ -1585,12 +1639,26 @@
 
     function deleteStakeItem(id, e) {
       if (e) e.stopPropagation();
-      db.items = db.items.filter(item => item.id !== id);
-      db.cardsOrder = db.cardsOrder.filter(cId => cId !== id);
-      if (currentEditingItemId === id) cancelEditing();
-      saveData();
-      renderItemsList();
-      renderTab2();
+      
+      const item = db.items.find(i => i.id === id);
+      if (!item) return;
+
+      const isEn = db.lang === 'en';
+      const title = isEn ? 'Confirm Deletion' : 'Confirmer la suppression';
+      const msg = isEn 
+        ? `Are you sure you want to remove <strong>${item.name}</strong> from your balance sheet?`
+        : `Es-tu sûr de vouloir supprimer <strong>${item.name}</strong> de ton bilan patrimonial ?`;
+
+      showCustomDialog('🗑️', title, msg, true, () => {
+        db.items = db.items.filter(i => i.id !== id);
+        db.cardsOrder = db.cardsOrder.filter(cId => cId !== id);
+        
+        if (currentEditingItemId === id) cancelEditing();
+        
+        markUnsavedChanges();
+        renderItemsList();
+        renderTab2();
+      }, t('btn_delete'));
     }
 
     function renderItemsList() {
@@ -1684,7 +1752,7 @@
       item.customImage = null;
       item.isUserCustomImage = false;
 
-      saveData();
+      markUnsavedChanges();
       closeCustomDialog();
       renderItemsList();
       if (document.getElementById('tab2').classList.contains('active')) renderTab2();
@@ -1711,7 +1779,7 @@
           if (target) {
             target.customImage = dataUrl;
             target.isUserCustomImage = true;
-            saveData();
+            markUnsavedChanges();
             renderItemsList();
             renderTab2();
           }
@@ -1742,7 +1810,7 @@
         }
       }
 
-      saveData();
+      markUnsavedChanges();
       renderTab2();
       renderItemsList();
       showCustomDialog('🔄', 'Marché', `${updatedCount} cours et les icônes de tickers mis à jour en direct !`);
@@ -1840,7 +1908,6 @@
         }
       });
 
-      // Ajout immédiat de la trésorerie de réserve au patrimoine brut
       const liquidityVal = parseFloat(db.liquidityCash) || 0;
       totalGrossAssets += liquidityVal;
 
@@ -1905,71 +1972,70 @@
     }
 
     function renderAssetCard(container, item) {
-  const curP = item.curPrice || item.pru;
-  const itemCurr = item.assetCurrency || 'USD';
-  const grossValOrig = item.qty * curP;
-  const grossValGlobal = toGlobalCurrency(grossValOrig, itemCurr);
+      const curP = item.curPrice || item.pru;
+      const itemCurr = item.assetCurrency || 'USD';
+      const grossValOrig = item.qty * curP;
+      const grossValGlobal = toGlobalCurrency(grossValOrig, itemCurr);
 
-  const totalAssetGrossGlobal = db.items.filter(i => i.type === 'asset').reduce((sum, i) => sum + toGlobalCurrency(i.qty * (i.curPrice || i.pru), i.assetCurrency || 'USD'), 0);
-  const globalLombardGlobal = item.lombardDebt || 0;
-  const itemLombardShareGlobal = totalAssetGrossGlobal > 0 ? (grossValGlobal / totalAssetGrossGlobal) * globalLombardGlobal : 0;
-  const netValGlobal = grossValGlobal - itemLombardShareGlobal;
+      const totalAssetGrossGlobal = db.items.filter(i => i.type === 'asset').reduce((sum, i) => sum + toGlobalCurrency(i.qty * (i.curPrice || i.pru), i.assetCurrency || 'USD'), 0);
+      const globalLombardGlobal = item.lombardDebt || 0;
+      const itemLombardShareGlobal = totalAssetGrossGlobal > 0 ? (grossValGlobal / totalAssetGrossGlobal) * globalLombardGlobal : 0;
+      const netValGlobal = grossValGlobal - itemLombardShareGlobal;
 
-  // --- CALCUL DU POURCENTAGE DE DÉTENTION ---
-  let sharePct = 0;
-  let rarityBadge = '';
-  if (item.sharesTotal && item.sharesTotal > 0 && item.qty > 0) {
-    sharePct = (item.qty / item.sharesTotal) * 100; // <--- INDISPENSABLE
-    const rarity = Math.round(item.sharesTotal / item.qty);
-    rarityBadge = (db.lang === 'en')
-      ? `🌍 Only 1 pers. in <strong>${fmtCompact(rarity)}</strong> can hold this block`
-      : `🌍 Seule 1 pers. sur <strong>${fmtCompact(rarity)}</strong> peut posséder ce bloc`;
-  }
+      let sharePct = 0;
+      let rarityBadge = '';
+      if (item.sharesTotal && item.sharesTotal > 0 && item.qty > 0) {
+        sharePct = (item.qty / item.sharesTotal) * 100;
+        const rarity = Math.round(item.sharesTotal / item.qty);
+        rarityBadge = (db.lang === 'en')
+          ? `🌍 Only 1 pers. in <strong>${fmtCompact(rarity)}</strong> can hold this block`
+          : `🌍 Seule 1 pers. sur <strong>${fmtCompact(rarity)}</strong> peut posséder ce bloc`;
+      }
 
-  const isGain = curP >= item.pru;
-  const trendTitle = isGain ? (db.lang === 'en' ? 'In profit' : 'En plus-value') : (db.lang === 'en' ? 'In loss' : 'En moins-value');
-  const trendArrow = isGain 
-    ? `<span style="color: var(--accent-green-bright); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▲</span>` 
-    : `<span style="color: var(--accent-red); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▼</span>`;
+      const isGain = curP >= item.pru;
+      const trendTitle = isGain ? (db.lang === 'en' ? 'In profit' : 'En plus-value') : (db.lang === 'en' ? 'In loss' : 'En moins-value');
+      const trendArrow = isGain 
+        ? `<span style="color: var(--accent-green-bright); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▲</span>` 
+        : `<span style="color: var(--accent-red); font-size: 0.76rem; font-weight: 900; margin-left: 5px;" title="${trendTitle}">▼</span>`;
 
-  const avatarUrl = getItemAvatarUrl(item);
-  let avatarContent = avatarUrl 
-   ? `<div class="stake-squircle-avatar" style="background-image: url('${avatarUrl}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
-   : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">📈</div>`;
+      const avatarUrl = getItemAvatarUrl(item);
+      let avatarContent = avatarUrl 
+       ? `<div class="stake-squircle-avatar" style="background-image: url('${avatarUrl}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
+       : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">📈</div>`;
 
-  const tier = getTierConfig(sharePct);
-  const tickerTag = item.ticker ? `<span style="font-size:0.7rem; color:var(--accent-orange); font-weight:800; background:var(--badge-bg); padding:1px 5px; border-radius:4px; border:1px solid var(--accent-orange);">${item.ticker}</span>` : '';
+      const tier = getTierConfig(sharePct);
+      const tickerTag = item.ticker ? `<span style="font-size:0.7rem; color:var(--accent-orange); font-weight:800; background:var(--badge-bg); padding:1px 5px; border-radius:4px; border:1px solid var(--accent-orange);">${item.ticker}</span>` : '';
 
-  container.innerHTML += `
-    <div class="stake-card" draggable="true" data-id="${item.id}" onclick="openStockDetailModal('${item.id}')" style="border-left-color: ${tier.fillColor};" title="Détails de l'action">
-      <div class="stake-card-header">
-        ${avatarContent}
-        <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
-          <div>
-            <div style="display: flex; align-items: center; gap: 5px;">
-              <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>${tickerTag}
-            </div>
-            <div style="font-size: 0.75rem; opacity: 0.85; margin-top: 2px; display: inline-flex; align-items: center;">
-              ${item.qty} parts @ ${fmt(curP, itemCurr)} ${trendArrow}
+      container.innerHTML += `
+        <div class="stake-card" draggable="true" data-id="${item.id}" onclick="openStockDetailModal('${item.id}')" style="border-left-color: ${tier.fillColor};" title="Détails de l'action">
+          <div class="stake-card-header">
+            ${avatarContent}
+            <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>${tickerTag}
+                </div>
+                <div style="font-size: 0.75rem; opacity: 0.85; margin-top: 2px; display: inline-flex; align-items: center;">
+                  ${item.qty} parts @ ${fmt(curP, itemCurr)} ${trendArrow}
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 1rem; font-weight: 800; color: var(--accent-green-bright);">${fmt(netValGlobal, db.currency)}</div>
+                <div style="font-size: 0.72rem; color: ${tier.fillColor}; font-weight: bold;">${tier.currentTier.label}</div>
+              </div>
             </div>
           </div>
-          <div style="text-align: right;">
-            <div style="font-size: 1rem; font-weight: 800; color: var(--accent-green-bright);">${fmt(netValGlobal, db.currency)}</div>
-            <div style="font-size: 0.72rem; color: ${tier.fillColor}; font-weight: bold;">${tier.currentTier.label}</div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-main); margin-top: -2px;">
+            <span>${rarityBadge}</span>
+          </div>
+          
+          <div class="progress-bar-bg" style="background-color: ${tier.baseColor}; position: relative;">
+            <div class="progress-bar-fill" style="width: ${tier.progress}%; background-color: ${tier.fillColor}; position: absolute; top: 0; left: 0; height: 100%;"></div>
           </div>
         </div>
-      </div>
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-main); margin-top: -2px;">
-        <span>${rarityBadge}</span>
-      </div>
-      
-      <div class="progress-bar-bg" style="background-color: ${tier.baseColor}; position: relative;">
-        <div class="progress-bar-fill" style="width: ${tier.progress}%; background-color: ${tier.fillColor}; position: absolute; top: 0; left: 0; height: 100%;"></div>
-      </div>
-    </div>
-  `;
-}
+      `;
+    }
 
     function renderPropertyCard(container, item) {
       const netPart = item.valActual - item.debtActual;
@@ -2164,7 +2230,7 @@
       if (!container) return;
       const cardEls = container.querySelectorAll('.stake-card');
       db.cardsOrder = Array.from(cardEls).map(c => c.dataset.id);
-      saveData();
+      markUnsavedChanges();
     }
 
     const GAUGE_INFOS = {
@@ -2479,7 +2545,7 @@
     }
 
     let dialogConfirmCallback = null;
-    function showCustomDialog(icon, title, message, isConfirm = false, onConfirm = null, customBtnLabel = 'OK') {
+    function showCustomDialog(icon, title, message, isConfirm = false, onConfirm = null, customConfirmBtnLabel = null) {
       document.getElementById('dialog-icon').innerText = icon || 'ℹ️';
       document.getElementById('dialog-title').innerText = title || 'Notification';
       document.getElementById('dialog-message').innerHTML = message || '';
@@ -2488,13 +2554,15 @@
       dialogConfirmCallback = onConfirm;
 
       if (isConfirm) {
+        const confirmBtnText = customConfirmBtnLabel || t('btn_reset');
         btnBox.innerHTML = `
-          <button class="btn-reset" onclick="executeDialogConfirm()" style="flex: 1; padding: 8px;">${t('btn_reset')}</button>
+          <button class="btn-reset" onclick="executeDialogConfirm()" style="flex: 1; padding: 8px;">${confirmBtnText}</button>
           <button class="btn-secondary" onclick="closeCustomDialog()" style="flex: 1; padding: 8px;">${t('btn_cancel')}</button>
         `;
       } else {
+        const btnText = customConfirmBtnLabel || 'OK';
         btnBox.innerHTML = `
-          <button class="btn-primary" onclick="closeCustomDialog()" style="width: 100%; padding: 8px;">${customBtnLabel}</button>
+          <button class="btn-primary" onclick="closeCustomDialog()" style="width: 100%; padding: 8px;">${btnText}</button>
         `;
       }
       document.getElementById('custom-dialog-modal').classList.add('active');
@@ -2512,40 +2580,34 @@
       if (typeof cb === 'function') cb();
     }
 
-    	
-	function exportJSON() {
-  const jsonContent = JSON.stringify(db, null, 2);
-  const today = new Date().toISOString().slice(0, 10);
-  const fileName = `KLON_STAKE_backup_${today}.json`;
-  const blob = new Blob([jsonContent], { type: 'application/json' });
+    function exportJSON() {
+      try {
+        const jsonContent = JSON.stringify(db, null, 2);
+        const today = new Date().toISOString().slice(0, 10);
+        const fileName = `KLON_STAKE_backup_${today}.json`;
+        const blob = new Blob([jsonContent], { type: 'application/json' });
 
-  const isEn = db.lang === 'en';
-  const exportNote = isEn 
-    ? "Note: If you also use KLON-CORP and KLON, remember to export them separately. Backups are distinct."
-    : "Note : Si vous utilisez aussi KLON-CORP et KLON, pensez à les exporter séparément. Les sauvegardes sont distinctes.";
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
-  const discoverCorp = isEn ? "👉 Discover KLON Corp" : "👉 Découvrir KLON Corp";
-  const discoverMain = isEn ? "👉 Discover KLON" : "👉 Découvrir KLON";
+        db.hasUnsavedChanges = false;
+        saveData();
+        updateBackupWarningUI();
 
-  const msg = `${exportNote}<br><br>` +
-  `<a href="https://alphapicker.github.io/klon-corp/" target="_blank" style="color: var(--accent-purple); font-weight: bold; text-decoration: underline; display: inline-block; margin-top: 4px;">${discoverCorp}</a><br>` +
-  `<a href="https://alphapicker.github.io/klon/" target="_blank" style="color: var(--accent-blue); font-weight: bold; text-decoration: underline; display: inline-block; margin-top: 4px;">${discoverMain}</a>`;
-
-  // Téléchargement (identique à ton code actuel)
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
-  // Affichage de la boîte de dialogue de confirmation
-  setTimeout(() => {
-    showCustomDialog('💾', (isEn ? 'Backup Exported' : 'Export Réussi'), msg, false, null);
-    URL.revokeObjectURL(url);
-  }, 700);
-}
+        showCustomDialog(
+          '💾', 
+          db.lang === 'en' ? 'Export Successful' : 'Exportation Réussie', 
+          db.lang === 'en' ? 'Your KLON Stake backup file has been successfully downloaded!' : 'Votre fichier de sauvegarde KLON Stake a été téléchargé avec succès !'
+        );
+      } catch(e) {
+        showCustomDialog('⚠️', db.lang === 'en' ? 'Error' : 'Erreur', db.lang === 'en' ? 'Failed to export data.' : 'Impossible d\'exporter les données.');
+      }
+    }
 
     function importJSON(event) {
       const file = event.target.files[0];
@@ -2556,6 +2618,7 @@
           const imported = JSON.parse(e.target.result);
           if (imported && Array.isArray(imported.items)) {
             db = imported;
+            db.hasUnsavedChanges = false;
             if (db.liquidityCash === undefined) db.liquidityCash = 0;
             saveData();
             document.getElementById('user-name-input').value = db.userName || '';
@@ -2564,13 +2627,14 @@
             document.getElementById('theme-select').value = db.theme || 'dark';
             document.documentElement.setAttribute('data-theme', db.theme || 'dark');
             changeCurrency(db.currency);
+            updateBackupWarningUI();
             applyLanguageUI();
-            showCustomDialog('✅', 'Import', (db.lang === 'en') ? 'Data imported successfully!' : 'Bilan patrimonial importé avec succès !');
+            showCustomDialog('✅', db.lang === 'en' ? 'Import Successful' : 'Importation Réussie', (db.lang === 'en') ? 'KLON Stake database restored successfully!' : 'Vos données KLON Stake ont été restaurées avec succès !');
           } else {
-            showCustomDialog('⚠️', 'Fichier invalide', (db.lang === 'en') ? 'Invalid JSON file.' : 'Le fichier de sauvegarde est invalide.');
+            showCustomDialog('⚠️', db.lang === 'en' ? 'Invalid File' : 'Fichier Invalide', (db.lang === 'en') ? 'The JSON backup file is invalid.' : 'Le fichier de sauvegarde est invalide.');
           }
         } catch (err) {
-          showCustomDialog('⚠️', 'Erreur', 'Erreur lors de la lecture du fichier JSON.');
+          showCustomDialog('⚠️', db.lang === 'en' ? 'Error' : 'Erreur', db.lang === 'en' ? 'Error reading JSON file.' : 'Erreur lors de la lecture du fichier JSON.');
         }
       };
       reader.readAsText(file);
@@ -2582,14 +2646,16 @@
         db.items = [];
         db.userName = '';
         db.liquidityCash = 0;
+        db.hasUnsavedChanges = false;
         db.cardsOrder = [];
         db.everUnlockedRewards = [];
         cancelEditing();
         saveData();
+        updateBackupWarningUI();
         document.getElementById('user-name-input').value = '';
         renderItemsList();
         renderTab2();
-      });
+      }, t('btn_reset'));
     }
 
     function copyFortuneoCode() {
@@ -2659,6 +2725,7 @@
       }
 
       fetchUsdEurRate();
+      updateBackupWarningUI();
       applyLanguageUI();
     });
 
@@ -2677,10 +2744,12 @@
 
     function saveLiquidityCash() {
       const val = parseFloat(document.getElementById('in-liquidity-cash').value) || 0;
-      db.liquidityCash = Math.max(0, val);
-      saveData();
-      renderTab2();
-      renderAllocationChart();
+      if (db.liquidityCash !== Math.max(0, val)) {
+        db.liquidityCash = Math.max(0, val);
+        markUnsavedChanges();
+        renderTab2();
+        renderAllocationChart();
+      }
       showCustomDialog('💶', (db.lang === 'en' ? 'Cash Reserve' : 'Liquidités'), (db.lang === 'en') ? 'Cash reserve updated!' : 'Trésorerie de réserve mise à jour !');
     }
 
@@ -2719,10 +2788,8 @@
         return;
       }
 
-      // Constante circonférence cercle SVG r=34
       const C = 213.628;
 
-      // 1. Calculs Camembert Actifs
       const pProd = totalGross > 0 ? (productiveVal / totalGross) * 100 : 0;
       const pTang = totalGross > 0 ? (tangibleGrossVal / totalGross) * 100 : 0;
       const pLiq = totalGross > 0 ? (liquidityVal / totalGross) * 100 : 0;
@@ -2731,7 +2798,6 @@
       const lenTang = (pTang / 100) * C;
       const lenLiq = (pLiq / 100) * C;
 
-      // 2. Calculs Camembert Passif / Financement
       const totalFunding = netEquity + totalDebt;
       const pNet = totalFunding > 0 ? (netEquity / totalFunding) * 100 : 0;
       const pLev = totalFunding > 0 ? ((mortgageDebt + globalLombard) / totalFunding) * 100 : 0;
@@ -2742,7 +2808,6 @@
       const lenTox = (pTox / 100) * C;
 
       box.innerHTML = `
-        <!-- Bandeau Récapitulatif Brut / Dettes / Net -->
         <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: center; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 4px; margin-bottom: 12px; font-size: 0.72rem;">
           <div>
             <div style="opacity: 0.75;">${t('alloc_recap_brut')}</div>
@@ -2758,15 +2823,13 @@
           </div>
         </div>
 
-        <!-- Les 2 Camemberts côte à côte -->
         <div style="display: flex; justify-content: space-around; align-items: center; width: 100%; gap: 10px; margin-bottom: 12px;">
-          <!-- Camembert 1 : Actifs Bruts -->
           <div style="display: flex; flex-direction: column; align-items: center;">
             <span style="font-size: 0.72rem; font-weight: bold; margin-bottom: 4px; color: var(--text-bright);">${t('alloc_title_assets')}</span>
             <div style="position: relative; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
               <svg width="110" height="110" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--bg-color)" stroke-width="12"></circle>
-                ${lenProd > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-green-bright)" stroke-width="12" stroke-dasharray="${lenProd} ${C - lenProd}" stroke-dashoffset="0" transform="rotate(-90 50 50)"></circle>` : ''}
+                ${lenProd > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-green-bright)" stroke-width="12" stroke-dasharray="${lenProd}${C - lenProd}" stroke-dashoffset="0" transform="rotate(-90 50 50)"></circle>` : ''}
                 ${lenTang > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-blue)" stroke-width="12" stroke-dasharray="${lenTang} ${C - lenTang}" stroke-dashoffset="${-lenProd}" transform="rotate(-90 50 50)"></circle>` : ''}
                 ${lenLiq > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-yellow)" stroke-width="12" stroke-dasharray="${lenLiq} ${C - lenLiq}" stroke-dashoffset="${-(lenProd + lenTang)}" transform="rotate(-90 50 50)"></circle>` : ''}
               </svg>
@@ -2776,13 +2839,12 @@
             </div>
           </div>
 
-          <!-- Camembert 2 : Financement & Dettes -->
           <div style="display: flex; flex-direction: column; align-items: center;">
             <span style="font-size: 0.72rem; font-weight: bold; margin-bottom: 4px; color: var(--text-bright);">${t('alloc_title_liabilities')}</span>
             <div style="position: relative; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
               <svg width="110" height="110" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--bg-color)" stroke-width="12"></circle>
-                ${lenNet > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-purple)" stroke-width="12" stroke-dasharray="${lenNet} ${C - lenNet}" stroke-dashoffset="0" transform="rotate(-90 50 50)"></circle>` : ''}
+                ${lenNet > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-purple)" stroke-width="12" stroke-dasharray="${lenNet}${C - lenNet}" stroke-dashoffset="0" transform="rotate(-90 50 50)"></circle>` : ''}
                 ${lenLev > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-orange)" stroke-width="12" stroke-dasharray="${lenLev} ${C - lenLev}" stroke-dashoffset="${-lenNet}" transform="rotate(-90 50 50)"></circle>` : ''}
                 ${lenTox > 0 ? `<circle cx="50" cy="50" r="34" fill="transparent" stroke="var(--accent-red)" stroke-width="12" stroke-dasharray="${lenTox} ${C - lenTox}" stroke-dashoffset="${-(lenNet + lenLev)}" transform="rotate(-90 50 50)"></circle>` : ''}
               </svg>
@@ -2792,9 +2854,7 @@
             </div>
           </div>
         </div>
-		
 
-        <!-- Légendes détaillées des 2 volets -->
         <div style="display: flex; flex-direction: column; gap: 5px; width: 100%; font-size: 0.78rem; border-top: 1px solid var(--border-color); padding-top: 8px;">
           <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.6; text-transform: uppercase;">Actifs :</div>
           <div style="display: flex; justify-content: space-between;">
