@@ -1406,7 +1406,6 @@
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 1500);
     
-    // URL directe via un proxy CORS rapide
     const qUrl = `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d&range=1d`)}`;
     const res = await fetch(qUrl, { signal: controller.signal });
     clearTimeout(timeoutId);
@@ -1416,19 +1415,17 @@
       const meta = data?.chart?.result?.[0]?.meta;
       if (meta && meta.regularMarketPrice) {
         return {
-          name: meta.shortName || meta.symbol || clean,
-          price: meta.regularMarketPrice,
+          name: meta.shortName || meta.longName || meta.symbol || clean,
+          price: parseFloat(meta.regularMarketPrice),
           currency: meta.currency || 'USD',
           shares: meta.sharesOutstanding || null,
           logo: logoUrl
         };
       }
     }
-  } catch (e) {
-    // Si timeout ou 401, on passe immédiatement à la source de secours
-  }
+  } catch (e) {}
 
-  // --- SOURCE 2 : Stooq (Secours ultra-rapide, 1.5s max) ---
+  // --- SOURCE 2 : Stooq (Secours week-end / fermeture du marché, 1.5s max) ---
   try {
     const stooqTicker = clean.includes('.') ? clean : `${clean}.US`;
     const controller = new AbortController();
@@ -1441,10 +1438,13 @@
     if (res.ok) {
       const data = await res.json();
       const symbolData = data?.symbols?.[0];
-      if (symbolData && symbolData.close && !isNaN(parseFloat(symbolData.close))) {
+      
+      // Extraction robuste du cours (même le dimanche/week-end)
+      const rawPrice = symbolData?.close || symbolData?.open || symbolData?.high;
+      if (rawPrice && !isNaN(parseFloat(rawPrice)) && parseFloat(rawPrice) > 0) {
         return {
-          name: symbolData.name || clean,
-          price: parseFloat(symbolData.close),
+          name: (symbolData.name && symbolData.name !== stooqTicker) ? symbolData.name : clean,
+          price: parseFloat(rawPrice),
           currency: clean.endsWith('.PA') || clean.endsWith('.DE') ? 'EUR' : 'USD',
           shares: null,
           logo: logoUrl
@@ -1455,7 +1455,6 @@
 
   return { name: clean, price: null, currency: 'USD', shares: null, logo: logoUrl };
 }
-
     async function fetchV7QuoteData(cleanSymbol) {
       const v7Urls = [
         `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${cleanSymbol}`)}`,
