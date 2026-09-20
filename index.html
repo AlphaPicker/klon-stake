@@ -1397,45 +1397,70 @@
     }
 
     async function fetchLiveStockData(symbol) {
-      if (!symbol) return null;
-      const clean = symbol.trim().toUpperCase();
+  if (!symbol) return null;
+  const clean = symbol.trim().toUpperCase();
+  const logoUrl = getFaviconUrlForTicker(clean);
 
-      const directV7 = await fetchV7QuoteData(clean);
-      if (directV7 && directV7.price) {
-        return directV7;
+  // --- 1. ESSAI VIA STOOQ (Très fiable pour les actions US/EU, sans clé) ---
+  try {
+    const stooqTicker = clean.includes('.') ? clean : `${clean}.US`;
+    const stooqUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://stooq.com/q/l/?s=${stooqTicker}&f=sd2t2ohlcvn&h&e=json`)}`;
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch(stooqUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      const symbolData = data?.symbols?.[0];
+      if (symbolData && symbolData.close && !isNaN(parseFloat(symbolData.close))) {
+        const price = parseFloat(symbolData.close);
+        return {
+          name: symbolData.name || clean,
+          price: price,
+          currency: clean.endsWith('.PA') || clean.endsWith('.DE') ? 'EUR' : 'USD',
+          shares: null,
+          logo: logoUrl
+        };
       }
-
-      const v8Urls = [
-        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`
-      ];
-
-      for (const qUrl of v8Urls) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
-          const res = await fetch(qUrl, { signal: controller.signal });
-          clearTimeout(timeoutId);
-
-          if (!res.ok) continue;
-          const data = await res.json();
-          const meta = data?.chart?.result?.[0]?.meta;
-
-          if (meta && meta.regularMarketPrice) {
-            const logoUrl = getFaviconUrlForTicker(clean);
-            return {
-              name: meta.shortName || meta.symbol || clean,
-              price: meta.regularMarketPrice,
-              currency: meta.currency || 'USD',
-              shares: meta.sharesOutstanding || null,
-              logo: logoUrl
-            };
-          }
-        } catch (e) {}
-      }
-
-      return null;
     }
+  } catch (e) {
+    console.warn(`[Stooq] Échec pour ${clean}, bascule sur le secours...`);
+  }
+
+  // --- 2. ESSAI VIA YAHOO V8 (Fallback avec gestion d'erreur 401) ---
+  const v8Urls = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`,
+    `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d`)}`
+  ];
+
+  for (const qUrl of v8Urls) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(qUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) continue;
+      const data = await res.json();
+      const meta = data?.chart?.result?.[0]?.meta;
+
+      if (meta && meta.regularMarketPrice) {
+        return {
+          name: meta.shortName || meta.symbol || clean,
+          price: meta.regularMarketPrice,
+          currency: meta.currency || 'USD',
+          shares: meta.sharesOutstanding || null,
+          logo: logoUrl
+        };
+      }
+    } catch (e) {}
+  }
+
+  // Si tout échoue, renvoie au moins le logo précalculé
+  return { name: clean, price: null, currency: 'USD', shares: null, logo: logoUrl };
+}
 
     async function fetchV7QuoteData(cleanSymbol) {
       const v7Urls = [
