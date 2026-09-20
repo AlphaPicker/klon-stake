@@ -1834,30 +1834,37 @@
     }
 
     async function refreshMarketData() {
-      await fetchUsdEurRate();
-      const assetItems = db.items.filter(i => i.type === 'asset' && (i.ticker || i.name));
-      if (assetItems.length === 0) return;
+  // 1. Lancement du taux FX
+  await fetchUsdEurRate();
 
-      let updatedCount = 0;
-      for (const item of assetItems) {
-        const querySymbol = item.ticker || item.name;
-        const live = await fetchLiveStockData(querySymbol);
-        if (live) {
-          if (live.price) item.curPrice = live.price;
-          if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
-          if (live.currency) item.assetCurrency = live.currency.toUpperCase();
-          if (live.logo && !item.isUserCustomImage) {
-            validateAndSetLogo(item, live.logo);
-          }
-          updatedCount++;
-        }
+  const assetItems = db.items.filter(i => i.type === 'asset' && (i.ticker || i.name));
+  if (assetItems.length === 0) return;
+
+  // 2. Traitement de TOUS les tickers en parallèle
+  const updates = await Promise.all(assetItems.map(async (item) => {
+    const querySymbol = item.ticker || item.name;
+    const live = await fetchLiveStockData(querySymbol);
+    if (live) {
+      if (live.price) item.curPrice = live.price;
+      if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
+      if (live.currency) item.assetCurrency = live.currency.toUpperCase();
+      if (live.logo && !item.isUserCustomImage) {
+        validateAndSetLogo(item, live.logo);
       }
-
-      markUnsavedChanges();
-      renderTab2();
-      renderItemsList();
-      showCustomDialog('🔄', 'Marché', `${updatedCount} cours et les icônes de tickers mis à jour en direct !`);
+      return true; // Succès
     }
+    return false;
+  }));
+
+  const updatedCount = updates.filter(Boolean).length;
+
+  markUnsavedChanges();
+  renderTab2();
+  renderItemsList();
+
+  // 3. Notification affichée immédiatement après la fin des requêtes parallèles
+  showCustomDialog('🔄', 'Marché', `${updatedCount} cours et les icônes de tickers mis à jour en direct !`);
+}
 
     const STOCK_TIERS = [
         { target: 0.0000001, nameFR: "Cuivre", nameEN: "Copper", emoji: "", color: "#b45309" },
