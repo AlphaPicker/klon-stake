@@ -1248,19 +1248,37 @@
     }
 
     async function fetchUsdEurRate() {
-      try {
-        const url = `https://corsproxy.io/?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d')}`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-          if (rate && rate > 0) {
-            db.usdEurRate = 1 / rate;
-            saveData();
-          }
-        }
-      } catch (e) {}
+  try {
+    // Tentative 1 : API dédiée au taux de change (sans authentification)
+    const resFx = await fetch('https://open.er-api.com/v6/latest/EUR');
+    if (resFx.ok) {
+      const dataFx = await resFx.json();
+      if (dataFx?.rates?.USD) {
+        db.usdEurRate = 1 / dataFx.rates.USD;
+        saveData();
+        return;
+      }
     }
+  } catch (e) {
+    console.warn("Échec de la source primaire FX, tentative via Yahoo...");
+  }
+
+  // Tentative 2 : Fallback Yahoo via un autre endpoint si besoin
+  try {
+    const url = `https://corsproxy.io/?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d')}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      if (rate && rate > 0) {
+        db.usdEurRate = 1 / rate;
+        saveData();
+      }
+    }
+  } catch (e) {
+    console.error("Erreur globale FX :", e);
+  }
+}
 
     const TICKER_DOMAIN_MAP = {
       'BTC': 'bitcoin.org', 'BITCOIN': 'bitcoin.org',
