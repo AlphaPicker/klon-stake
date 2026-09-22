@@ -1248,34 +1248,54 @@
     }
 
     async function fetchUsdEurRate() {
-      try {
-        const resFx = await fetch('https://open.er-api.com/v6/latest/EUR');
-        if (resFx.ok) {
-          const dataFx = await resFx.json();
-          if (dataFx?.rates?.USD) {
-            db.usdEurRate = 1 / dataFx.rates.USD;
-            saveData();
-            return;
-          }
+      // "Failed to fetch" sur les deux anciennes sources = le navigateur n'a même pas
+      // réussi à établir la connexion (bloqué par un bloqueur de pub/DNS/réseau, ou
+      // proxy hors service) : ce n'est pas une erreur "métier", juste des services
+      // publics fragiles. On utilise maintenant en priorité un CDN (jsDelivr) qui
+      // renvoie des en-têtes CORS corrects et n'a pas besoin de proxy du tout, avec
+      // son propre repli officiel sur Cloudflare Pages, et on garde les deux anciennes
+      // sources en tout dernier recours.
+      const sources = [
+        async () => {
+          const r = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.min.json');
+          if (!r.ok) throw new Error('jsdelivr ' + r.status);
+          const d = await r.json();
+          return d?.eur?.usd;
+        },
+        async () => {
+          const r = await fetch('https://latest.currency-api.pages.dev/v1/currencies/eur.min.json');
+          if (!r.ok) throw new Error('cloudflare-pages ' + r.status);
+          const d = await r.json();
+          return d?.eur?.usd;
+        },
+        async () => {
+          const r = await fetch('https://open.er-api.com/v6/latest/EUR');
+          if (!r.ok) throw new Error('open.er-api ' + r.status);
+          const d = await r.json();
+          return d?.rates?.USD;
+        },
+        async () => {
+          const url = `https://corsproxy.io/?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d')}`;
+          const r = await fetch(url);
+          if (!r.ok) throw new Error('yahoo-proxy ' + r.status);
+          const d = await r.json();
+          return d?.chart?.result?.[0]?.meta?.regularMarketPrice;
         }
-      } catch (e) {
-        console.warn("Échec de la source primaire FX, tentative via Yahoo...");
-      }
+      ];
 
-      try {
-        const url = `https://corsproxy.io/?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d')}`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      for (const getRate of sources) {
+        try {
+          const rate = await getRate();
           if (rate && rate > 0) {
             db.usdEurRate = 1 / rate;
             saveData();
+            return;
           }
+        } catch (e) {
+          console.warn("Source FX indisponible, tentative suivante :", e.message);
         }
-      } catch (e) {
-        console.error("Erreur globale FX :", e);
       }
+      console.error("Toutes les sources FX ont échoué, taux EUR/USD conservé tel quel.");
     }
 
     const TICKER_DOMAIN_MAP = {
@@ -1409,6 +1429,15 @@
       return item.customImage || null;
     }
 
+    // Tickers crypto connus (repris de TICKER_DOMAIN_MAP) : sur Yahoo Finance, une
+    // crypto ne se requête jamais par son seul symbole ("BTC" n'existe pas), il faut
+    // le suffixe -USD ("BTC-USD"). D'où le cours qui ne se mettait jamais à jour.
+    const CRYPTO_TICKERS = new Set([
+      'BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'DOGE', 'AVAX', 'DOT', 'LINK',
+      'MATIC', 'POL', 'SHIB', 'LTC', 'NEAR', 'UNI', 'SUI', 'APT', 'PEPE',
+      'RENDER', 'RNDR', 'FET', 'TAO', 'KAS', 'USDT', 'USDC'
+    ]);
+
     async function fetchLiveStockData(symbol) {
       if (!symbol) return null;
       let clean = symbol.trim().toUpperCase();
@@ -1419,42 +1448,72 @@
 
       const logoUrl = getFaviconUrlForTicker(clean);
 
+      // Si c'est une crypto connue et qu'aucun suffixe de devise n'est déjà présent,
+      // on ajoute -USD pour que Yahoo Finance reconnaisse le symbole.
+      let queryTicker = clean;
+      if (CRYPTO_TICKERS.has(clean) && !/-[A-Z]{3,4}$/.test(clean)) {
+        queryTicker = `${clean}-USD`;
+      }
+
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${queryTicker}?interval=1d&range=5d`;
+
+      // Plusieurs proxys CORS gratuits en cascade : chacun est instable/limité en débit
+      // individuellement, donc on en propose plusieurs et on retente 2 fois par proxy
+      // avant de passer au suivant, avec un léger délai pour éviter les 429 (rate-limit).
       const urls = [
-        `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d&range=5d`)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d&range=5d`)}`
+        `https://corsproxy.io/?url=${encodeURIComponent(yahooUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yahooUrl)}`,
+        `https://thingproxy.freeboard.io/fetch/${yahooUrl}`
       ];
 
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
       for (const qUrl of urls) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 6000);
-          const res = await fetch(qUrl, { signal: controller.signal });
-          clearTimeout(timeoutId);
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch(qUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
 
-          if (!res.ok) continue;
-          const data = await res.json();
-          const result = data?.chart?.result?.[0];
-          const meta = result?.meta;
-
-          if (meta) {
-            let price = meta.regularMarketPrice;
-            if ((!price || price === 0) && result?.indicators?.quote?.[0]?.close) {
-              const closes = result.indicators.quote[0].close.filter(p => p !== null && p !== undefined);
-              if (closes.length > 0) price = closes[closes.length - 1];
+            // Un 429 (trop de requêtes) ou 403 sur CE proxy : on retente une fois puis
+            // on passe au proxy suivant plutôt que d'abandonner tout de suite.
+            if (!res.ok) {
+              if ((res.status === 429 || res.status === 403) && attempt === 0) {
+                await sleep(600);
+                continue;
+              }
+              break;
             }
 
-            if (price && price > 0) {
-              return {
-                ticker: clean,
-                name: meta.shortName || meta.longName || meta.symbol || clean,
-                price: parseFloat(price),
-                currency: meta.currency || 'USD',
-                shares: meta.sharesOutstanding || null,
-                logo: logoUrl
-              };
+            const data = await res.json();
+            const result = data?.chart?.result?.[0];
+            const meta = result?.meta;
+
+            if (meta) {
+              let price = meta.regularMarketPrice;
+              if ((!price || price === 0) && result?.indicators?.quote?.[0]?.close) {
+                const closes = result.indicators.quote[0].close.filter(p => p !== null && p !== undefined);
+                if (closes.length > 0) price = closes[closes.length - 1];
+              }
+
+              if (price && price > 0) {
+                return {
+                  ticker: clean,
+                  name: meta.shortName || meta.longName || meta.symbol || clean,
+                  price: parseFloat(price),
+                  currency: meta.currency || 'USD',
+                  shares: meta.sharesOutstanding || null,
+                  logo: logoUrl
+                };
+              }
             }
+            break; // réponse OK mais pas de prix exploitable : proxy suivant
+          } catch (e) {
+            if (attempt === 0) { await sleep(400); continue; }
           }
-        } catch (e) {}
+        }
       }
 
       return { ticker: clean, name: clean, price: null, currency: 'USD', shares: null, logo: logoUrl };
@@ -1807,31 +1866,50 @@
 
     async function refreshMarketData() {
       const assetItems = db.items.filter(i => i.type === 'asset' && (i.ticker || i.name));
-      
-      const fxPromise = fetchUsdEurRate();
-      const stocksPromise = Promise.all(assetItems.map(async (item) => {
-        const querySymbol = item.ticker || item.name;
-        const live = await fetchLiveStockData(querySymbol);
-        if (live && live.price) {
-          item.curPrice = live.price;
-          if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
-          if (live.currency) item.assetCurrency = live.currency.toUpperCase();
-          if (live.logo && !item.isUserCustomImage) {
-            validateAndSetLogo(item, live.logo);
-          }
-          return true;
-        }
-        return false;
-      }));
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-      const [_, results] = await Promise.all([fxPromise, stocksPromise]);
-      const updatedCount = results ? results.filter(Boolean).length : 0;
+      const fxPromise = fetchUsdEurRate();
+
+      // Les proxys CORS gratuits utilisés ici tolèrent mal les rafales : envoyer
+      // toutes les requêtes en une fois (Promise.all) faisait échouer au hasard
+      // certaines lignes (ex: Intel) selon qui se faisait limiter. On traite donc
+      // le portefeuille par petits lots (3 à la fois) avec une courte pause entre
+      // chaque lot, ce qui est beaucoup plus fiable.
+      const BATCH_SIZE = 3;
+      const failedTickers = [];
+      let updatedCount = 0;
+
+      for (let i = 0; i < assetItems.length; i += BATCH_SIZE) {
+        const batch = assetItems.slice(i, i + BATCH_SIZE);
+        const batchResults = await Promise.all(batch.map(async (item) => {
+          const querySymbol = item.ticker || item.name;
+          const live = await fetchLiveStockData(querySymbol);
+          if (live && live.price) {
+            item.curPrice = live.price;
+            if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
+            if (live.currency) item.assetCurrency = live.currency.toUpperCase();
+            if (live.logo && !item.isUserCustomImage) {
+              validateAndSetLogo(item, live.logo);
+            }
+            return true;
+          }
+          failedTickers.push(querySymbol);
+          return false;
+        }));
+        updatedCount += batchResults.filter(Boolean).length;
+        if (i + BATCH_SIZE < assetItems.length) await sleep(500);
+      }
+
+      await fxPromise;
 
       markUnsavedChanges();
       renderTab2();
       renderItemsList();
 
-      showCustomDialog('🔄', 'Marché', `${updatedCount} cours et les icônes de tickers mis à jour en direct !`);
+      const msg = failedTickers.length > 0
+        ? `${updatedCount} cours mis à jour en direct. Échec pour : ${failedTickers.join(', ')} (réessaie dans quelques instants).`
+        : `${updatedCount} cours et les icônes de tickers mis à jour en direct !`;
+      showCustomDialog('🔄', 'Marché', msg);
     }
 
     const STOCK_TIERS = [
