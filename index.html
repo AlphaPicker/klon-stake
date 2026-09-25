@@ -1169,7 +1169,14 @@
       const sym = getCurrencySymbol(curr);
       return new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR').format(Math.round(v || 0)) + ' ' + sym; 
     }
-    function fmtCompact(v) { return new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR', { notation: 'compact' }).format(Math.round(v || 0)); }
+    function fmtCompact(v, curr = db.currency) {
+      const sym = getCurrencySymbol(curr);
+      const formatted = new Intl.NumberFormat(db.lang === 'en' ? 'en-US' : 'fr-FR', {
+       notation: 'compact',
+       maximumFractionDigits: 1
+      }).format(v || 0);
+      return `${formatted} ${sym}`;
+    }
 
     function switchTab(tabId, e) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -2411,12 +2418,12 @@
 
         document.getElementById('m-stock-live-price').innerText = fmt(curP, itemCurr);
         document.getElementById('m-stock-pru').innerText = fmt(item.pru, itemCurr);
-        document.getElementById('m-stock-market-val').innerText = `${fmt(grossValGlobal, db.currency)} (${fmt(grossValOrig, itemCurr)})`;
+        document.getElementById('m-stock-market-val').innerText = `${fmtCompact(grossValGlobal, db.currency)} (${fmtCompact(grossValOrig, itemCurr)})`;
 
         const pvEl = document.getElementById('m-stock-plus-value');
         const pvSign = plusValueOrig >= 0 ? '+' : '';
         const pvColor = plusValueOrig >= 0 ? 'var(--accent-green-bright)' : 'var(--accent-red)';
-        pvEl.innerHTML = `P/L : <strong style="color:${pvColor};">${pvSign}${fmt(plusValueOrig, itemCurr)}</strong>`;
+        pvEl.innerHTML = `P/L : <strong style="color:${pvColor};">${pvSign}${fmtCompact(plusValueOrig, itemCurr)}</strong>`;
 
         const lombardBox = document.getElementById('m-stock-lombard-box');
         if (globalLombardGlobal > 0) {
