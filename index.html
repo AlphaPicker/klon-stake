@@ -759,7 +759,7 @@
             <span>PRU : <strong id="m-stock-pru">0,00 $</strong></span>
           </div>
           <div style="display: flex; justify-content: space-between;">
-            <span>Valeur Brute (<span class="curr-sym">€</span>) : <strong id="m-stock-market-val" style="color: var(--accent-green-bright);">0</strong></span>
+            <span>Valeur Brute : <strong id="m-stock-market-val" style="color: var(--accent-green-bright);">0</strong></span>
             <span id="m-stock-plus-value">P/L : +0</span>
           </div>
           <div id="m-stock-lombard-box" style="margin-top: 6px; font-size: 0.75rem; border-top: 1px dashed var(--border-color); padding-top: 6px; color: var(--accent-yellow);"></div>
@@ -2491,7 +2491,7 @@
 
         document.getElementById('m-stock-live-price').innerText = fmt(curP, itemCurr);
         document.getElementById('m-stock-pru').innerText = fmt(item.pru, itemCurr);
-        document.getElementById('m-stock-market-val').innerText = `${fmtCompact(grossValGlobal, db.currency)} (${fmtCompact(grossValOrig, itemCurr)})`;
+        document.getElementById('m-stock-market-val').innerText = fmt(grossValOrig, itemCurr);
 
         const pvEl = document.getElementById('m-stock-plus-value');
         const pvSign = plusValueOrig >= 0 ? '+' : '';
