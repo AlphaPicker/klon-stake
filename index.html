@@ -173,6 +173,16 @@
       .hero-box-right { border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 10px; }
     }
 
+	  @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spinning {
+      animation: spin 0.8s linear infinite !important;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
     .hero-rewards-toggle-row { display: none; justify-content: center; padding-top: 6px; border-top: 1px solid rgba(240, 136, 62, 0.2); }
     .hero-rewards-toggle-row.has-rewards { display: flex; }
     .rewards-toggle-btn {
@@ -602,7 +612,7 @@
 
               <span class="label" id="lbl-hero-net-worth" data-i18n="hero_net_worth">PATRIMOINE NET RÉEL</span>
 
-              <button class="tooltip-btn" onclick="refreshMarketData()" title="Actualiser les cours & FX">🔄</button>
+              <button class="tooltip-btn" id="btn-refresh-market" onclick="refreshMarketData()" title="Actualiser les cours & FX">🔄</button>
             </div>
             <div class="val" id="hero-net-worth" style="color: var(--accent-green-bright);">0 €</div>
             <div class="sub" id="hero-assets-sub">Actifs Bruts : 0 €</div>
@@ -1901,51 +1911,52 @@
     }
 
     async function refreshMarketData() {
-      const assetItems = db.items.filter(i => i.type === 'asset' && (i.ticker || i.name));
-      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+      const btn = document.getElementById('btn-refresh-market');
+      if (btn) btn.classList.add('spinning');
 
-      const fxPromise = fetchUsdEurRate();
+      try {
+        const assetItems = db.items.filter(i => i.type === 'asset' && (i.ticker || i.name));
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-      // Les proxys CORS gratuits utilisés ici tolèrent mal les rafales : envoyer
-      // toutes les requêtes en une fois (Promise.all) faisait échouer au hasard
-      // certaines lignes (ex: Intel) selon qui se faisait limiter. On traite donc
-      // le portefeuille par petits lots (3 à la fois) avec une courte pause entre
-      // chaque lot, ce qui est beaucoup plus fiable.
-      const BATCH_SIZE = 3;
-      const failedTickers = [];
-      let updatedCount = 0;
+        const fxPromise = fetchUsdEurRate();
+        const BATCH_SIZE = 3;
+        const failedTickers = [];
+        let updatedCount = 0;
 
-      for (let i = 0; i < assetItems.length; i += BATCH_SIZE) {
-        const batch = assetItems.slice(i, i + BATCH_SIZE);
-        const batchResults = await Promise.all(batch.map(async (item) => {
-          const querySymbol = item.ticker || item.name;
-          const live = await fetchLiveStockData(querySymbol);
-          if (live && live.price) {
-            item.curPrice = live.price;
-            if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
-            if (live.currency) item.assetCurrency = live.currency.toUpperCase();
-            if (live.logo && !item.isUserCustomImage) {
-              validateAndSetLogo(item, live.logo);
+        for (let i = 0; i < assetItems.length; i += BATCH_SIZE) {
+          const batch = assetItems.slice(i, i + BATCH_SIZE);
+          const batchResults = await Promise.all(batch.map(async (item) => {
+            const querySymbol = item.ticker || item.name;
+            const live = await fetchLiveStockData(querySymbol);
+            if (live && live.price) {
+              item.curPrice = live.price;
+              if (live.shares && !item.sharesTotal) item.sharesTotal = live.shares;
+              if (live.currency) item.assetCurrency = live.currency.toUpperCase();
+              if (live.logo && !item.isUserCustomImage) {
+                validateAndSetLogo(item, live.logo);
+              }
+              return true;
             }
-            return true;
-          }
-          failedTickers.push(querySymbol);
-          return false;
-        }));
-        updatedCount += batchResults.filter(Boolean).length;
-        if (i + BATCH_SIZE < assetItems.length) await sleep(500);
+            failedTickers.push(querySymbol);
+            return false;
+          }));
+          updatedCount += batchResults.filter(Boolean).length;
+          if (i + BATCH_SIZE < assetItems.length) await sleep(500);
+        }
+
+        await fxPromise;
+
+        markUnsavedChanges();
+        renderTab2();
+        renderItemsList();
+
+        const msg = failedTickers.length > 0
+          ? `${updatedCount} cours mis à jour en direct. Échec pour : ${failedTickers.join(', ')} (réessaie dans quelques instants).`
+          : `${updatedCount} cours et les icônes de tickers mis à jour en direct !`;
+        showCustomDialog('🔄', 'Marché', msg);
+      } finally {
+        if (btn) btn.classList.remove('spinning');
       }
-
-      await fxPromise;
-
-      markUnsavedChanges();
-      renderTab2();
-      renderItemsList();
-
-      const msg = failedTickers.length > 0
-        ? `${updatedCount} cours mis à jour en direct. Échec pour : ${failedTickers.join(', ')} (réessaie dans quelques instants).`
-        : `${updatedCount} cours et les icônes de tickers mis à jour en direct !`;
-      showCustomDialog('🔄', 'Marché', msg);
     }
 
     const STOCK_TIERS = [
@@ -2770,6 +2781,10 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+		document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000); // 👈 Nettoie la mémoire du fichier
 
         db.hasUnsavedChanges = false;
         saveData();
@@ -2796,6 +2811,8 @@
             db = imported;
             db.hasUnsavedChanges = false;
             if (db.liquidityCash === undefined) db.liquidityCash = 0;
+            if (!Array.isArray(db.everUnlockedRewards)) db.everUnlockedRewards = []; // 👈 Sécurité badges
+            if (!Array.isArray(db.cardsOrder)) db.cardsOrder = [];                   // 👈 Sécurité ordre cartes
             saveData();
             document.getElementById('user-name-input').value = db.userName || '';
             document.getElementById('currency-select').value = db.currency || 'EUR';
