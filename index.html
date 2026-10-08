@@ -1468,10 +1468,10 @@
       // individuellement, donc on en propose plusieurs et on retente 2 fois par proxy
       // avant de passer au suivant, avec un léger délai pour éviter les 429 (rate-limit).
       const urls = [
+        `https://mon-worker.ton-pseudo.workers.dev/?ticker=${encodeURIComponent(queryTicker)}`, // 👈 TON WORKER ICI
         `https://corsproxy.io/?url=${encodeURIComponent(yahooUrl)}`,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yahooUrl)}`,
-        `https://thingproxy.freeboard.io/fetch/${yahooUrl}`
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yahooUrl)}`
       ];
 
       const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -2139,8 +2139,8 @@
         </div>
       `;
     }
-
-    function renderPropertyCard(container, item) {
+	
+	function renderPropertyCard(container, item) {
       const netPart = item.valActual - item.debtActual;
       const isNegativeEquity = netPart < 0;
       const ownershipPct = item.valActual > 0 ? Math.max(0, Math.min(100, Math.round((netPart / item.valActual) * 100))) : 0;
@@ -2155,14 +2155,17 @@
        ? `<div class="stake-squircle-avatar" style="background-image: url('${avatarUrl}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
        : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">🔑</div>`;
 
+      // Statut épuré sans doublon
       let statusMsg = isFullOwned
         ? t('full_owned_msg')
         : (isNegativeEquity 
             ? t('neg_equity_msg', { val: fmt(Math.abs(netPart), db.currency) })
-            : (db.lang === 'en' ? `Equity: ${fmt(netPart, db.currency)} (${ownershipPct}%) • Bank: <span style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</span>` : `Part nette : ${fmt(netPart, db.currency)} (${ownershipPct}%) • Banque : <span style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</span>`));
+            : (db.lang === 'en' 
+                ? `Bank loan: <strong style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</strong>` 
+                : `Crédit banque : <strong style="color:var(--accent-yellow);">${fmt(item.debtActual, db.currency)}</strong>`));
 
       container.innerHTML += `
-        <div class="stake-card ${cardClass}" draggable="true" data-id="${item.id}" onclick="openPropertyDetailModal('${item.id}')" title="Détails du bien">
+        <div class="stake-card ${cardClass}" draggable="true" data-id="${item.id}" onclick="openPropertyDetailModal('${item.id}')" title="${db.lang === 'en' ? 'Property details' : 'Détails du bien'}">
           <div class="stake-card-header">
             ${avatarContent}
             <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
@@ -2172,15 +2175,56 @@
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 1rem; font-weight: 800; color: ${isFullOwned ? 'var(--accent-green-bright)' : 'var(--accent-blue)'};">${fmt(netPart, db.currency)}</div>
-                <div style="font-size: 0.72rem; opacity: 0.85;">${ownershipPct} %</div>
+                <div style="font-size: 0.75rem; font-weight: bold; color: ${isFullOwned ? 'var(--accent-green-bright)' : 'var(--text-bright)'};">${ownershipPct} %</div>
               </div>
             </div>
           </div>
-          <div style="font-size: 0.72rem; color: var(--text-main); margin-top: -2px;">
+          <div style="font-size: 0.73rem; color: var(--text-main); margin-top: -2px;">
             ${statusMsg}
           </div>
           <div class="progress-bar-bg">
             <div class="progress-bar-fill ${isFullOwned ? 'success' : (isNegativeEquity ? 'danger' : 'blue')}" style="width: ${ownershipPct}%;"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDebtCard(container, item) {
+      const initial = item.debtInitial || 0;
+      const remaining = item.debtRemaining !== undefined ? item.debtRemaining : Math.max(0, initial - (item.debtRepaid || 0));
+      const repaid = Math.max(0, initial - remaining);
+      const progress = initial > 0 ? Math.min(100, Math.round((repaid / initial) * 100)) : 0;
+      const isFullyRepaid = remaining === 0 && initial > 0;
+
+      const avatarUrl = getItemAvatarUrl(item);
+      let avatarContent = avatarUrl 
+       ? `<div class="stake-squircle-avatar" style="background-image: url('${avatarUrl}');" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();"></div>`
+       : `<div class="stake-squircle-avatar" onclick="event.stopPropagation(); triggerImageUpload('${item.id}')" ontouchstart="event.stopPropagation();">💳</div>`;
+
+      // Statut épuré : affiche le montant remboursé sur le total, sans répéter le pourcentage
+      const subDebtText = isFullyRepaid 
+        ? t('debt_paid_msg') 
+        : (db.lang === 'en' 
+            ? `Repaid: ${fmt(repaid, db.currency)} / ${fmt(initial, db.currency)}` 
+            : `Remboursé : ${fmt(repaid, db.currency)} / ${fmt(initial, db.currency)}`);
+
+      container.innerHTML += `
+        <div class="stake-card pure-debt ${isFullyRepaid ? 'full-owned' : ''}" draggable="true" data-id="${item.id}" onclick="openDebtEncouragementModal('${item.id}')">
+          <div class="stake-card-header">
+            ${avatarContent}
+            <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <strong style="font-size: 0.95rem; color: var(--text-bright);">${item.name}</strong>
+                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">${subDebtText}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 1rem; font-weight: 800; color: ${isFullyRepaid ? 'var(--accent-green-bright)' : 'var(--accent-red)'};">${fmt(remaining, db.currency)}</div>
+                <div style="font-size: 0.75rem; color: var(--text-bright); font-weight: bold;">${progress} %</div>
+              </div>
+            </div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill ${isFullyRepaid ? 'success' : 'danger'}" style="width: ${progress}%;"></div>
           </div>
         </div>
       `;
