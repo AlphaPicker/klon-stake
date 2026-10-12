@@ -1,4 +1,6 @@
 {
+  "id": "/klon-stake/",
+  "scope": "/klon-stake/",
   "name": "KLON Stake",
   "short_name": "KLON Stake",
   "start_url": "./index.html",
