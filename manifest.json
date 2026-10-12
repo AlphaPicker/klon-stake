@@ -1,9 +1,9 @@
 {
-  "id": "/klon-stake/",
-  "scope": "/klon-stake/",
+  "id": "./",
+  "scope": "./",
   "name": "KLON Stake",
   "short_name": "KLON Stake",
-  "start_url": "/klon-stake/index.html",
+  "start_url": "./index.html",
   "display_override": ["fullscreen", "standalone"],
   "display": "fullscreen",
   "background_color": "#0d1117",
