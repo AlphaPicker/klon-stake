@@ -3,7 +3,7 @@
   "scope": "/klon-stake/",
   "name": "KLON Stake",
   "short_name": "KLON Stake",
-  "start_url": "./index.html",
+  "start_url": "/klon-stake/index.html",
   "display_override": ["fullscreen", "standalone"],
   "display": "fullscreen",
   "background_color": "#0d1117",
